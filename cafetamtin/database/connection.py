@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Robertino Mendes Santiago Junior
+# Copyright (C) 2023 Robertino Mendes Santiago Junior
 # 
 # This file is part of CaFE-TaMTIn Approach.
 # 
@@ -15,8 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-pygame
-pony
-PyMySQL
-opencv-python
-imutils
+from decimal import Decimal
+from datetime import datetime
+
+from pony.converting import str2datetime
+from pony.orm import *
+
+import os
+from dotenv import load_dotenv
+
+db = Database()
+#db.bind(
+#    provider = 'mysql',
+#    user = os.getenv('DATABASE_USER'),
+#    password = os.getenv('DATABASE_PASS'),
+#    host = os.getenv('DATABASE_HOST'),
+#    database = os.getenv('DATABASE_SCHEMA')
+#    )

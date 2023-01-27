@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Robertino Mendes Santiago Junior
+# Copyright (C) 2023 Robertino Mendes Santiago Junior
 # 
 # This file is part of CaFE-TaMTIn Approach.
 # 
@@ -15,8 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-pygame
-pony
-PyMySQL
-opencv-python
-imutils
+
+from pony.orm import *
+from database.connection import db
+
+class User(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    name = Required(str)
+    nickname = Required(str)
+    age = Required(int)
+    gender = Required(str)

@@ -70,7 +70,8 @@ class Phase01(State):
     def update(self, delta_time):
         pass
 
-    def draw_lifes(self, display):
+    def draw_lifes(self):
+        display = self.game.game_canvas
         for i in range(0, self.lives):
             heart = self.images['heart']
             heart_rect = heart.get_rect()
@@ -78,7 +79,8 @@ class Phase01(State):
             heart_rect.y = 5
             display.blit(heart, heart_rect)
 
-    def draw_timer(self, display):
+    def draw_timer(self):
+        display = self.game.game_canvas
         timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
         screen_width = self.game.GAME_WIDTH
         time_ms = self.total_time - pygame.time.get_ticks()
@@ -100,7 +102,8 @@ class Phase01(State):
             self.new_challange = True
 
 
-    def draw_score(self, display):
+    def draw_score(self):
+        display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
         font = pygame.font.SysFont(FONT_NAME, 30, False, False)
         score_text = font.render(f'Pontos: {self.score:>4}', True, (0,0,0))
@@ -124,8 +127,6 @@ class Phase01(State):
         challenge_text_rect = challenge_text.get_rect(center=(screen_width/2, 220))
         display.blit(challenge_text, challenge_text_rect)
         
-            
-
     def random_calc(self):
         number1 = random.randrange(self.min_number,self.max_number)
         number2 = random.randrange(self.min_number,self.max_number)
@@ -141,6 +142,14 @@ class Phase01(State):
             result = number1 - number2
         return number1, operator, number2, result
 
+    def draw_student_name(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+
+        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
+        name_text = font.render(self.game.student.nickname, True, (0,0,0))
+        name_text_rect = name_text.get_rect(center=(screen_width/2, screen_height-50))
+        display.blit(name_text, name_text_rect)
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
@@ -149,10 +158,15 @@ class Phase01(State):
 
         display.fill((255,255,255))
 
-        background = self.images['background']
-        display.blit(background, (0,0))
+        if self.lives > 0:
 
-        self.draw_timer(display)
-        self.draw_lifes(display)
-        self.draw_score(display)
-        self.draw_challenge()
+            background = self.images['background']
+            display.blit(background, (0,0))
+
+            self.draw_timer()
+            self.draw_lifes()
+            self.draw_score()
+            self.draw_challenge()
+            self.draw_student_name()
+        else:
+            self.exit_state()

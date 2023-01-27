@@ -18,18 +18,42 @@
 import os, sys
 import getopt
 from game.game import Game
+from pony.orm import *
+from dotenv import load_dotenv
+from database.connection import db
+from database.models.user import User
 
 class Application:
     
     def __init__(self):
         pass
 
+
 def main(argv):
     fullpath = os.path.abspath(argv[0])
     dir = os.path.dirname(fullpath)
     os.chdir(dir)
+
+    load_dotenv(dotenv_path=os.path.join(dir, '.env'))
+
+    db.bind(
+        provider = 'mysql',
+        user = os.getenv('DATABASE_USER'),
+        password = os.getenv('DATABASE_PASS'),
+        host = os.getenv('DATABASE_HOST'),
+        database = os.getenv('DATABASE_SCHEMA')
+        )
+
+    db.generate_mapping(create_tables=True)
+
+    #create_user()
+
     game = Game(False)
     game.loop()
+
+@db_session
+def create_user():
+    user = User(name='Robertino', nickname='Tino', age=41, gender='M')
 
 if __name__ == '__main__':
     main(sys.argv)

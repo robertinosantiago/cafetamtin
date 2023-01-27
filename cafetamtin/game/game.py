@@ -39,6 +39,8 @@ class Game():
         self.dt, self.previous_time = 0, 0
         self.state_stack = []
 
+        self.student = None
+
         #pygame.mouse.set_visible(0)
         pygame.display.set_caption('CaFE-TaMTIn')
 
@@ -60,11 +62,9 @@ class Game():
     def render(self):
         self.state_stack[-1].render(self.game_canvas)
         self.screen.blit(pygame.transform.scale(self.game_canvas, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT)), (0, 0))
-        #pygame.display.flip()
     
     def update(self):
         self.state_stack[-1].update(self.dt)
-
 
     def handle_events(self):
         events = pygame.event.get()

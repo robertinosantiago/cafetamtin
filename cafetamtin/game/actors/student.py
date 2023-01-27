@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Robertino Mendes Santiago Junior
+# Copyright (C) 2023 Robertino Mendes Santiago Junior
 # 
 # This file is part of CaFE-TaMTIn Approach.
 # 
@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-pygame
-pony
-PyMySQL
-opencv-python
-imutils
+class Student:
+    
+    def __init__(self, name, nickname, age, gender):
+        self.name = name
+        self.nickname = nickname
+        self.age = age
+        self.gender = gender

@@ -21,6 +21,10 @@ from game.states.state import State
 from game.states.phase01 import Phase01
 from utils.text_input import TextInputVisualizer
 from utils.text_input import TextInputManager
+from game.actors.student import Student
+
+from pony.orm import *
+from database.models.user import User
 
 
 from game import BACKGROUND_COLOR
@@ -35,7 +39,8 @@ class NewPlayer(State):
         self.menu_selection = 0
         manager = TextInputManager(validator= lambda input: len(input) <= 3)
         self.input_number_player = TextInputVisualizer(manager=manager)
-        self.error_message = False
+        self.error_message = ''
+        self.show_error_message = False
     
     def is_empty_input(self):
         return len(self.input_number_player.value) == 0
@@ -53,12 +58,22 @@ class NewPlayer(State):
                 if event.key == pygame.K_RETURN:
                     if self.menu_selection == 0:
                         if self.is_empty_input():
-                            self.error_message = True
+                            self.show_error_message = True
+                            self.error_message = 'Campo obrigatório'
                         else:
-                            self.error_message = False
-                            self.input_number_player.value = ''
-                            new_state = Phase01(self.game)
-                            new_state.enter_state()
+                            try:
+                                self.load_user(int(self.input_number_player.value))
+                                self.show_error_message = False
+                                self.input_number_player.value = ''
+                                new_state = Phase01(self.game)
+                                new_state.enter_state()
+                            except ObjectNotFound:
+                                self.show_error_message = True
+                                self.error_message = 'Código de estudante inválido'
+                            except ValueError:
+                                self.show_error_message = True
+                                self.error_message = 'Código de estudante inválido'
+                                
                     if self.menu_selection == 1:
                         self.exit_state()
                 
@@ -67,6 +82,13 @@ class NewPlayer(State):
 
     def update(self, delta_time):
         pass
+    
+    @db_session
+    def load_user(self, user_id):
+        if user_id:
+            user = User[user_id]
+            student = Student(user.name, user.nickname, user.age, user.gender)
+            self.game.student = student
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
@@ -81,9 +103,9 @@ class NewPlayer(State):
 
         display.blit(self.input_number_player.surface, (screen_width/2-self.input_number_player.surface.get_width()/2,screen_height/2 - 60))
 
-        text_error_number = font.render('Campo obrigatório', True, ERROR_COLOR)
-        text_error_number_rect = text_error_number.get_rect(center=(screen_width/2, screen_height/2 - 10))
-        if self.error_message:        
+        if self.show_error_message:        
+            text_error_number = font.render(self.error_message, True, ERROR_COLOR)
+            text_error_number_rect = text_error_number.get_rect(center=(screen_width/2, screen_height/2 - 10))
             display.blit(text_error_number, text_error_number_rect)
     
         for index, item in enumerate(self.menu_items):
