@@ -43,7 +43,7 @@ class Menu(State):
                 if event.key == pygame.K_ESCAPE:
                     self.exit_game()
                     
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN or event.key == 1073741912:
                     if self.menu_selection == 0:
                         new_state = NewPlayer(self.game)
                         new_state.enter_state()

@@ -41,7 +41,7 @@ class Configuration(State):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.exit_state()
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_RETURN or event.key == 1073741912:
                     if self.menu_selection == 0:
                         self.exit_state()
 
