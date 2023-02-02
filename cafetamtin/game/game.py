@@ -39,6 +39,9 @@ class Game():
         self.dt, self.previous_time = 0, 0
         self.state_stack = []
 
+        self.camera_student = None
+        self.camera_board = None
+
         self.student = None
 
         #pygame.mouse.set_visible(0)

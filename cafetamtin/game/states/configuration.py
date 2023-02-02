@@ -21,7 +21,6 @@ from game import TEXT_COLOR
 from game import FONT_NAME
 
 from game.states.state import State
-from utils.webcam import Webcam
 
 class Configuration(State):
 
@@ -29,7 +28,7 @@ class Configuration(State):
         super().__init__(game)
         self.menu_items = ['Voltar']
         self.menu_selection = 0
-        self.webcam = Webcam(0)
+        
 
     def handle_events(self, events):
         for event in events:
@@ -40,9 +39,13 @@ class Configuration(State):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    self.game.camera_student.release()
+                    self.game.camera_board.release()
                     self.exit_state()
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
                     if self.menu_selection == 0:
+                        self.game.camera_student.release()
+                        self.game.camera_board.release()
                         self.exit_state()
 
     def update(self, delta_time):
@@ -56,14 +59,18 @@ class Configuration(State):
         display.fill(BACKGROUND_COLOR)
 
         title_config = font.render('Configurações', True, TEXT_COLOR)
-        title_config_rect = title_config.get_rect(center=(screen_width/2, 10))
+        title_config_rect = title_config.get_rect(center=(screen_width/2, 20))
         display.blit(title_config, title_config_rect)
 
-        text_webcam_aprendiz = font.render('Webcam Aprendiz', True, TEXT_COLOR)
-        text_webcam_aprendiz_rect = text_webcam_aprendiz.get_rect(center=(120, 25))
-        display.blit(text_webcam_aprendiz, text_webcam_aprendiz_rect)
+        text_webcam_student = font.render('Webcam Aprendiz', True, TEXT_COLOR)
+        text_webcam_student_rect = text_webcam_student.get_rect(center=(120, 35))
+        display.blit(text_webcam_student, text_webcam_student_rect)
+        display.blit(self.game.camera_student.get_image(), (30,50))
 
-        display.blit(self.webcam.get_image(), (30,35))
+        text_webcam_board = font.render('Webcam Tabuleiro', True, TEXT_COLOR)
+        text_webcam_board_rect = text_webcam_board.get_rect(center=(screen_width-260, 35))
+        display.blit(text_webcam_board, text_webcam_board_rect)
+        display.blit(self.game.camera_board.get_image(), (screen_width-320-30,50))
     
         for index, item in enumerate(self.menu_items):
             button = font.render('>>'+item+'<<' if index == self.menu_selection else item, True, TEXT_COLOR)

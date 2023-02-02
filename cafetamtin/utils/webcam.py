@@ -28,7 +28,9 @@ class Webcam:
 
     
     def get_image(self, width = 320, height = 240):
-        
+        if not self.camera.isOpened():
+            self.camera.open(self.cam_number)
+            
         success, image = self.camera.read()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = imutils.resize(image, width=width)
@@ -38,3 +40,7 @@ class Webcam:
             buffer = pygame.image.frombuffer(image.tostring(), image.shape[1::-1], "RGB")
 
         return buffer
+    
+    def release(self):
+        self.camera.grab()
+        self.camera.release()

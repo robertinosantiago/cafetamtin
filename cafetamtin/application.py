@@ -22,6 +22,7 @@ from pony.orm import *
 from dotenv import load_dotenv
 from database.connection import db
 from database.models.user import User
+from utils.webcam import Webcam
 
 class Application:
     
@@ -49,6 +50,12 @@ def main(argv):
     #create_user()
 
     game = Game(False)
+
+    print(os.getenv('INDEX_CAMERA_STUDENT'))
+    print(os.getenv('INDEX_CAMERA_BOARD'))
+
+    game.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')))
+    game.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')))
     game.loop()
 
 @db_session
