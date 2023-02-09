@@ -23,12 +23,16 @@ from dotenv import load_dotenv
 from database.connection import db
 from database.models.user import User
 from utils.webcam import Webcam
+from board.board import Board
 
 class Application:
     
     def __init__(self):
-        pass
-
+        self.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=270)
+        self.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=180)
+        
+        self.game = Game(self, False)
+        self.board = Board(self)
 
 def main(argv):
     fullpath = os.path.abspath(argv[0])
@@ -49,10 +53,9 @@ def main(argv):
 
     #create_user()
 
-    game = Game(False)
-    game.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=270)
-    game.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=180)
-    game.loop()
+    app = Application()
+    
+    app.game.loop()
 
 @db_session
 def create_user():

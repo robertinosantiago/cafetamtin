@@ -39,13 +39,13 @@ class Configuration(State):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.game.camera_student.release()
-                    self.game.camera_board.release()
+                    self.game.app.camera_student.release()
+                    self.game.app.camera_board.release()
                     self.exit_state()
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
                     if self.menu_selection == 0:
-                        self.game.camera_student.release()
-                        self.game.camera_board.release()
+                        self.game.app.camera_student.release()
+                        self.game.app.camera_board.release()
                         self.exit_state()
 
     def update(self, delta_time):
@@ -65,12 +65,12 @@ class Configuration(State):
         text_webcam_student = font.render('Webcam Aprendiz', True, TEXT_COLOR)
         text_webcam_student_rect = text_webcam_student.get_rect(center=(120, 35))
         display.blit(text_webcam_student, text_webcam_student_rect)
-        display.blit(self.game.camera_student.get_image(), (30,50))
+        display.blit(self.game.app.camera_student.get_image(), (30,50))
 
         text_webcam_board = font.render('Webcam Tabuleiro', True, TEXT_COLOR)
         text_webcam_board_rect = text_webcam_board.get_rect(center=(screen_width-260, 35))
         display.blit(text_webcam_board, text_webcam_board_rect)
-        display.blit(self.game.camera_board.get_image(), (screen_width-320-30,50))
+        display.blit(self.game.app.camera_board.get_image(), (screen_width-320-30,50))
     
         for index, item in enumerate(self.menu_items):
             button = font.render('>>'+item+'<<' if index == self.menu_selection else item, True, TEXT_COLOR)

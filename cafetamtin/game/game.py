@@ -26,11 +26,14 @@ from utils.webcam import Webcam
 
 class Game():
     
-    def __init__(self, fullscreen):
+    def __init__(self, app, fullscreen):
         pygame.init()
         flags = pygame.DOUBLEBUF
         if fullscreen:
             flags |= pygame.FULLSCREEN
+
+        self.app = app
+
         self.GAME_WIDTH, self.GAME_HEIGHT = 960, 540
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 960, 540
         self.game_canvas = pygame.Surface((self.GAME_WIDTH, self.GAME_HEIGHT))
@@ -39,15 +42,11 @@ class Game():
         self.dt, self.previous_time = 0, 0
         self.state_stack = []
 
-        self.camera_student = None
-        self.camera_board = None
-
         self.student = None
 
         #pygame.mouse.set_visible(0)
         pygame.display.set_caption('CaFE-TaMTIn')
 
-        #self.camera = Webcam(1)
         self.clock = pygame.time.Clock()
         self.dt = self.clock.tick(60)
 
