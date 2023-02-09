@@ -50,8 +50,8 @@ def main(argv):
     #create_user()
 
     game = Game(False)
-    game.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')))
-    game.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')))
+    game.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=270)
+    game.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=180)
     game.loop()
 
 @db_session

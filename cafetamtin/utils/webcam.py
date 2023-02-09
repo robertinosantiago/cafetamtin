@@ -22,9 +22,10 @@ import pygame
 
 class Webcam:
 
-    def __init__(self, cam_number):
+    def __init__(self, cam_number, angle_rotation):
         self.cam_number = cam_number
         self.camera = cv2.VideoCapture(cam_number)
+        self.angle_rotation = angle_rotation
 
     
     def get_image(self, width = 320, height = 240):
@@ -33,7 +34,8 @@ class Webcam:
             
         success, image = self.camera.read()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        image = cv2.rotate(image, cv2.ROTATE_180)
+        image = imutils.rotate(image, self.angle_rotation)
+        #image = cv2.rotate(image, cv2.ROTATE_180)
         image = imutils.resize(image, width=width)
         buffer = None
         
