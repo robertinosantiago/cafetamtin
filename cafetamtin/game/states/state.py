@@ -16,11 +16,15 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import pygame
+from gpiozero import Button
 
 class State():
     def __init__(self, game):
         self.game = game
         self.previous_state = None
+        #self.buttonUp = Button(3)
+        #self.buttonDown = Button(4)
+        #self.buttonOk = Button(2)
 
     def update(self, delta_time):
         pass

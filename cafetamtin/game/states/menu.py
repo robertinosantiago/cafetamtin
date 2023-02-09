@@ -33,6 +33,8 @@ class Menu(State):
         self.menu_selection = 0
     
     def handle_events(self, events):
+#        self.buttonUp.when_pressed = self.buttonUpChanged
+
         for event in events:
             if event.type == pygame.QUIT:
                 self.exit_game()
@@ -55,6 +57,18 @@ class Menu(State):
                         new_state.enter_state()
                     if self.menu_selection == 3:
                         self.exit_game()
+
+    def buttonUpChanged(self):
+        if self.menu_selection == 0:
+            self.menu_selection = len(self.menu_items)-1
+        else:
+            self.menu_selection -= 1
+
+    def buttonDownChanged(self):
+        pass
+
+    def buttonOkChanged(self):
+        pass
 
     def exit_game(self):
         self.game.playning = False

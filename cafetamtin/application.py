@@ -50,10 +50,6 @@ def main(argv):
     #create_user()
 
     game = Game(False)
-
-    print(os.getenv('INDEX_CAMERA_STUDENT'))
-    print(os.getenv('INDEX_CAMERA_BOARD'))
-
     game.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')))
     game.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')))
     game.loop()

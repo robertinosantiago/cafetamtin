@@ -33,6 +33,7 @@ class Webcam:
             
         success, image = self.camera.read()
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        image = cv2.rotate(image, cv2.ROTATE_180)
         image = imutils.resize(image, width=width)
         buffer = None
         
