@@ -21,53 +21,64 @@ from game.states.state import State
 from game.states.about import About
 from game.states.configuration import Configuration
 from game.states.new_player import NewPlayer
+from game.states.menu_mixin import MenuMixin
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
 from game import FONT_NAME
 
-class Menu(State):
+class Menu(MenuMixin, State):
     def __init__(self, game):
         super().__init__(game) # or  State.__init__(self, game)
         self.menu_items = ['Novo jogo', 'Configurações', 'Sobre', 'Sair']
         self.menu_selection = 0
     
     def handle_events(self, events):
-#        self.buttonUp.when_pressed = self.buttonUpChanged
+        self.game.app.physical_buttons.white_button.when_pressed = self.buttonUpChanged
+        self.game.app.physical_buttons.black_button.when_pressed = self.buttonDownChanged
+        self.game.app.physical_buttons.green_button.when_pressed = self.buttonOkChanged
+        self.game.app.physical_buttons.red_button.when_pressed = self.buttonPauseChanged
 
         for event in events:
             if event.type == pygame.QUIT:
                 self.exit_game()
 
-            self.menu_selection = super().menu_selection(event, self.menu_items, self.menu_selection)
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.exit_game()
+                
+                if event.key == pygame.K_UP:
+                    self.menu_selection =  self.move_menu_up(self.menu_items, self.menu_selection)
+
+                if event.key == pygame.K_DOWN:
+                    self.menu_selection = self.move_menu_down(self.menu_items, self.menu_selection)
                     
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
-                    if self.menu_selection == 0:
-                        new_state = NewPlayer(self.game)
-                        new_state.enter_state()
-                    if self.menu_selection == 1:
-                        new_state = Configuration(self.game)
-                        new_state.enter_state()
-                    if self.menu_selection == 2:
-                        new_state = About(self.game)
-                        new_state.enter_state()
-                    if self.menu_selection == 3:
-                        self.exit_game()
+                    self.execute_action_menu()
 
-    def buttonUpChanged(self):
+    def execute_action_menu(self):
         if self.menu_selection == 0:
-            self.menu_selection = len(self.menu_items)-1
-        else:
-            self.menu_selection -= 1
+            new_state = NewPlayer(self.game)
+            new_state.enter_state()
+        if self.menu_selection == 1:
+            new_state = Configuration(self.game)
+            new_state.enter_state()
+        if self.menu_selection == 2:
+            new_state = About(self.game)
+            new_state.enter_state()
+        if self.menu_selection == 3:
+            self.exit_game()
+    
+    def buttonUpChanged(self):
+        self.menu_selection = self.move_menu_up(self.menu_items, self.menu_selection)
 
     def buttonDownChanged(self):
-        pass
+        self.menu_selection = self.move_menu_down(self.menu_items, self.menu_selection)
 
     def buttonOkChanged(self):
+        self.execute_action_menu()
+    
+    def buttonPauseChanged(self):
         pass
 
     def exit_game(self):
@@ -76,7 +87,6 @@ class Menu(State):
 
     def update(self, delta_time):
         pass
-
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)

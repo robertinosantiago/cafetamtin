@@ -42,18 +42,3 @@ class State():
     
     def exit_state(self):
         self.game.state_stack.pop()
-
-    def menu_selection (self, event, menu_items, menu_selection):
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                if menu_selection == 0:
-                    menu_selection = len(menu_items)-1
-                else:
-                    menu_selection -= 1
-
-            if event.key == pygame.K_DOWN:
-                if menu_selection >= len(menu_items)-1:
-                    menu_selection = 0
-                else:
-                    menu_selection += 1
-        return menu_selection

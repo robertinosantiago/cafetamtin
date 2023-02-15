@@ -21,8 +21,9 @@ from game import TEXT_COLOR
 from game import FONT_NAME
 
 from game.states.state import State
+from game.states.menu_mixin import MenuMixin
 
-class Configuration(State):
+class Configuration(MenuMixin, State):
 
     def __init__(self, game):
         super().__init__(game)
@@ -31,22 +32,48 @@ class Configuration(State):
         
 
     def handle_events(self, events):
+        self.game.app.physical_buttons.white_button.when_pressed = self.buttonUpChanged
+        self.game.app.physical_buttons.black_button.when_pressed = self.buttonDownChanged
+        self.game.app.physical_buttons.green_button.when_pressed = self.buttonOkChanged
+        self.game.app.physical_buttons.red_button.when_pressed = self.buttonPauseChanged
+
         for event in events:
             if event.type == pygame.QUIT:
                 self.exit_state()
 
-            self.menu_selection = super().menu_selection(event, self.menu_items, self.menu_selection)
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.game.app.camera_student.release()
-                    self.game.app.camera_board.release()
                     self.exit_state()
+
+                if event.key == pygame.K_UP:
+                    self.menu_selection =  self.move_menu_up(self.menu_items, self.menu_selection)
+
+                if event.key == pygame.K_DOWN:
+                    self.menu_selection = self.move_menu_down(self.menu_items, self.menu_selection)
+
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
-                    if self.menu_selection == 0:
-                        self.game.app.camera_student.release()
-                        self.game.app.camera_board.release()
-                        self.exit_state()
+                    self.execute_action_menu()
+
+    def exit_state(self):
+        super().exit_state()
+        self.game.app.camera_student.release()
+        self.game.app.camera_board.release()
+
+    def execute_action_menu(self):
+        if self.menu_selection == 0:
+            self.exit_state()
+
+    def buttonUpChanged(self):
+        self.menu_selection = self.move_menu_up(self.menu_items, self.menu_selection)
+
+    def buttonDownChanged(self):
+        self.menu_selection = self.move_menu_down(self.menu_items, self.menu_selection)
+
+    def buttonOkChanged(self):
+        self.execute_action_menu()
+    
+    def buttonPauseChanged(self):
+        pass
 
     def update(self, delta_time):
         pass

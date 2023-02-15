@@ -24,15 +24,17 @@ from database.connection import db
 from database.models.user import User
 from utils.webcam import Webcam
 from board.board import Board
+from board.physical_buttons import PhysicalButtons
 
 class Application:
     
     def __init__(self):
-        self.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=270)
-        self.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=180)
+        self.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=180)
+        self.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=270)
         
         self.game = Game(self, False)
         self.board = Board(self)
+        self.physical_buttons = PhysicalButtons()
 
 def main(argv):
     fullpath = os.path.abspath(argv[0])
@@ -55,6 +57,25 @@ def main(argv):
 
     app = Application()
     
+    '''
+    app.board.define_left_limits()
+    app.board.define_right_limits()
+    app.board.calculate_limits()
+    app.board.define_centers()
+    app.board.draw_matrix_board()
+    
+    while True:
+        print('Posicione as peças no tabuleiro e pressione ENTER')
+        input()
+
+
+        app.board.avaliable_board()
+        app.board.draw_matrix_board()
+
+        print("Continuar? (S/N): ", end='')
+        entrada = input()
+        if (entrada.upper() == 'N'): break
+    '''
     app.game.loop()
 
 @db_session

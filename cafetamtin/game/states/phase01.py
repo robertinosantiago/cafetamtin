@@ -59,6 +59,11 @@ class Phase01(State):
         }
 
     def handle_events(self, events):
+        self.game.app.physical_buttons.white_button.when_pressed = self.button_tips_changed
+        self.game.app.physical_buttons.black_button.when_pressed = self.button_abort_changed
+        self.game.app.physical_buttons.green_button.when_pressed = self.button_respond_changed
+        self.game.app.physical_buttons.red_button.when_pressed = self.button_pause_changed
+
         for event in events:
             if event.type == pygame.QUIT:
                 self.exit_state()
@@ -69,6 +74,19 @@ class Phase01(State):
 
     def update(self, delta_time):
         pass
+
+    def button_pause_changed(self):
+        pass
+
+    def button_respond_changed(self):
+        pass
+
+    def button_tips_changed(self):
+        pass
+
+    def button_abort_changed(self):
+        pass
+
 
     def draw_lifes(self):
         display = self.game.game_canvas

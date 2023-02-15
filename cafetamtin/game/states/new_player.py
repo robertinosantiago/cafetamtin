@@ -18,6 +18,7 @@
 import pygame
 
 from game.states.state import State
+from game.states.menu_mixin import MenuMixin
 from game.states.phase01 import Phase01
 from utils.text_input import TextInputVisualizer
 from utils.text_input import TextInputManager
@@ -32,7 +33,7 @@ from game import TEXT_COLOR
 from game import ERROR_COLOR
 from game import FONT_NAME
 
-class NewPlayer(State):
+class NewPlayer(MenuMixin, State):
     def __init__(self, game):
         super().__init__(game) # or  State.__init__(self, game)
         self.menu_items = ['Avançar', 'Voltar']
@@ -46,39 +47,63 @@ class NewPlayer(State):
         return len(self.input_number_player.value) == 0
 
     def handle_events(self, events):
+        self.game.app.physical_buttons.white_button.when_pressed = self.buttonUpChanged
+        self.game.app.physical_buttons.black_button.when_pressed = self.buttonDownChanged
+        self.game.app.physical_buttons.green_button.when_pressed = self.buttonOkChanged
+        self.game.app.physical_buttons.red_button.when_pressed = self.buttonPauseChanged
+
         for event in events:
             if event.type == pygame.QUIT:
                 self.exit_state()
 
-            self.menu_selection = super().menu_selection(event, self.menu_items, self.menu_selection)
-
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.exit_state()
+
+                if event.key == pygame.K_UP:
+                    self.menu_selection =  self.move_menu_up(self.menu_items, self.menu_selection)
+
+                if event.key == pygame.K_DOWN:
+                    self.menu_selection = self.move_menu_down(self.menu_items, self.menu_selection)
+
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
-                    if self.menu_selection == 0:
-                        if self.is_empty_input():
-                            self.show_error_message = True
-                            self.error_message = 'Campo obrigatório'
-                        else:
-                            try:
-                                self.load_user(int(self.input_number_player.value))
-                                self.show_error_message = False
-                                self.input_number_player.value = ''
-                                new_state = Phase01(self.game)
-                                new_state.enter_state()
-                            except ObjectNotFound:
-                                self.show_error_message = True
-                                self.error_message = 'Código de estudante inválido'
-                            except ValueError:
-                                self.show_error_message = True
-                                self.error_message = 'Código de estudante inválido'
-                                
-                    if self.menu_selection == 1:
-                        self.exit_state()
-                
+                    self.execute_action_menu() 
             
         self.input_number_player.update(events)
+
+    def execute_action_menu(self):
+        if self.menu_selection == 0:
+            if self.is_empty_input():
+                self.show_error_message = True
+                self.error_message = 'Campo obrigatório'
+            else:
+                try:
+                    self.load_user(int(self.input_number_player.value))
+                    self.show_error_message = False
+                    self.input_number_player.value = ''
+                    new_state = Phase01(self.game)
+                    new_state.enter_state()
+                except ObjectNotFound:
+                    self.show_error_message = True
+                    self.error_message = 'Código de estudante inválido'
+                except ValueError:
+                    self.show_error_message = True
+                    self.error_message = 'Código de estudante inválido'
+                    
+        if self.menu_selection == 1:
+            self.exit_state()
+
+    def buttonUpChanged(self):
+        self.menu_selection = self.move_menu_up(self.menu_items, self.menu_selection)
+
+    def buttonDownChanged(self):
+        self.menu_selection = self.move_menu_down(self.menu_items, self.menu_selection)
+
+    def buttonOkChanged(self):
+        self.execute_action_menu()
+    
+    def buttonPauseChanged(self):
+        pass
 
     def update(self, delta_time):
         pass

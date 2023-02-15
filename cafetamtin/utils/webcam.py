@@ -18,7 +18,7 @@
 import cv2
 import imutils
 import pygame
-
+import numpy as np
 
 class Webcam:
 
@@ -42,6 +42,28 @@ class Webcam:
             buffer = pygame.image.frombuffer(image.tostring(), image.shape[1::-1], "RGB")
 
         return buffer
+
+    def take_picture(self, delay=30):
+        print(self.cam_number)
+        if not self.camera.isOpened():
+            self.camera.open(self.cam_number)
+            
+        for i in range(delay):
+            temp = self.camera.read()
+        success, image = self.camera.read()
+
+        image = imutils.rotate(image, self.angle_rotation)
+        image = imutils.resize(image, width=640)
+        cv2.imwrite('color.jpg', image)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        blurred = cv2.GaussianBlur(gray, (3, 3), cv2.BORDER_DEFAULT)
+        edged = cv2.Canny(blurred, 100, 200, 5)
+        thresh = cv2.adaptiveThreshold(edged, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 25)
+        erode = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, np.array((3, 3)))
+
+        self.release()
+        cv2.imwrite('black.jpg', erode)
+        return erode
     
     def release(self):
         self.camera.grab()
