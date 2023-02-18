@@ -15,8 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-pygame
-pony
-PyMySQL
-opencv-python
-imutils
+gpiozero==1.6.2
+imutils==0.5.4
+numpy==1.24.2
+opencv-python==4.7.0.68
+pony==0.7.16
+pygame==2.1.3
+PyMySQL==1.0.2
+python-dotenv==0.21.1
+RPi.GPIO==0.7.1
