@@ -34,9 +34,9 @@ class Game():
 
         self.app = app
 
-        self.GAME_WIDTH, self.GAME_HEIGHT = 960, 540
-        self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 960, 540
-        self.game_canvas = pygame.Surface((self.GAME_WIDTH, self.GAME_HEIGHT))
+        self.GAME_WIDTH, self.GAME_HEIGHT = 960, 586
+        self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 960, 586
+        self.game_canvas = pygame.Surface((self.GAME_WIDTH, self.GAME_HEIGHT), pygame.SRCALPHA)
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), flags)
         self.running, self.playning = True, True
         self.dt, self.previous_time = 0, 0

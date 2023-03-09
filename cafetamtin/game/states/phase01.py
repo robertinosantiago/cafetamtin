@@ -24,13 +24,19 @@ import random
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
 from game import FONT_NAME
+from game import WHITE, BLACK, RED, GREEN
 
 from game.states.state import State
+from game.actors.teacher import Teacher
 
 class Phase01(State):
     
     def __init__(self, game):
         super().__init__(game)
+
+        self.teacher = Teacher(self.game.game_canvas)
+        self.show_teacher = False
+
         self.menu_items = ['Voltar']
         self.menu_selection = 0
 
@@ -51,18 +57,23 @@ class Phase01(State):
         self.time_hms = 0, 0, 0
         self.total_time = self.start_time + self.total_seconds*1000
 
+        self.enable_timer = False
+        self.is_paused = False
+
 
     def load_images(self):
         return {
-            'background': pygame.image.load(os.path.join("images", "classroom_background.png")),
+            'background': pygame.image.load(os.path.join("images", "classroom-background.png")),
             'heart': pygame.image.load(os.path.join("images", "heart.png")),
+            'table': pygame.image.load(os.path.join("images", "table.png")),
+            'student-desk': pygame.image.load(os.path.join("images", "student-desk.png")),
         }
 
     def handle_events(self, events):
-        self.game.app.physical_buttons.white_button.when_pressed = self.button_tips_changed
+        self.game.app.physical_buttons.white_button.when_pressed = self.button_pause_changed
         self.game.app.physical_buttons.black_button.when_pressed = self.button_abort_changed
         self.game.app.physical_buttons.green_button.when_pressed = self.button_respond_changed
-        self.game.app.physical_buttons.red_button.when_pressed = self.button_pause_changed
+        self.game.app.physical_buttons.red_button.when_pressed = self.button_tips_changed
 
         for event in events:
             if event.type == pygame.QUIT:
@@ -76,13 +87,26 @@ class Phase01(State):
         pass
 
     def button_pause_changed(self):
-        pass
+        if self.show_teacher:
+            return
+        
+        if self.is_paused:
+            self.is_paused = False
+        else:
+            self.is_paused = True
 
     def button_respond_changed(self):
         pass
 
     def button_tips_changed(self):
-        pass
+        if self.is_paused:
+            return 
+        
+        if self.show_teacher:
+            self.show_teacher = False
+        else:
+            self.teacher.set_message("Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.\nLorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.")
+            self.show_teacher = True
 
     def button_abort_changed(self):
         pass
@@ -96,6 +120,29 @@ class Phase01(State):
             heart_rect.x = 10 + 50 * i
             heart_rect.y = 5
             display.blit(heart, heart_rect)
+
+    def draw_physical_buttons(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        baseline_text = screen_height - 35
+        baseline_circle = screen_height - 23
+        
+
+        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
+
+        pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
+        white_text = font.render("Pausar", True, (0,0,0))
+        display.blit(white_text, (35, baseline_text))
+
+        pygame.draw.circle(display,RED,(130,baseline_circle),10)
+        red_text = font.render("Dicas", True, (0,0,0))
+        display.blit(red_text, (145, baseline_text))
+
+        pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
+        green_text = font.render("Responder", True, (0,0,0))
+        display.blit(green_text, (235, baseline_text))
+
+
 
     def draw_timer(self):
         display = self.game.game_canvas
@@ -163,11 +210,52 @@ class Phase01(State):
     def draw_student_name(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        baseline_text = screen_height - 23
 
-        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
+        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
         name_text = font.render(self.game.student.nickname, True, (0,0,0))
-        name_text_rect = name_text.get_rect(center=(screen_width/2, screen_height-50))
+        name_text_rect = name_text.get_rect(midright=(screen_width-5, baseline_text))
         display.blit(name_text, name_text_rect)
+
+    def draw_table(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+
+        table = self.images['table']
+        table_rect = table.get_rect(center=(screen_width/2, 410))
+        display.blit(table, table_rect)
+
+    def draw_student_desk(self, quantity = 4):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        student_desk = self.images['student-desk']
+
+        point_start = 160
+        x_coordenate = []
+        if (quantity == 1):
+            x_coordenate = [160]
+        elif (quantity == 2):
+            x_coordenate = [160, 580]
+        else:
+            x_coordenate = [-80, 160, 590, 830]
+
+        for x in x_coordenate:
+            student_desk_rect = student_desk.get_rect(topleft=(x,380))
+            display.blit(student_desk, student_desk_rect)
+
+    def draw_pause(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+                
+        rect_background = (0,0,screen_width,screen_height)
+        shape_surf = pygame.Surface(pygame.Rect(rect_background).size, pygame.SRCALPHA)
+        pygame.draw.rect(shape_surf, (0,0,0,230), shape_surf.get_rect())
+        display.blit(shape_surf, rect_background)
+
+        font = pygame.font.SysFont(FONT_NAME, 72, False, False)
+        instruction_text = font.render('Pause', True, (220,220,220))
+        instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
+        display.blit(instruction_text, instruction_text_rect)
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
@@ -180,11 +268,21 @@ class Phase01(State):
 
             background = self.images['background']
             display.blit(background, (0,0))
-
-            self.draw_timer()
+            self.draw_table()
+            self.draw_student_desk()
             self.draw_lifes()
             self.draw_score()
             self.draw_challenge()
             self.draw_student_name()
+            self.draw_physical_buttons()
+
+            if self.enable_timer:
+                self.draw_timer()
+
+            if self.show_teacher:
+                self.teacher.draw()
+
+            if self.is_paused:
+                self.draw_pause()
         else:
             self.exit_state()
