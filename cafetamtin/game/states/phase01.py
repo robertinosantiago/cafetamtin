@@ -28,12 +28,14 @@ from game import WHITE, BLACK, RED, GREEN
 
 from game.states.state import State
 from game.actors.teacher import Teacher
+from board.board import Board
 
 class Phase01(State):
     
     def __init__(self, game):
         super().__init__(game)
 
+        self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
 
@@ -96,7 +98,18 @@ class Phase01(State):
             self.is_paused = True
 
     def button_respond_changed(self):
-        pass
+        if self.show_teacher:
+            return
+
+        if self.is_paused:
+            return
+        
+        self.teacher.set_message("Verificando...", "neutral0")
+        self.show_teacher = True
+
+        self.board.avaliable_board()
+        self.board.draw_matrix_board()
+        self.check_challenge()
 
     def button_tips_changed(self):
         if self.is_paused:
@@ -111,6 +124,25 @@ class Phase01(State):
     def button_abort_changed(self):
         pass
 
+
+    def check_challenge(self):
+        numbers = self.board.result_matrix_board()
+        if len(numbers) == 1:
+            if numbers[0] == self.challange[3]:
+                emotions = ['happy0', 'happy1', 'happy2', 'heart0']
+                self.teacher.set_message("Parabéns!!!\nVocê acertou.", emotions[random.randrange(0,len(emotions))])
+                self.show_teacher = True
+                self.score += 5
+                self.new_challange = True
+            else:
+                self.teacher.set_message("Ops. Não era esse o resultado.\nVamos tentar novamente?", "neutral0")
+                self.show_teacher = True
+                self.lives -= 1
+
+        if len(numbers) == 2:
+            self.teacher.set_message("Atenção. Você deve informar\no resultado da operação.", "neutral1")
+            self.show_teacher = True
+            self.lives -= 1
 
     def draw_lifes(self):
         display = self.game.game_canvas
@@ -127,22 +159,20 @@ class Phase01(State):
         baseline_text = screen_height - 35
         baseline_circle = screen_height - 23
         
-
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-
-        pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
-        white_text = font.render("Pausar", True, (0,0,0))
-        display.blit(white_text, (35, baseline_text))
-
+        
         pygame.draw.circle(display,RED,(130,baseline_circle),10)
-        red_text = font.render("Dicas", True, (0,0,0))
+        red_text = font.render("Dicas" if not self.show_teacher else "Fechar", True, (0,0,0))
         display.blit(red_text, (145, baseline_text))
 
-        pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
-        green_text = font.render("Responder", True, (0,0,0))
-        display.blit(green_text, (235, baseline_text))
+        if not self.show_teacher:
+            pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
+            white_text = font.render("Pausar", True, (0,0,0))
+            display.blit(white_text, (35, baseline_text))
 
-
+            pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
+            green_text = font.render("Responder", True, (0,0,0))
+            display.blit(green_text, (235, baseline_text))
 
     def draw_timer(self):
         display = self.game.game_canvas
@@ -190,7 +220,8 @@ class Phase01(State):
         font = pygame.font.SysFont(FONT_NAME, 72, False, False)
         challenge_text = font.render(f'{self.challange[0]} {self.challange[1]} {self.challange[2]}', True, (220,220,220))
         challenge_text_rect = challenge_text.get_rect(center=(screen_width/2, 220))
-        display.blit(challenge_text, challenge_text_rect)
+        if not self.show_teacher and not self.is_paused:
+            display.blit(challenge_text, challenge_text_rect)
         
     def random_calc(self):
         number1 = random.randrange(self.min_number,self.max_number)
@@ -198,8 +229,15 @@ class Phase01(State):
         operator = random.choice(self.operators)
         result = 0
         if operator == '+':
+            if number1 + number2 > 9:
+                if number1 > number2:
+                    number1 = int(abs(number1 - number2))
+                else:
+                    number2 = int(abs(number1 - number2))
             result = number1 + number2
         if operator == '-':
+            if number1 == number2:
+                number1 = random.randrange(self.min_number,self.max_number)
             if number1 < number2:
                 aux = number1
                 number1 = number2
@@ -227,10 +265,8 @@ class Phase01(State):
 
     def draw_student_desk(self, quantity = 4):
         display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
         student_desk = self.images['student-desk']
 
-        point_start = 160
         x_coordenate = []
         if (quantity == 1):
             x_coordenate = [160]
@@ -264,25 +300,28 @@ class Phase01(State):
 
         display.fill((255,255,255))
 
+        background = self.images['background']
+        display.blit(background, (0,0))
+        self.draw_table()
+        self.draw_student_desk()
+        self.draw_lifes()
+        self.draw_score()
+        self.draw_student_name()
+        self.draw_physical_buttons()
+        
+        if self.show_teacher:
+            self.teacher.draw()
+
+        if self.is_paused:
+            self.draw_pause()
+        
         if self.lives > 0:
 
-            background = self.images['background']
-            display.blit(background, (0,0))
-            self.draw_table()
-            self.draw_student_desk()
-            self.draw_lifes()
-            self.draw_score()
             self.draw_challenge()
-            self.draw_student_name()
-            self.draw_physical_buttons()
 
             if self.enable_timer:
                 self.draw_timer()
 
-            if self.show_teacher:
-                self.teacher.draw()
-
-            if self.is_paused:
-                self.draw_pause()
         else:
-            self.exit_state()
+            if not self.show_teacher:
+                self.exit_state()

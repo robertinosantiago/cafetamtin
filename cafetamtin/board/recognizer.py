@@ -92,15 +92,15 @@ class Recognizer:
                     confidences.append(float(confidence))
                     class_ids.append(class_id)
 
-                    print('center: x:{}, y:{} = Number: {}'.format(center_x, center_y, self.classes[class_id]))
+                    #print('center: x:{}, y:{} = Number: {}'.format(center_x, center_y, self.classes[class_id]))
                     self.draw_prediction(image, class_id, confidence, round(x), round(y), round(x+w), round(y+h))
                     cv2.imwrite("object-detection.jpg", image)
 
-        print(boxes)
+        #print(boxes)
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
-        print('indices: ', indices)
-        print('boxes:', boxes)
-        print('centers:', centers)
+        #print('indices: ', indices)
+        #print('boxes:', boxes)
+        #print('centers:', centers)
 
         for i in indices:
             #i = i[0]

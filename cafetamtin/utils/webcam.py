@@ -44,7 +44,6 @@ class Webcam:
         return buffer
 
     def take_picture(self, delay=30):
-        print(self.cam_number)
         if not self.camera.isOpened():
             self.camera.open(self.cam_number)
             

@@ -25,7 +25,7 @@ from utils.text_input import TextInputManager
 from game.actors.student import Student
 
 from pony.orm import *
-from database.models.user import User
+from database.models import DBUser
 
 
 from game import BACKGROUND_COLOR
@@ -111,7 +111,7 @@ class NewPlayer(MenuMixin, State):
     @db_session
     def load_user(self, user_id):
         if user_id:
-            user = User[user_id]
+            user = DBUser[user_id]
             student = Student(user.name, user.nickname, user.age, user.gender)
             self.game.student = student
 

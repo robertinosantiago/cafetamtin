@@ -19,9 +19,11 @@ import os, sys
 import getopt
 from game.game import Game
 from pony.orm import *
+from datetime import datetime
 from dotenv import load_dotenv
 from database.connection import db
-from database.models.user import User
+from database.models import DBUser
+from database.models import DBBoard
 from utils.webcam import Webcam
 from board.board import Board
 from board.physical_buttons import PhysicalButtons
@@ -80,7 +82,9 @@ def main(argv):
 
 @db_session
 def create_user():
-    user = User(name='Robertino', nickname='Tino', age=41, gender='M')
+    user = DBUser(name='Robertino', nickname='Tino', age=41, gender='M')
+    #board = DBBoard(lines= 7, columns = 7)
+    
 
 if __name__ == '__main__':
     main(sys.argv)

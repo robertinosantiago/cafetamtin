@@ -43,7 +43,8 @@ class Teacher:
             'heart0': pygame.image.load(os.path.join("images", "teacher-heart0.png")),
         }
     
-    def set_message(self, message):
+    def set_message(self, message, image_key = 'happy0'):
+        self.image_key = image_key
         self.message = message
 
     def draw_speech_bubble(self, text, text_colour, bg_colour, pos, size):
@@ -62,36 +63,22 @@ class Teacher:
             for words in lines:
                 word_surface = font.render(words, True, text_colour)
                 word_width , word_height = word_surface.get_size()
-                
-                
-                
                 if x + word_width >= screen_width:
-                    x = pos[0]#self.rect[0]#pos[0]
+                    x = pos[0]
                     y += word_height
                 words_blits.append(word_surface)
                 pos_blits.append((x,y))
-                #self.display.blit(word_surface, (x,y))
                 x += word_width + space
                 bw += word_width + space
-            
-            
             box_height += word_height
             if bw > box_width:
-                
                 box_width = bw
-            x = pos[0]#self.rect[0]#pos[0]
+            x = pos[0]
             y += word_height
 
-
-
-        #text_surface = font.render(text, True, text_colour)
-        #text_rect = text_surface.get_rect(center=pos)
-
-        # background
         bg_rect = pygame.Rect(screen_width/2-box_width/2, pos[1], box_width, box_height)
         bg_rect.inflate_ip(10, 10)
 
-        # Frame
         frame_rect = bg_rect.copy()
         frame_rect.inflate_ip(4, 4)
 
@@ -100,16 +87,15 @@ class Teacher:
         for word, p in zip(words_blits, pos_blits):
             x, y = p
             self.display.blit(word, (frame_rect[0] + 10 + x, y))
-        #self.display.blit(text_surface, text_rect)
 
     def draw(self):
         screen_width, screen_height = self.display.get_size()
         self.rect.center = (screen_width / 2, screen_height / 2)
         
-        rect_background = (0,0,screen_width,screen_height)
+        rect_background = (0,0,screen_width,screen_height-46)
         shape_surf = pygame.Surface(pygame.Rect(rect_background).size, pygame.SRCALPHA)
         pygame.draw.rect(shape_surf, (0,0,0,105), shape_surf.get_rect())
         self.display.blit(shape_surf, rect_background)
 
-        self.display.blit(self.image, self.rect)
+        self.display.blit(self.images[self.image_key], self.rect)
         self.draw_speech_bubble(self.message, (255, 255, 255), (0, 0, 0), (0, self.rect.midbottom[1]), 16)
