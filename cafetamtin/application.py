@@ -27,6 +27,7 @@ from database.models import DBBoard
 from utils.webcam import Webcam
 from board.board import Board
 from board.physical_buttons import PhysicalButtons
+from utils.timer import Timer
 
 class Application:
     
@@ -78,7 +79,9 @@ def main(argv):
         entrada = input()
         if (entrada.upper() == 'N'): break
     '''
-    app.game.loop()
+    #app.game.loop()
+    t = Timer()
+    t.start('exemplo')
 
 @db_session
 def create_user():
