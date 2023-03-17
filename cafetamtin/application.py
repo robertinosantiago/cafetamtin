@@ -56,32 +56,10 @@ def main(argv):
 
     db.generate_mapping(create_tables=True)
 
-    create_user()
+    #create_user()
 
     app = Application()
-    
-    '''
-    app.board.define_left_limits()
-    app.board.define_right_limits()
-    app.board.calculate_limits()
-    app.board.define_centers()
-    app.board.draw_matrix_board()
-    
-    while True:
-        print('Posicione as peças no tabuleiro e pressione ENTER')
-        input()
-
-
-        app.board.avaliable_board()
-        app.board.draw_matrix_board()
-
-        print("Continuar? (S/N): ", end='')
-        entrada = input()
-        if (entrada.upper() == 'N'): break
-    '''
-    #app.game.loop()
-    t = Timer()
-    t.start('exemplo')
+    app.game.loop()
 
 @db_session
 def create_user():

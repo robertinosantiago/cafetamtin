@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-import pygame
 import sys
-from pygame.locals import *
 import os
 import random
+import pygame
+from pygame.locals import *
+from pony.orm import *
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -29,6 +30,8 @@ from game import WHITE, BLACK, RED, GREEN
 from game.states.state import State
 from game.actors.teacher import Teacher
 from board.board import Board
+from utils.timer import Timer
+from database.models import DBUser, DBChallengeP1, DBResponseP1
 
 class Phase01(State):
     
@@ -44,13 +47,13 @@ class Phase01(State):
 
         self.lives = 3
         self.score = 0
+        self.max_steps = 5
+        self.step = 1
 
         self.min_number = 1
         self.max_number = 10
         self.operators = ['+', '-']
         
-        self.new_challange = True
-        self.challange = ()
 
         self.images = self.load_images()
         
@@ -61,6 +64,19 @@ class Phase01(State):
 
         self.enable_timer = False
         self.is_paused = False
+        self.started = False
+
+        self.new_challenge = True
+        self.challenge = ()
+        self.responses = []
+        self.generate_new_challenge()
+
+        self.timer_challenge = Timer()
+        self.timer_teacher = Timer()
+        self.timer_teacher.start()
+        self.timer_response = Timer()
+
+        self.tips_times = 0
 
 
     def load_images(self):
@@ -72,10 +88,10 @@ class Phase01(State):
         }
 
     def handle_events(self, events):
-        self.game.app.physical_buttons.white_button.when_pressed = self.button_pause_changed
-        self.game.app.physical_buttons.black_button.when_pressed = self.button_abort_changed
-        self.game.app.physical_buttons.green_button.when_pressed = self.button_respond_changed
-        self.game.app.physical_buttons.red_button.when_pressed = self.button_tips_changed
+        self.game.app.physical_buttons.white_button.when_pressed = self.button_white_changed
+        self.game.app.physical_buttons.black_button.when_pressed = self.button_black_changed
+        self.game.app.physical_buttons.green_button.when_pressed = self.button_green_changed
+        self.game.app.physical_buttons.red_button.when_pressed = self.button_red_changed
 
         for event in events:
             if event.type == pygame.QUIT:
@@ -88,22 +104,38 @@ class Phase01(State):
     def update(self, delta_time):
         pass
 
-    def button_pause_changed(self):
+    def button_white_changed(self):
+        """
+        Executed when the white button of the base is pressed
+        """
         if self.show_teacher:
             return
         
         if self.is_paused:
+            self.timer_challenge.resume()
+            self.timer_response.resume()
             self.is_paused = False
         else:
+            self.timer_challenge.pause()
+            self.timer_response.pause()
             self.is_paused = True
 
-    def button_respond_changed(self):
+    def button_green_changed(self):
+        """
+        Executed when the green button of the base is pressed
+        """
         if self.show_teacher:
             return
 
         if self.is_paused:
             return
         
+        self.timer_teacher.resume()
+        self.timer_response.stop()
+        self.timer_challenge.stop()
+        #irá contar o tempo enquanto verifica a resposta?
+
+
         self.teacher.set_message("Verificando...", "neutral0")
         self.show_teacher = True
 
@@ -111,38 +143,94 @@ class Phase01(State):
         self.board.draw_matrix_board()
         self.check_challenge()
 
-    def button_tips_changed(self):
+    def button_red_changed(self):
+        """
+        Executed when the red button of the base is pressed
+        """
         if self.is_paused:
             return 
         
         if self.show_teacher:
+            if not self.started:
+                self.started = True
+            
+            if self.new_challenge:
+                self.timer_challenge.start()
+                self.timer_response.start()
+                self.new_challenge = False
+                self.tips_times = 0
+            else:
+                self.timer_challenge.resume()
+                self.timer_response.resume()
+                
+            self.timer_teacher.pause()
             self.show_teacher = False
         else:
+            self.timer_challenge.pause()
+            self.timer_response.pause()
             self.teacher.set_message("Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.\nLorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.")
+            self.timer_teacher.resume()
             self.show_teacher = True
+            self.tips_times += 1
 
-    def button_abort_changed(self):
+
+    def button_black_changed(self):
+        """
+        Executed when the black button of the base is pressed
+        """
         pass
 
 
     def check_challenge(self):
         numbers = self.board.result_matrix_board()
+        response = {}
+        response['total_time'] = self.timer_response.total_time_seconds()
+        response['time_without_pauses'] = (self.timer_response.total_time_seconds() - self.timer_response.total_time_paused_seconds())
+        response['paused_counter'] = self.timer_response.total_times_paused() - self.tips_times
+        response['tips_counter'] = self.tips_times
+        
+        if len(numbers) == 0:
+            response['informed_result'] = -1
+            response['is_correct'] = False
+
+            self.teacher.set_message("Atenção. Você deve colocar\nos bloco numérico correspondente\nà respostas sobre o tabuleiro.", "neutral0")
+            self.show_teacher = True
+            self.lives -= 1
+
         if len(numbers) == 1:
-            if numbers[0] == self.challange[3]:
+            if numbers[0] == self.challenge[3]:
+                
+                response['informed_result'] = numbers[0]
+                response['is_correct'] = True
+                
                 emotions = ['happy0', 'happy1', 'happy2', 'heart0']
                 self.teacher.set_message("Parabéns!!!\nVocê acertou.", emotions[random.randrange(0,len(emotions))])
                 self.show_teacher = True
                 self.score += 5
-                self.new_challange = True
+
+                
+                
             else:
+                response['informed_result'] = numbers[0]
+                response['is_correct'] = False 
+
                 self.teacher.set_message("Ops. Não era esse o resultado.\nVamos tentar novamente?", "neutral0")
                 self.show_teacher = True
                 self.lives -= 1
 
-        if len(numbers) == 2:
+        if len(numbers) >= 2:
+            response['informed_result'] = -2
+            response['is_correct'] = False 
+
             self.teacher.set_message("Atenção. Você deve informar\no resultado da operação.", "neutral1")
             self.show_teacher = True
             self.lives -= 1
+        
+        self.responses.append(response)
+        self.save_challenge()
+        self.generate_new_challenge()
+        self.step += 1
+        
 
     def draw_lifes(self):
         display = self.game.game_canvas
@@ -194,8 +282,7 @@ class Phase01(State):
             self.lives -= 1
             self.start_time = pygame.time.get_ticks()
             self.total_time = self.start_time + self.total_seconds*1000
-            self.new_challange = True
-
+            #self.new_challenge = True
 
     def draw_score(self):
         display = self.game.game_canvas
@@ -212,17 +299,21 @@ class Phase01(State):
         font = pygame.font.SysFont(FONT_NAME, 30, False, False)
         instruction_text = font.render('Informe o resultado da operação', True, (220,220,220))
         instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, 120))
-        display.blit(instruction_text, instruction_text_rect)
 
-        if self.new_challange:
-            self.challange = self.random_calc()
-            self.new_challange = False
         font = pygame.font.SysFont(FONT_NAME, 72, False, False)
-        challenge_text = font.render(f'{self.challange[0]} {self.challange[1]} {self.challange[2]}', True, (220,220,220))
+        challenge_text = font.render(f'{self.challenge[0]} {self.challenge[1]} {self.challenge[2]}', True, (220,220,220))
         challenge_text_rect = challenge_text.get_rect(center=(screen_width/2, 220))
+
         if not self.show_teacher and not self.is_paused:
+            display.blit(instruction_text, instruction_text_rect)
             display.blit(challenge_text, challenge_text_rect)
         
+    def generate_new_challenge(self):
+        self.challenge = self.random_calc()
+        self.responses = []
+        self.new_challenge = True
+
+
     def random_calc(self):
         number1 = random.randrange(self.min_number,self.max_number)
         number2 = random.randrange(self.min_number,self.max_number)
@@ -293,6 +384,36 @@ class Phase01(State):
         instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
         display.blit(instruction_text, instruction_text_rect)
 
+    def exit_state(self):
+        super().exit_state()
+        self.timer_challenge.stop()
+        self.timer_teacher.stop()
+
+    @db_session
+    def save_challenge(self):
+        user = DBUser[self.game.student.id]
+        responses = []
+        challenge = DBChallengeP1(
+            number01 = self.challenge[0],
+            operator = self.challenge[1],
+            number02 = self.challenge[2],
+            expected_result = self.challenge[3],
+            total_time = self.timer_challenge.total_time_seconds(),
+            user = user
+        )
+        
+        for r in self.responses:
+            data = DBResponseP1(
+                informed_result = r['informed_result'],
+                is_correct = r['is_correct'],
+                total_time = r['total_time'],
+                time_without_pauses = r['time_without_pauses'],
+                paused_counter = r['paused_counter'],
+                tips_counter = r['tips_counter'],
+                challengep1 = challenge
+            )
+            commit()
+
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -308,6 +429,10 @@ class Phase01(State):
         self.draw_score()
         self.draw_student_name()
         self.draw_physical_buttons()
+
+        if not self.started:
+            self.teacher.set_message("Atenção!\nPrepare-se para começar", "neutral1")
+            self.show_teacher = True
         
         if self.show_teacher:
             self.teacher.draw()
@@ -315,7 +440,7 @@ class Phase01(State):
         if self.is_paused:
             self.draw_pause()
         
-        if self.lives > 0:
+        if self.lives > 0 and self.step <= self.max_steps:
 
             self.draw_challenge()
 

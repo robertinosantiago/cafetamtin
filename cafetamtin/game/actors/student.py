@@ -17,7 +17,8 @@
 
 class Student:
     
-    def __init__(self, name, nickname, age, gender):
+    def __init__(self, id, name, nickname, age, gender):
+        self.id = id
         self.name = name
         self.nickname = nickname
         self.age = age

@@ -20,22 +20,29 @@ from datetime import datetime
 class Timer:
 
     def __init__(self):
-        self.__timer = None
-
-    def start(self):
-        t = datetime.now()
-        timer = {
-            'time_started': t,
+        self.__timer = {
+            'time_started': None,
             'time_finished': None,
             'time_paused': None,
             'time_resumed': None,
             'paused': False,
-            'started': True,
+            'started': False,
             'times_paused': 0,
             'total_time': 0,
             'total_time_paused': 0
         }
-        self.__timer = timer
+
+    def start(self):
+        t = datetime.now()
+        self.__timer['time_started'] = t
+        self.__timer['started'] = True
+        self.__timer['time_finished'] = None
+        self.__timer['time_paused'] = None
+        self.__timer['time_resumed'] = None
+        self.__timer['paused'] = False
+        self.__timer['times_paused'] = 0
+        self.__timer['total_time'] = 0
+        self.__timer['total_time_paused'] = 0
     
     def stop(self):
         if self.__timer['paused']:
@@ -68,7 +75,7 @@ class Timer:
             self.__timer['paused'] = False
 
     def total_time_seconds(self):
-        return self.__timer['total_time']
+        return self.__timer['total_time'] + self.__timer['total_time_paused']
     
     def total_times_paused(self):
         return self.__timer['times_paused']
