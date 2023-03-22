@@ -24,6 +24,7 @@ from dotenv import load_dotenv
 from database.connection import db
 from database.models import DBUser
 from database.models import DBBoard
+from database.models import DBSteps
 from utils.webcam import Webcam
 from board.board import Board
 from board.physical_buttons import PhysicalButtons
@@ -64,6 +65,7 @@ def main(argv):
 @db_session
 def create_user():
     user = DBUser(name='Robertino', nickname='Tino', age=41, gender='M')
+    steps = DBSteps(phase = 1, user=user)
     #board = DBBoard(lines= 7, columns = 7)
     
 

@@ -16,15 +16,15 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import pygame
+from pony.orm import *
 
 from game.states.state import State
 from game.states.menu_mixin import MenuMixin
 from game.states.phase01 import Phase01
+from game.states.phases import Phases
 from utils.text_input import TextInputVisualizer
 from utils.text_input import TextInputManager
 from game.actors.student import Student
-
-from pony.orm import *
 from database.models import DBUser
 
 
@@ -81,7 +81,7 @@ class NewPlayer(MenuMixin, State):
                     self.load_user(int(self.input_number_player.value))
                     self.show_error_message = False
                     self.input_number_player.value = ''
-                    new_state = Phase01(self.game)
+                    new_state = Phases(self.game)
                     new_state.enter_state()
                 except ObjectNotFound:
                     self.show_error_message = True

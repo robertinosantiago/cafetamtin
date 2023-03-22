@@ -46,6 +46,7 @@ class DBUser(db.Entity):
     age = Required(int)
     gender = Required(str)
     challenges_p1 = Set('DBChallengeP1')
+    steps = Set('DBSteps')
 
 class DBChallengeP1(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -71,3 +72,10 @@ class DBResponseP1(db.Entity):
     type_er = Optional(str)
     type_error = Optional(str)
     challengep1 = Required(DBChallengeP1)
+
+class DBSteps(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    phase = Required(int)
+    score = Optional(int)
+    lifes = Optional(int)
+    user = Optional(DBUser)
