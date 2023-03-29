@@ -21,6 +21,7 @@ from pony.orm import *
 
 from game.states.state import State
 from game.states.phase01 import Phase01
+from game.states.phase02 import Phase02
 from database.models import DBUser, DBSteps
 
 from game import BACKGROUND_COLOR
@@ -111,7 +112,8 @@ class Phases(State):
             new_state = Phase01(self.game)
             new_state.enter_state()
         if self.current_phase == 2:
-            pass
+            new_state = Phase02(self.game)
+            new_state.enter_state()
         if self.current_phase == 3:
             pass
         if self.current_phase == 4:

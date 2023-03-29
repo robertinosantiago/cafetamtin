@@ -82,4 +82,4 @@ class Game():
             self.clock.tick(60)
             pygame.display.flip()
             
-            #print("FPS: %0.3f" % clock.get_fps())
+            #print("FPS: %0.3f" % self.clock.get_fps())

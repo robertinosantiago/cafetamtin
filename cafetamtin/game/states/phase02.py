@@ -15,49 +15,38 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
+import pygame
 import os
 import random
-import pygame
-from pygame.locals import *
-from pony.orm import *
+
+from game.states.state import State
+from board.board import Board
+from game.actors.teacher import Teacher
+from utils.timer import Timer
+from utils.confetti import Confetti
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
 from game import FONT_NAME
 from game import WHITE, BLACK, RED, GREEN
 
-from game.states.state import State
-from game.actors.teacher import Teacher
-from board.board import Board
-from utils.timer import Timer
-from database.models import DBUser, DBChallengeP1, DBResponseP1
+class Phase02(State):
 
-class Phase01(State):
-    
     def __init__(self, game):
         super().__init__(game)
-
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
 
-        self.menu_items = ['Voltar']
-        self.menu_selection = 0
+        self.images = self.load_images()
+        self.challenges = self.load_challenges()
 
         self.lives = 3
         self.score = 0
-        self.max_steps = 5
-        self.step = 1
+        self.max_steps = 8
+        self.step = 0
         self.incremental_points = 5
 
-        self.min_number = 1
-        self.max_number = 10
-        self.operators = ['+', '-']
-        
-
-        self.images = self.load_images()
-        
         self.start_time = pygame.time.get_ticks()
         self.total_seconds = 10
         self.time_hms = 0, 0, 0
@@ -66,11 +55,8 @@ class Phase01(State):
         self.enable_timer = False
         self.is_paused = False
         self.started = False
-
         self.new_challenge = True
-        self.challenge = ()
-        self.responses = []
-        self.generate_new_challenge()
+        self.end_phase = False
 
         self.timer_challenge = Timer()
         self.timer_teacher = Timer()
@@ -78,6 +64,9 @@ class Phase01(State):
         self.timer_response = Timer()
 
         self.tips_times = 0
+
+        self.confetti = Confetti()
+        self.frame_confetti = 1
 
 
     def load_images(self):
@@ -102,13 +91,19 @@ class Phase01(State):
                 if event.key == pygame.K_ESCAPE:
                     self.exit_state()
 
-    def update(self, delta_time):
+                if event.key == pygame.K_UP:
+                    pass
+
+                if event.key == pygame.K_DOWN:
+                    pass
+
+                if event.key == pygame.K_RETURN or event.key == 1073741912:
+                    pass
+
+    def button_black_changed(self):
         pass
 
     def button_white_changed(self):
-        """
-        Executed when the white button of the base is pressed
-        """
         if self.show_teacher:
             return
         
@@ -143,17 +138,19 @@ class Phase01(State):
         self.board.avaliable_board()
         self.board.draw_matrix_board()
         self.check_challenge()
-
+    
     def button_red_changed(self):
-        """
-        Executed when the red button of the base is pressed
-        """
         if self.is_paused:
             return 
         
         if self.show_teacher:
             if not self.started:
                 self.started = True
+            
+            if self.step == self.max_steps:
+                self.step += 1
+            if self.lives == 0 and self.end_phase:
+                self.lives -= 1
             
             if self.new_challenge:
                 self.timer_challenge.start()
@@ -174,71 +171,23 @@ class Phase01(State):
             self.show_teacher = True
             self.tips_times += 1
 
+    def load_challenges(self):
+        challenges = {
+            '159': {'equations': ['1 + 5 + 9', '1 + 9 + 5', '5 + 1 + 9', '5 + 9 + 1', '9 + 1 + 5', '9 + 5 + 1'], 'visible': False, 'index': random.randrange(0, 6)},
+            '168': {'equations': ['1 + 6 + 8', '1 + 8 + 6', '6 + 1 + 8', '6 + 8 + 1', '8 + 1 + 6', '8 + 6 + 1'], 'visible': False, 'index': random.randrange(0, 6)},
+            '249': {'equations': ['2 + 4 + 9', '2 + 9 + 4', '4 + 2 + 9', '4 + 9 + 2', '9 + 2 + 4', '9 + 4 + 2'], 'visible': False, 'index': random.randrange(0, 6)},
+            '258': {'equations': ['2 + 5 + 8', '2 + 8 + 5', '5 + 2 + 8', '5 + 8 + 2', '8 + 2 + 5', '8 + 5 + 2'], 'visible': False, 'index': random.randrange(0, 6)},
+            '267': {'equations': ['2 + 6 + 7', '2 + 7 + 6', '6 + 2 + 7', '6 + 7 + 2', '7 + 2 + 6', '7 + 6 + 2'], 'visible': False, 'index': random.randrange(0, 6)},
+            '348': {'equations': ['3 + 4 + 8', '3 + 8 + 4', '4 + 3 + 8', '4 + 8 + 3', '8 + 3 + 4', '8 + 4 + 3'], 'visible': False, 'index': random.randrange(0, 6)},
+            '357': {'equations': ['3 + 5 + 7', '3 + 7 + 5', '5 + 3 + 7', '5 + 7 + 3', '7 + 3 + 5', '7 + 5 + 3'], 'visible': False, 'index': random.randrange(0, 6)},
+            '456': {'equations': ['4 + 5 + 6', '4 + 6 + 5', '5 + 4 + 6', '5 + 6 + 4', '6 + 4 + 5', '6 + 5 + 4'], 'visible': False, 'index': random.randrange(0, 6)},
+        }
+        return challenges
+        
+    
 
-    def button_black_changed(self):
-        """
-        Executed when the black button of the base is pressed
-        """
+    def update(self, delta_time):
         pass
-
-
-    def check_challenge(self):
-        numbers = self.board.result_matrix_board()
-        response = {}
-        response['total_time'] = self.timer_response.total_time_seconds()
-        response['time_without_pauses'] = (self.timer_response.total_time_seconds() - self.timer_response.total_time_paused_seconds())
-        response['paused_counter'] = self.timer_response.total_times_paused() - self.tips_times
-        response['tips_counter'] = self.tips_times
-        
-        if len(numbers) == 0:
-            response['informed_result'] = -1
-            response['is_correct'] = False
-
-            self.teacher.set_message("Atenção. Você deve colocar\nos bloco numérico correspondente\nà respostas sobre o tabuleiro.", "neutral0")
-            self.show_teacher = True
-            self.lives -= 1
-
-        if len(numbers) == 1:
-            if numbers[0] == self.challenge[3]:
-                
-                response['informed_result'] = numbers[0]
-                response['is_correct'] = True
-                
-                emotions = ['happy0', 'happy1', 'happy2', 'heart0']
-                self.teacher.set_message("Parabéns!!!\nVocê acertou.", emotions[random.randrange(0,len(emotions))])
-                self.show_teacher = True
-                self.score += self.incremental_points
-
-            else:
-                response['informed_result'] = numbers[0]
-                response['is_correct'] = False 
-
-                self.teacher.set_message("Ops. Não era esse o resultado.\nVamos tentar novamente?", "neutral0")
-                self.show_teacher = True
-                self.lives -= 1
-
-        if len(numbers) >= 2:
-            response['informed_result'] = -2
-            response['is_correct'] = False 
-
-            self.teacher.set_message("Atenção. Você deve informar\no resultado da operação.", "neutral1")
-            self.show_teacher = True
-            self.lives -= 1
-        
-        self.responses.append(response)
-        self.save_challenge()
-        self.generate_new_challenge()
-        self.step += 1
-        
-
-    def draw_lifes(self):
-        display = self.game.game_canvas
-        for i in range(0, self.lives):
-            heart = self.images['heart']
-            heart_rect = heart.get_rect()
-            heart_rect.x = 10 + 50 * i
-            heart_rect.y = 5
-            display.blit(heart, heart_rect)
 
     def draw_physical_buttons(self):
         display = self.game.game_canvas
@@ -260,28 +209,15 @@ class Phase01(State):
             pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
             green_text = font.render("Responder", True, (0,0,0))
             display.blit(green_text, (235, baseline_text))
-
-    def draw_timer(self):
+    
+    def draw_lifes(self):
         display = self.game.game_canvas
-        timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
-        screen_width = self.game.GAME_WIDTH
-        time_ms = self.total_time - pygame.time.get_ticks()
-
-        if time_ms >= 0:
-            self.time_hms = ((time_ms//(1000*60*60))%24, (time_ms//(1000*60))%60, (time_ms//1000)%60)
-        else:
-            self.lose_life()
-
-        timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
-        timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
-        display.blit(timer_text, timer_text_rect)
-
-    def lose_life(self):
-        if self.lives > 0:
-            self.lives -= 1
-            self.start_time = pygame.time.get_ticks()
-            self.total_time = self.start_time + self.total_seconds*1000
-            #self.new_challenge = True
+        for i in range(0, self.lives):
+            heart = self.images['heart']
+            heart_rect = heart.get_rect()
+            heart_rect.x = 10 + 50 * i
+            heart_rect.y = 5
+            display.blit(heart, heart_rect)
 
     def draw_score(self):
         display = self.game.game_canvas
@@ -290,51 +226,7 @@ class Phase01(State):
         score_text = font.render(f'Pontos: {self.score:>4}', True, (0,0,0))
         score_text_rect = score_text.get_rect(midright=(screen_width-5, 30))
         display.blit(score_text, score_text_rect)
-
-    def draw_challenge(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-
-        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
-        instruction_text = font.render('Informe o resultado da operação', True, (220,220,220))
-        instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, 120))
-
-        font = pygame.font.SysFont(FONT_NAME, 72, False, False)
-        challenge_text = font.render(f'{self.challenge[0]} {self.challenge[1]} {self.challenge[2]}', True, (220,220,220))
-        challenge_text_rect = challenge_text.get_rect(center=(screen_width/2, 220))
-
-        if not self.show_teacher and not self.is_paused:
-            display.blit(instruction_text, instruction_text_rect)
-            display.blit(challenge_text, challenge_text_rect)
-        
-    def generate_new_challenge(self):
-        self.challenge = self.random_calc()
-        self.responses = []
-        self.new_challenge = True
-
-
-    def random_calc(self):
-        number1 = random.randrange(self.min_number,self.max_number)
-        number2 = random.randrange(self.min_number,self.max_number)
-        operator = random.choice(self.operators)
-        result = 0
-        if operator == '+':
-            if number1 + number2 > 9:
-                if number1 > number2:
-                    number1 = int(abs(number1 - number2))
-                else:
-                    number2 = int(abs(number1 - number2))
-            result = number1 + number2
-        if operator == '-':
-            if number1 == number2:
-                number1 = random.randrange(self.min_number,self.max_number)
-            if number1 < number2:
-                aux = number1
-                number1 = number2
-                number2 = aux
-            result = number1 - number2
-        return number1, operator, number2, result
-
+    
     def draw_student_name(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -368,7 +260,7 @@ class Phase01(State):
         for x in x_coordenate:
             student_desk_rect = student_desk.get_rect(topleft=(x,380))
             display.blit(student_desk, student_desk_rect)
-
+    
     def draw_pause(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -382,36 +274,119 @@ class Phase01(State):
         instruction_text = font.render('Pause', True, (220,220,220))
         instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
         display.blit(instruction_text, instruction_text_rect)
+    
+    def draw_challenge(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        color = (213, 255, 213)
 
-    def exit_state(self):
-        super().exit_state()
-        self.timer_challenge.stop()
-        self.timer_teacher.stop()
+        font = pygame.font.SysFont(FONT_NAME, 22, False, False)
+        instruction_text = font.render('Encontre as somas com 3 números que resultam 15', True, (220,220,220))
+        instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, 90))
 
-    @db_session
-    def save_challenge(self):
-        user = DBUser[self.game.student.id]
-        responses = []
-        challenge = DBChallengeP1(
-            number01 = self.challenge[0],
-            operator = self.challenge[1],
-            number02 = self.challenge[2],
-            expected_result = self.challenge[3],
-            total_time = self.timer_challenge.total_time_seconds(),
-            user = user
-        )
+        if not self.show_teacher and not self.is_paused:
+            display.blit(instruction_text, instruction_text_rect)
+
+            i = 1
+            width = 140
+            height = 60
+            offset = 20
+            x = 160
+            y = 150
+            for key in self.challenges.keys():
+                rect = (x,y,width,height)
+                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+                pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
+                display.blit(shape, rect)
+                inner_text = '? + ? + ?' if not self.challenges[key]['visible'] else self.challenges[key]['equations'][self.challenges[key]['index']]
+                text = font.render(inner_text, True, BLACK if not self.challenges[key]['visible'] else GREEN)
+                text_rect = text.get_rect(center=(x + width/2, y + height/2))
+                display.blit(text, text_rect)
+                if i % 4 == 0:
+                    x = 160
+                    y += height + offset
+                else:
+                    x += width + offset
+                i += 1
+    
+    def check_challenge(self):
+        numbers = self.board.result_matrix_board()
+        response = {}
+        response['total_time'] = self.timer_response.total_time_seconds()
+        response['time_without_pauses'] = (self.timer_response.total_time_seconds() - self.timer_response.total_time_paused_seconds())
+        response['paused_counter'] = self.timer_response.total_times_paused() - self.tips_times
+        response['tips_counter'] = self.tips_times
+
+        if len(numbers) == 0:
+            response['informed_result'] = -1
+            response['is_correct'] = False
+
+            self.teacher.set_message("Atenção. Você deve colocar\nos bloco numérico correspondente\nà respostas sobre o tabuleiro.", "neutral0")
+            self.show_teacher = True
+            self.lives -= 1
         
-        for r in self.responses:
-            data = DBResponseP1(
-                informed_result = r['informed_result'],
-                is_correct = r['is_correct'],
-                total_time = r['total_time'],
-                time_without_pauses = r['time_without_pauses'],
-                paused_counter = r['paused_counter'],
-                tips_counter = r['tips_counter'],
-                challengep1 = challenge
-            )
-            commit()
+        if len(numbers) == 2:
+            result = sum(numbers)
+            if result == 15:
+                self.teacher.set_message(
+                    "  Apesar do resultado da operação.\n"+
+                    "   resultar em 15, é necessário\n"+
+                    "utilizar 3 números distintos na soma.", 
+                    "neutral0"
+                )
+            else:
+                self.teacher.set_message(
+                    "Atenção! Você deve usar 3 números\n."+
+                    "para tentar encontrar a soma 15.", 
+                    "neutral0"
+                )
+            self.show_teacher = True
+            self.lives -= 1
+
+        if len(numbers) == 3:
+            numbers.sort()
+            key = "".join(map(str, numbers))
+            if self.challenges.get(key) is not None:
+                if self.challenges[key]['visible']:
+                    self.teacher.set_message("Atenção. Você já informou\nessa operação.\nTente resolver outras.", "happy0")
+                    self.lives -= 1
+
+                else:
+                    emotions = ['happy0', 'happy1', 'happy2', 'heart0']
+                    self.teacher.set_message(
+                        "Parabéns!!!\n"+
+                        "Está correto. Quando somados,\n"+
+                        f" os valores {numbers[0]}, {numbers[1]} e {numbers[2]}, produzem\n"+
+                        "resultado 15.", 
+                        emotions[random.randrange(0,len(emotions))]
+                    )
+                    self.challenges[key]['visible'] = True
+                    self.frame_confetti = 1
+                    self.confetti.visible = True
+                    self.score += self.incremental_points
+                    self.step += 1
+            else:
+                result = sum(numbers)
+                fault = abs(15 - result)
+                self.teacher.set_message(
+                    f"Atenção. Essa operação resulta {result}.\n"+
+                    f"Há uma diferença de {fault} para o\n"+
+                    "resultado esperado 15. Tente novamente.", 
+                    "neutral1"
+                )
+                self.lives -= 1
+            
+            self.show_teacher = True
+            
+    def draw_confetti(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        frame = self.confetti.get_image(self.frame_confetti)
+        frame_rect = frame.get_rect(center=(screen_width/2, screen_height/2 - 80))
+        display.blit(frame, frame_rect)
+        self.frame_confetti += 1
+        if self.frame_confetti > self.confetti.total_frames:
+            self.confetti.visible = False
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
@@ -430,7 +405,11 @@ class Phase01(State):
         self.draw_physical_buttons()
 
         if not self.started:
-            self.teacher.set_message("Atenção!\nPrepare-se para começar", "neutral1")
+            self.teacher.set_message(
+                "Atenção!\n"+
+                "Prepare-se para começar",
+                "neutral1"
+            )
             self.show_teacher = True
         
         if self.show_teacher:
@@ -439,17 +418,32 @@ class Phase01(State):
         if self.is_paused:
             self.draw_pause()
         
-        if self.lives > 0 and self.step <= self.max_steps:
-
+        if self.confetti.visible:
+            self.draw_confetti()
+        
+        if self.lives > 0 and self.step < self.max_steps:
             self.draw_challenge()
-
-            if self.enable_timer:
-                self.draw_timer()
-
         else:
             if not self.show_teacher:
                 if self.lives == 0:
-                    pass
-                if self.self.steps >= self.max_steps:
-                    pass
-                self.exit_state()
+                    self.teacher.set_message(
+                        "Infelizmente, você não conseguiu\n"+
+                        "encontrar todas as possibilidades.\n"+
+                        "Tente novamente!", 
+                        "neutral1"
+                    )
+                    self.show_teacher = True
+                    self.end_phase = True
+                if self.step >= self.max_steps and not self.end_phase:
+                    self.teacher.set_message(
+                        "Parabéns!!! Você encontrou todas\n"+
+                        "as somas  possíveis com 3 números\n"+
+                        "que resultam em 15. Nos vemos na\n"+
+                        "próxima fase.", 
+                        "heart0"
+                    )
+                    self.show_teacher = True
+                    self.end_phase = True
+                
+                if self.end_phase and not self.show_teacher:
+                    self.exit_state()
