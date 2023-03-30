@@ -25,7 +25,7 @@ from board.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
-from database.models import DBUser, DBChallengeP2, DBResponseP2
+from database.models import DBUser, DBSteps, DBChallengeP2, DBResponseP2
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -153,9 +153,12 @@ class Phase02(State):
             
             if self.step == self.max_steps:
                 self.step += 1
+                self.save_steps(2, 'completed')
+                self.save_steps(3, 'not-started')
             if self.lives == 0 and self.end_phase:
                 self.lives -= 1
                 self.save_challenge()
+                self.save_steps(2, 'not-completed')
             
             if self.new_challenge:
                 self.timer_challenge.start()
@@ -509,6 +512,18 @@ class Phase02(State):
         self.timer_response.stop()
         self.new_challenge = True
         self.responses = []
+
+    @db_session
+    def save_steps(self, phase, status):
+        user = DBUser[self.game.student.id]
+        step = DBSteps(
+            phase = phase,
+            score = self.score,
+            lifes = self.lives,
+            status = status,
+            user = user
+        )
+        commit()
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)

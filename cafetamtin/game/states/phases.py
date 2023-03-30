@@ -22,6 +22,7 @@ from pony.orm import *
 from game.states.state import State
 from game.states.phase01 import Phase01
 from game.states.phase02 import Phase02
+from game.states.phase03 import Phase03
 from database.models import DBUser, DBSteps
 
 from game import BACKGROUND_COLOR
@@ -111,16 +112,15 @@ class Phases(State):
             step = DBSteps(phase = 1, score = 0, lifes = 3, status = 'started', user = user)
         if self.current_phase <= 1:
             new_state = Phase01(self.game)
-            self.reload = True
-            new_state.enter_state()
-        if self.current_phase == 2:
+        elif self.current_phase == 2:
             new_state = Phase02(self.game)
-            self.reload = True
-            new_state.enter_state()
-        if self.current_phase == 3:
+        elif self.current_phase == 3:
+            new_state = Phase03(self.game)
+        elif self.current_phase == 4:
             pass
-        if self.current_phase == 4:
-            pass
+        
+        self.reload = True
+        new_state.enter_state()
 
     def draw_button_phases(self):
         display = self.game.game_canvas
@@ -150,19 +150,19 @@ class Phases(State):
         display.blit(text, text_rect)
         if status_phase == 'completed':
             text = font.render('Concluído', True, TEXT_COLOR)
-            text_rect = text.get_rect(center=(offset_width, text_rect.bottom + 20))
+            text_rect = text.get_rect(center=(offset_width+slice_width, text_rect.bottom + 20))
             display.blit(text, text_rect)
 
         status_phase = 'not-started' if self.current_phase < 3 else ('started' if self.current_phase == 3 else 'completed')
         phase03 = self.images['phase03'][status_phase]
         phase03_rect = phase03.get_rect(center=(offset_width+slice_width*2, screen_height/2))
         display.blit(phase03, phase03_rect)
-        text = font.render('Fase 03', True, (120, 120, 120))
+        text = font.render('Fase 03', True, TEXT_DISABLE_COLOR if status_phase == 'not-started' else TEXT_COLOR)
         text_rect = text.get_rect(center=(offset_width+slice_width*2, phase01_rect.bottom + 20))
         display.blit(text, text_rect)
         if status_phase == 'completed':
             text = font.render('Concluído', True, TEXT_COLOR)
-            text_rect = text.get_rect(center=(offset_width, text_rect.bottom + 20))
+            text_rect = text.get_rect(center=(offset_width+slice_width*2, text_rect.bottom + 20))
             display.blit(text, text_rect)
 
         status_phase = 'not-started' if self.current_phase < 4 else ('started' if self.current_phase == 4 else 'completed')
@@ -174,7 +174,7 @@ class Phases(State):
         display.blit(text, text_rect)
         if status_phase == 'completed':
             text = font.render('Concluído', True, TEXT_COLOR)
-            text_rect = text.get_rect(center=(offset_width, text_rect.bottom + 20))
+            text_rect = text.get_rect(center=(offset_width+slice_width*3, text_rect.bottom + 20))
             display.blit(text, text_rect)
 
     def draw_physical_buttons(self):
