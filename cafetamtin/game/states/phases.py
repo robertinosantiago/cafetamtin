@@ -36,6 +36,7 @@ class Phases(State):
         super().__init__(game)
         self.images = self.load_images()
         self.current_phase, self.current_score = self.load_current_phase_score()
+        self.reload = True
         
     def load_images(self):
         return {
@@ -107,12 +108,14 @@ class Phases(State):
     def execute_action_menu(self):
         user = DBUser[self.game.student.id]
         if len(user.steps) == 0:
-            step = DBSteps(phase = 1, score = 0, lifes = 3, user = user)
+            step = DBSteps(phase = 1, score = 0, lifes = 3, status = 'started', user = user)
         if self.current_phase <= 1:
             new_state = Phase01(self.game)
+            self.reload = True
             new_state.enter_state()
         if self.current_phase == 2:
             new_state = Phase02(self.game)
+            self.reload = True
             new_state.enter_state()
         if self.current_phase == 3:
             pass
@@ -199,8 +202,10 @@ class Phases(State):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
         
-
         display.fill(BACKGROUND_COLOR)
+        if self.reload:
+            self.current_phase, self.current_score = self.load_current_phase_score()
+            self.reload = False
         self.draw_button_phases()
         self.draw_physical_buttons()
 

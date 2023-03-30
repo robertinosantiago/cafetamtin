@@ -45,8 +45,9 @@ class DBUser(db.Entity):
     nickname = Required(str)
     age = Required(int)
     gender = Required(str)
-    challenges_p1 = Set('DBChallengeP1')
     steps = Set('DBSteps')
+    challenges_p1 = Set('DBChallengeP1')
+    challenges_p2 = Set('DBChallengeP2')
 
 class DBChallengeP1(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -73,9 +74,37 @@ class DBResponseP1(db.Entity):
     type_error = Optional(str)
     challengep1 = Required(DBChallengeP1)
 
+class DBChallengeP2(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    number01 = Required(int)
+    number02 = Required(int)
+    number03 = Required(int)
+    total_time = Required(float)
+    user = Required(DBUser)
+    responsesp2 = Set('DBResponseP2')
+
+
+class DBResponseP2(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    number01 = Optional(int)
+    number02 = Optional(int)
+    number03 = Optional(int)
+    is_correct = Optional(bool)
+    total_time = Optional(float)
+    time_without_pauses = Optional(float)
+    paused_counter = Optional(int)
+    tips_counter = Optional(int)
+    distractors = Optional(int)
+    affective_state = Optional(str)
+    affective_quad = Optional(str)
+    type_er = Optional(str)
+    type_error = Optional(str)
+    challengep2 = Required(DBChallengeP2)
+
 class DBSteps(db.Entity):
     id = PrimaryKey(int, auto=True)
     phase = Required(int)
     score = Optional(int)
     lifes = Optional(int)
+    status = Optional(str)
     user = Optional(DBUser)

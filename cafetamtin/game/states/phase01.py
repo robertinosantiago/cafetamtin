@@ -31,7 +31,7 @@ from game.states.state import State
 from game.actors.teacher import Teacher
 from board.board import Board
 from utils.timer import Timer
-from database.models import DBUser, DBChallengeP1, DBResponseP1
+from database.models import DBUser, DBSteps, DBChallengeP1, DBResponseP1
 
 class Phase01(State):
     
@@ -66,6 +66,7 @@ class Phase01(State):
         self.enable_timer = False
         self.is_paused = False
         self.started = False
+        self.end_phase = False
 
         self.new_challenge = True
         self.challenge = ()
@@ -154,6 +155,14 @@ class Phase01(State):
         if self.show_teacher:
             if not self.started:
                 self.started = True
+            
+            if self.step == self.max_steps:
+                self.step += 1
+                self.save_steps(1, 'completed')
+                self.save_steps(2, 'not-started')
+            if self.lives == 0 and self.end_phase:
+                self.lives -= 1
+                self.save_steps(1, 'not-completed')
             
             if self.new_challenge:
                 self.timer_challenge.start()
@@ -412,6 +421,18 @@ class Phase01(State):
                 challengep1 = challenge
             )
             commit()
+    
+    @db_session
+    def save_steps(self, phase, status):
+        user = DBUser[self.game.student.id]
+        step = DBSteps(
+            phase = phase,
+            score = self.score,
+            lifes = self.lives,
+            status = status,
+            user = user
+        )
+        commit()
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
@@ -449,7 +470,23 @@ class Phase01(State):
         else:
             if not self.show_teacher:
                 if self.lives == 0:
-                    pass
-                if self.self.steps >= self.max_steps:
-                    pass
-                self.exit_state()
+                    self.teacher.set_message(
+                        "Infelizmente, você não conseguiu\n"+
+                        "realizar todas as operações corretamente.\n"+
+                        "Tente novamente!", 
+                        "neutral1"
+                    )
+                    self.show_teacher = True
+                    self.end_phase = True
+                if self.step >= self.max_steps and not self.end_phase:
+                    self.teacher.set_message(
+                        "Parabéns!!! Você conseguiu realizar\n"+
+                        "as operações corretamente. Nos vemos na\n"+
+                        "próxima fase.", 
+                        "heart0"
+                    )
+                    self.show_teacher = True
+                    self.end_phase = True
+                
+                if self.end_phase and not self.show_teacher:
+                    self.exit_state()

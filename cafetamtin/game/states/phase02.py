@@ -18,12 +18,14 @@
 import pygame
 import os
 import random
+from pony.orm import *
 
 from game.states.state import State
 from board.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
+from database.models import DBUser, DBChallengeP2, DBResponseP2
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -40,6 +42,7 @@ class Phase02(State):
 
         self.images = self.load_images()
         self.challenges = self.load_challenges()
+        self.responses = []
 
         self.lives = 3
         self.score = 0
@@ -56,6 +59,7 @@ class Phase02(State):
         self.is_paused = False
         self.started = False
         self.new_challenge = True
+        self.new_response = True
         self.end_phase = False
 
         self.timer_challenge = Timer()
@@ -128,7 +132,7 @@ class Phase02(State):
         
         self.timer_teacher.resume()
         self.timer_response.stop()
-        self.timer_challenge.stop()
+        self.timer_challenge.pause()
         #irá contar o tempo enquanto verifica a resposta?
 
 
@@ -151,6 +155,7 @@ class Phase02(State):
                 self.step += 1
             if self.lives == 0 and self.end_phase:
                 self.lives -= 1
+                self.save_challenge()
             
             if self.new_challenge:
                 self.timer_challenge.start()
@@ -159,7 +164,11 @@ class Phase02(State):
                 self.tips_times = 0
             else:
                 self.timer_challenge.resume()
-                self.timer_response.resume()
+                if self.new_response:
+                    self.timer_response.start()
+                    self.new_response = False
+                else:
+                    self.timer_response.resume()
                 
             self.timer_teacher.pause()
             self.show_teacher = False
@@ -309,49 +318,99 @@ class Phase02(State):
                     x += width + offset
                 i += 1
     
+    def add_response(self, response):
+        self.responses.append(response)
+        self.timer_response.stop()
+        self.tips_times = 0
+        self.new_response = True
+
     def check_challenge(self):
         numbers = self.board.result_matrix_board()
         response = {}
         response['total_time'] = self.timer_response.total_time_seconds()
         response['time_without_pauses'] = (self.timer_response.total_time_seconds() - self.timer_response.total_time_paused_seconds())
+        #@TODO: corrigir quantidade de pausas
         response['paused_counter'] = self.timer_response.total_times_paused() - self.tips_times
         response['tips_counter'] = self.tips_times
 
         if len(numbers) == 0:
-            response['informed_result'] = -1
+            response['number01'] = -1
+            response['number02'] = -1
+            response['number03'] = -1
             response['is_correct'] = False
+            self.add_response(response)
 
-            self.teacher.set_message("Atenção. Você deve colocar\nos bloco numérico correspondente\nà respostas sobre o tabuleiro.", "neutral0")
+            self.teacher.set_message(
+                "Atenção. Você deve colocar\n"+
+                "os bloco numérico correspondente\n"+
+                "à respostas sobre o tabuleiro.", 
+                "neutral0"
+            )
             self.show_teacher = True
             self.lives -= 1
-        
-        if len(numbers) == 2:
+        elif len(numbers) == 1:
+            response['number01'] = numbers[0]
+            response['number02'] = -1
+            response['number03'] = -1
+            response['is_correct'] = False
+            self.add_response(response)
+
+            self.teacher.set_message(
+                "Atenção! Você deve usar 3 números\n"+
+                "para tentar encontrar a soma 15.", 
+                "neutral0"
+            )
+            self.show_teacher = True
+            self.lives -= 1
+
+        elif len(numbers) == 2:
+            response['number01'] = numbers[0]
+            response['number02'] = numbers[1]
+            response['number03'] = -1
+            response['is_correct'] = False
+            self.add_response(response)
+            
             result = sum(numbers)
             if result == 15:
                 self.teacher.set_message(
-                    "  Apesar do resultado da operação.\n"+
-                    "   resultar em 15, é necessário\n"+
+                    "Apesar do resultado da operação\n"+
+                    "resultar em 15, é necessário\n"+
                     "utilizar 3 números distintos na soma.", 
                     "neutral0"
                 )
             else:
                 self.teacher.set_message(
-                    "Atenção! Você deve usar 3 números\n."+
+                    "Atenção! Você deve usar 3 números\n"+
                     "para tentar encontrar a soma 15.", 
                     "neutral0"
                 )
             self.show_teacher = True
             self.lives -= 1
 
-        if len(numbers) == 3:
+        elif len(numbers) == 3:
+            response['number01'] = numbers[0]
+            response['number02'] = numbers[1]
+            response['number03'] = numbers[2]
+
             numbers.sort()
             key = "".join(map(str, numbers))
             if self.challenges.get(key) is not None:
                 if self.challenges[key]['visible']:
-                    self.teacher.set_message("Atenção. Você já informou\nessa operação.\nTente resolver outras.", "happy0")
+                    response['is_correct'] = False
+                    self.add_response(response)
+                    
+                    self.teacher.set_message(
+                        "Atenção. Você já informou\n"+
+                        f"essa operação: {numbers[0]}+{numbers[1]}+{numbers[2]}.\n"+
+                        "Tente resolver outras.",
+                        "happy0"
+                    )
                     self.lives -= 1
 
                 else:
+                    response['is_correct'] = True
+                    self.add_response(response)
+
                     emotions = ['happy0', 'happy1', 'happy2', 'heart0']
                     self.teacher.set_message(
                         "Parabéns!!!\n"+
@@ -360,12 +419,17 @@ class Phase02(State):
                         "resultado 15.", 
                         emotions[random.randrange(0,len(emotions))]
                     )
+
                     self.challenges[key]['visible'] = True
                     self.frame_confetti = 1
                     self.confetti.visible = True
                     self.score += self.incremental_points
                     self.step += 1
+                    self.save_challenge(numbers)
             else:
+                response['is_correct'] = False
+                self.add_response(response)
+
                 result = sum(numbers)
                 fault = abs(15 - result)
                 self.teacher.set_message(
@@ -376,8 +440,33 @@ class Phase02(State):
                 )
                 self.lives -= 1
             
-            self.show_teacher = True
             
+            self.show_teacher = True
+        else:
+            result = sum(numbers)
+
+            response['number01'] = -result
+            response['number02'] = -result
+            response['number03'] = -result
+            response['is_correct'] = False
+            self.add_response(response)
+
+            if result == 15:
+                self.teacher.set_message(
+                    "Apesar do resultado da operação\n"+
+                    "resultar em 15, é necessário\n"+
+                    "utilizar 3 números distintos na soma.", 
+                    "neutral0"
+                )
+            else:
+                self.teacher.set_message(
+                    "Atenção! Você deve usar 3 números\n"+
+                    "para tentar encontrar a soma 15.", 
+                    "neutral0"
+                )
+            self.show_teacher = True
+            self.lives -= 1
+
     def draw_confetti(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -387,6 +476,39 @@ class Phase02(State):
         self.frame_confetti += 1
         if self.frame_confetti > self.confetti.total_frames:
             self.confetti.visible = False
+    
+    @db_session
+    def save_challenge(self, numbers = None):
+        user = DBUser[self.game.student.id]
+        responses = []
+        if not numbers:
+            numbers = [-99, -99, -99]
+
+        challenge = DBChallengeP2(
+            number01 = numbers[0],
+            number02 = numbers[1],
+            number03 = numbers[2],
+            total_time = self.timer_challenge.total_time_seconds(),
+            user = user
+        )
+
+        for r in self.responses:
+            data = DBResponseP2(
+                number01 = r['number01'],
+                number02 = r['number02'],
+                number03 = r['number03'],
+                is_correct = r['is_correct'],
+                total_time = r['total_time'],
+                time_without_pauses = r['time_without_pauses'],
+                paused_counter = r['paused_counter'],
+                tips_counter = r['tips_counter'],
+                challengep2 = challenge
+            )
+            commit()
+        self.timer_challenge.stop()
+        self.timer_response.stop()
+        self.new_challenge = True
+        self.responses = []
 
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
