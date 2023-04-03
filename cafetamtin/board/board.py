@@ -245,6 +245,15 @@ class Board:
                 if self.matrix_board[i][j] != 0:
                     numbers.append(self.matrix_board[i][j])
         return numbers
+    
+    def values_positions(self):
+        result = {}
+        for i in range(self.lines):
+            for j in range(self.columns):
+                if self.matrix_board[i][j] != 0:
+                    result[self.matrix_board[i][j]] = (i+1, j+1)
+        return result
+
         
 
     def draw_configure(self, display, side = 'left'):

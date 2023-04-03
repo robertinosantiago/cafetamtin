@@ -17,15 +17,18 @@
 
 import pygame
 import os
+import random
+from itertools import combinations
 
 from game.states.state import State
 from board.board import Board
 from game.actors.teacher import Teacher
+from utils.timer import Timer
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
 from game import FONT_NAME
-from game import WHITE, BLACK, RED, GREEN
+from game import WHITE, BLACK, RED, GREEN, DARKGREEN
 
 
 class Phase03(State):
@@ -57,9 +60,19 @@ class Phase03(State):
 
         self.images = self.load_images()
 
-        self.blocks_in_board = []
-        self.blocks_student = [2, 3, 4, 5, 6, 7, 8, 9]
-        self.blocks_tutor = [1]
+        self.blocks_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.blocks_student = {}
+        self.blocks_tutor = []
+
+        self.offset = 10
+        self.box_width, self.box_height = 40, 40
+
+        self.timer_challenge = Timer()
+        self.timer_teacher = Timer()
+        self.timer_teacher.start()
+        self.timer_response = Timer()
+
+        self.tips_times = 0
 
     def load_images(self):
         return {
@@ -91,7 +104,24 @@ class Phase03(State):
         pass
 
     def button_green_changed(self):
-        pass
+        if self.show_teacher:
+            return
+
+        if self.is_paused:
+            return
+        
+        self.timer_teacher.resume()
+        self.timer_response.stop()
+        self.timer_challenge.pause()
+        #irá contar o tempo enquanto verifica a resposta?
+
+
+        self.teacher.set_message("Verificando...", "neutral0")
+        self.show_teacher = True
+
+        self.board.avaliable_board()
+        self.board.draw_matrix_board()
+        self.check_challenge()
     
     def button_red_changed(self):
         if self.is_paused:
@@ -106,8 +136,8 @@ class Phase03(State):
         pass
 
     def reset_blocks(self):
-        self.blocks_in_board = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        self.blocks_student = []
+        self.blocks_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        self.blocks_student = {}
         self.blocks_tutor = []
 
 
@@ -203,29 +233,97 @@ class Phase03(State):
     def draw_board(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+
         color = (183, 183, 138, 255)
         rect_shape = (0, 55, screen_width,screen_height)
         shape = pygame.Surface(pygame.Rect(rect_shape).size, pygame.SRCALPHA)
         pygame.draw.rect(shape, color, shape.get_rect())
         display.blit(shape, rect_shape)
 
-        box_width = 230
-        box_height = 415
-        color =(238, 238, 238, 255)
-        rect_shape = (35, 85, box_width, box_height)
+        total_shape_x = self.box_width * self.board.columns + self.offset * (self.board.columns + 1)
+        total_shape_y = self.box_height * self.board.lines + self.offset * (self.board.lines + 1)
+
+        pos_x = self.offset
+        pos_y = 100
+
+        pos_x_rect = total_shape_x+pos_x+self.offset
+        width_rect = (screen_width-pos_x_rect-self.offset)/2-self.offset/2
+        height_rect = (screen_height-pos_y-50)/2+self.offset*2
+
+        color = (220,220,220,255)
+
+        #Bloco das possíveis somas do estudante
+        rect_shape = (pos_x_rect, pos_y, width_rect, height_rect)
         shape = pygame.Surface(pygame.Rect(rect_shape).size, pygame.SRCALPHA)
         pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
         display.blit(shape, rect_shape)
 
-        rect_shape = (screen_width-box_width-35, 85, box_width, box_height)
+        font = pygame.font.SysFont(FONT_NAME, 18, False, False)
+        text = font.render('Possíveis somas estudante', True, (0,0,0))
+        text_rect = text.get_rect(topleft=(pos_x_rect+self.offset, pos_y+self.offset))
+        display.blit(text, text_rect)
+
+        #Bloco das possíveis somas do tutor
+        rect_shape = (pos_x_rect+width_rect+self.offset, pos_y, width_rect, height_rect)
         shape = pygame.Surface(pygame.Rect(rect_shape).size, pygame.SRCALPHA)
         pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
         display.blit(shape, rect_shape)
 
-        rect_shape = (screen_width/2-box_width/2, 85, box_width, box_height)
+        font = pygame.font.SysFont(FONT_NAME, 18, False, False)
+        text = font.render('Possíveis somas tutor', True, (0,0,0))
+        text_rect = text.get_rect(topleft=(pos_x_rect+width_rect+self.offset+self.offset, pos_y+self.offset))
+        display.blit(text, text_rect)
+
+        height_rect = (screen_height-pos_y-50)/2-self.offset*4
+        color = (130,115,0,255)
+        
+        #Bloco das peças disponíveis
+        rect_shape = (pos_x_rect, pos_y+height_rect+self.offset*7, width_rect, height_rect+self.offset)
         shape = pygame.Surface(pygame.Rect(rect_shape).size, pygame.SRCALPHA)
         pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
         display.blit(shape, rect_shape)
+
+        text = font.render(f'Blocos disponíveis: {len(self.blocks_available)}', True, (255,255,255))
+        text_rect = text.get_rect(topleft=(pos_x_rect+self.offset, pos_y+height_rect+self.offset+self.offset*8))
+        display.blit(text, text_rect)
+
+        #Bloco das peças tutor
+        rect_shape = (pos_x_rect+width_rect+self.offset, pos_y+height_rect+self.offset*7, width_rect, height_rect+self.offset)
+        shape = pygame.Surface(pygame.Rect(rect_shape).size, pygame.SRCALPHA)
+        pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
+        display.blit(shape, rect_shape)
+
+        text = font.render('Blocos do tutor', True, (255,255,255))
+        text_rect = text.get_rect(topleft=(pos_x_rect+width_rect+self.offset+self.offset, pos_y+height_rect+self.offset+self.offset*8))
+        display.blit(text, text_rect)
+
+
+        font = pygame.font.SysFont(FONT_NAME, 24, False, False)
+        text = font.render(self.game.student.name, True, (255,255,255))
+        text_rect = text.get_rect(bottomleft=(pos_x, pos_y))
+        display.blit(text, text_rect)
+
+
+        rect_shape = (pos_x,pos_y,total_shape_x,total_shape_y)
+        shape = pygame.Surface(pygame.Rect(rect_shape).size, pygame.SRCALPHA)
+        pygame.draw.rect(shape, color, shape.get_rect())
+        display.blit(shape, rect_shape)
+
+        pos_x += self.offset
+        pos_y += self.offset
+        x = pos_x
+        
+        for col in range(0, self.board.columns):
+            y = pos_y
+            for lin in range(0, self.board.lines):
+                color = (255,255,255,255)
+                rect = (x,y,self.box_width,self.box_height)
+                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+                pygame.draw.rect(shape, color, shape.get_rect())
+                display.blit(shape, rect)
+
+                y += self.box_height + self.offset
+            x += self.box_width + self.offset
 
     def draw_challenge(self):
         display = self.game.game_canvas
@@ -233,57 +331,290 @@ class Phase03(State):
         font = pygame.font.SysFont(FONT_NAME, 30, False, False)
 
         if not self.show_teacher and not self.is_paused:
-            offset = 20
-            box_width, box_height = 50, 50
-            x = 385
-            y = 190
-            
-            for i in range(len(self.blocks_in_board)):
-                rect = (x,y,box_width,box_height)
-                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
-                pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
-                display.blit(shape, rect)
-                text = font.render(str(self.blocks_in_board[i]), True, (255,255,255))
-                text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
-                display.blit(text, text_rect)
-                if (i+1) % 3 == 0:
-                    x = 385
-                    y += box_height + offset
-                else:
-                    x += box_width + offset
-
-            x = 55
-            y = 190
-            for i in range(len(self.blocks_student)):
-                rect = (x,y,box_width,box_height)
-                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
-                pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
-                display.blit(shape, rect)
-                text = font.render(str(self.blocks_student[i]), True, (255,255,255))
-                text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
-                display.blit(text, text_rect)
-                if (i+1) % 3 == 0:
-                    x = 55
-                    y += box_height + offset
-                else:
-                    x += box_width + offset
-
-            x = 715
-            y = 190
+            x = 690
+            y = 420
             for i in range(len(self.blocks_tutor)):
-                rect = (x,y,box_width,box_height)
+                rect = (x,y,self.box_width,self.box_height)
                 shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
                 pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
                 display.blit(shape, rect)
                 text = font.render(str(self.blocks_tutor[i]), True, (255,255,255))
-                text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
+                text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
                 display.blit(text, text_rect)
-                if (i+1) % 3 == 0:
-                    x = 715
-                    y += box_height + offset
+                if (i+1) % 5 == 0:
+                    x = 690
+                    y += self.box_height + self.offset
                 else:
-                    x += box_width + offset
+                    x += self.box_width + self.offset
+            
+            x = 400
+            y = 420
+            
+            for i in range(len(self.blocks_available)):
+                rect = (x,y,self.box_width,self.box_height)
+                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+                pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
+                display.blit(shape, rect)
+                text = font.render(str(self.blocks_available[i]), True, (255,255,255))
+                text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
+                display.blit(text, text_rect)
+                if (i+1) % 5 == 0:
+                    x = 400
+                    y += self.box_height + self.offset
+                else:
+                    x += self.box_width + self.offset
+            
+            for key in self.blocks_student.keys():
+                pos = self.blocks_student[key]
+                x = self.offset + self.offset * pos[1] + self.box_width * (pos[1] - 1)
+                y = 100 + self.offset * pos[0] + self.box_height * (pos[0] - 1)
+                rect = (x,y,self.box_width,self.box_height)
+                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+                pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
+                display.blit(shape, rect)
+                text = font.render(str(key), True, (255,255,255))
+                text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
+                display.blit(text, text_rect)
 
+    def draw_possible_sums_student(self):
+        display = self.game.game_canvas
+        font = pygame.font.SysFont(FONT_NAME, 16, False, False)
+
+        possibile_sums = []
+        if len(self.blocks_student) == 0:
+            return
+        
+        numbers = list(self.blocks_student.keys())
+
+        if len(self.blocks_student) == 1:
+            s = {
+                'sum': f'{numbers[0]}+?+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(self.blocks_student) == 2:
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(self.blocks_student) == 3:
+            result = sum(numbers)
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+{numbers[2]} = {result}', 
+                'result': result, 
+                'color': DARKGREEN if result == 15 else RED
+            }
+            possibile_sums.append(s)
+        
+        else:
+            combs = combinations(numbers, 3)
+            for c in combs:
+                result = sum(c)
+                s = {
+                    'sum': f'{c[0]}+{c[1]}+{c[2]} = {result}', 
+                    'result': result, 
+                    'color': DARKGREEN if result == 15 else RED
+                }
+                possibile_sums.append(s)
+
+        x = 395
+        y = 160
+        width = 130
+        height = 25
+        for i in range(len(possibile_sums)):
+            text = font.render(possibile_sums[i]['sum'], True, possibile_sums[i]['color'])
+            text_rect = text.get_rect(topleft=(x, y))
+            display.blit(text, text_rect)
+            if (i+1) % 2 == 0:
+                x = 395
+                y += height + self.offset
+            else:
+                x += width + self.offset
+
+    def draw_possible_sums_tutor(self):
+        display = self.game.game_canvas
+        font = pygame.font.SysFont(FONT_NAME, 16, False, False)
+
+        possibile_sums = []
+        if len(self.blocks_tutor) == 0:
+            return
+        
+        numbers = self.blocks_tutor
+
+        if len(self.blocks_tutor) == 1:
+            s = {
+                'sum': f'{numbers[0]}+?+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(self.blocks_tutor) == 2:
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(self.blocks_tutor) == 3:
+            result = sum(numbers)
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+{numbers[2]} = {result}', 
+                'result': result, 
+                'color': DARKGREEN if result == 15 else RED
+            }
+            possibile_sums.append(s)
+        
+        else:
+            combs = combinations(numbers, 3)
+            for c in combs:
+                result = sum(c)
+                s = {
+                    'sum': f'{c[0]}+{c[1]}+{c[2]} = {result}', 
+                    'result': result, 
+                    'color': DARKGREEN if result == 15 else RED
+                }
+                possibile_sums.append(s)
+
+        x = 685
+        y = 160
+        width = 130
+        height = 25
+        for i in range(len(possibile_sums)):
+            text = font.render(possibile_sums[i]['sum'], True, possibile_sums[i]['color'])
+            text_rect = text.get_rect(topleft=(x, y))
+            display.blit(text, text_rect)
+            if (i+1) % 2 == 0:
+                x = 685
+                y += height + self.offset
+            else:
+                x += width + self.offset
+
+    def next_tutor_number(self):
+        if len(self.blocks_available) > 0:
+            index = random.randrange(0, len(self.blocks_available))
+            removed = self.blocks_available.pop(index)
+            self.blocks_tutor.append(removed)
+            return removed
+        return False
+
+    def check_challenge(self):
+        numbers_students = self.board.values_positions()
+        
+        if len(numbers_students) == 0:
+            self.teacher.set_message(
+                "Atenção. Você deve colocar\n"+
+                "um bloco numérico sobre o tabuleiro\n"+
+                "para iniciar.", 
+                "neutral0"
+            )
+            self.show_teacher = True
+            self.lives -= 1
+        
+        elif len(numbers_students) == len(self.blocks_student):
+            #verificar troca de mais de uma peça
+            diff = [x for x in numbers_students if x not in self.blocks_student]
+            if (len(diff)) == 0:
+                self.teacher.set_message(
+                    "Atenção. Você deve colocar\n"+
+                    "um novo bloco numérico sobre\n"+
+                    "o tabuleiro a cada tentativa.", 
+                    "neutral0"
+                )
+            else:
+                diff2 = [x for x in self.blocks_student if x not in numbers_students]
+                self.teacher.set_message(
+                    f"Atenção. Você trocou o número {diff2[0]}\n"+
+                    f"pelo número {diff[0]}. Você não deve\n"+
+                    "substitituir nenhum bloco. Desfaça"+
+                    "a alteração e adicionar um novo bloco.", 
+                    "neutral0"
+                )
+            
+            self.show_teacher = True
+            self.lives -= 1
+        
+        elif abs(len(numbers_students) - len(self.blocks_student)) > 1:
+            self.teacher.set_message(
+                "Atenção. Você deve adicionar apenas\n"+
+                "um bloco numérico por vez sobre o\n"+
+                "tabuleiro. Escolha apenas um.", 
+                "neutral0"
+            )
+            self.show_teacher = True
+            self.lives -= 1
+
+        elif len(self.blocks_student) > len(numbers_students):
+            self.teacher.set_message(
+                "Atenção. Você retirou um bloco numérico\n"+
+                "ao invés de adicionar um novo. Por favor,\n"+
+                "recoloque o bloco retirado e adicione um novo.", 
+                "neutral0"
+            )
+            self.show_teacher = True
+            self.lives -= 1
+
+        else:
+            diff = [x for x in numbers_students if x not in self.blocks_student]
+            
+            if diff[0] in self.blocks_tutor:
+                self.teacher.set_message(
+                    f"Você tentou colocar o número {diff}.\n"+
+                    "Esse bloco já foi selecionado\n"+
+                    "pelo tutor. Por favor, tente outro.", 
+                    "happy0"
+                )
+            else:
+                self.blocks_student.update(numbers_students)
+                for key in self.blocks_student.keys():
+                    if key in self.blocks_available:
+                        self.blocks_available.remove(key)
+
+                ntutor = self.next_tutor_number()
+
+                if ntutor:
+                    self.teacher.set_message(
+                        "Muito bem! Você adicionou o\n"+
+                        f"número {diff[0]}. O tutor escolheu\n"+
+                        f"o número {ntutor}.", 
+                        "happy0"
+                    )
+                else:
+                    self.teacher.set_message(
+                        "Muito bem! Você adicionou o\n"+
+                        f"número {diff[0]}. Essa foi o último"+
+                        "número disponível.", 
+                        "happy0"
+                    )
+                self.show_teacher = True
+            #verificar o numero que foi colocado
+            #verificar se tem algum numeros que o tutor selecionou
+            #verificar se já realizou a soma 15
+
+        """
+        for key in numbers_students.keys():
+            if key in self.blocks_student.keys():
+                pass #O estudante já havia selecionado
+
+        self.blocks_student = numbers_students
+        for key in numbers_students.keys():
+            if key in self.blocks_available:
+                self.blocks_available.remove(key)
+        
+        self.teacher.set_message(
+            "Adicionei.", 
+            "neutral0"
+        )
+        self.show_teacher = True
+        """
+
+            
     def exit_state(self):
         super().exit_state()
         #self.timer_challenge.stop()
@@ -314,7 +645,10 @@ class Phase03(State):
         
         if self.lives > 0 and self.step <= self.max_steps:
 
-            self.draw_challenge()
+            if not self.show_teacher and not self.is_paused:
+                self.draw_challenge()
+                self.draw_possible_sums_student()
+                self.draw_possible_sums_tutor()
 
             if self.enable_timer:
                 self.draw_timer()
