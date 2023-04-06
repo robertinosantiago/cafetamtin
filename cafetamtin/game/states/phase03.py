@@ -41,7 +41,7 @@ class Phase03(State):
 
         self.lives = 3
         self.score = 0
-        self.max_steps = 5
+        self.max_steps = 2
         self.step = 1
         self.incremental_points = 5
 
@@ -55,6 +55,8 @@ class Phase03(State):
         self.started = False
         self.end_phase = False
         self.new_challenge = True
+        self.tutor_starting = False
+        self.reload = False
 
         self.tips_times = 0
 
@@ -73,6 +75,8 @@ class Phase03(State):
         self.timer_response = Timer()
 
         self.tips_times = 0
+        self.first_gaming()
+        self.teacher.next_message()
 
     def load_images(self):
         return {
@@ -98,7 +102,17 @@ class Phase03(State):
                     pass
 
     def button_white_changed(self):
-        pass
+        if self.show_teacher:
+            return
+        
+        if self.is_paused:
+            self.timer_challenge.resume()
+            self.timer_response.resume()
+            self.is_paused = False
+        else:
+            self.timer_challenge.pause()
+            self.timer_response.pause()
+            self.is_paused = True
 
     def button_black_changed(self):
         pass
@@ -115,8 +129,16 @@ class Phase03(State):
         self.timer_challenge.pause()
         #irá contar o tempo enquanto verifica a resposta?
 
+        if self.teacher.has_next_message():
+            self.teacher.clear_messages()
 
-        self.teacher.set_message("Verificando...", "neutral0")
+
+        self.teacher.set_message(
+            "Verificando...\n"+
+            "Aguarde.", 
+            "neutral0"
+        )
+        self.teacher.next_message()
         self.show_teacher = True
 
         self.board.avaliable_board()
@@ -125,12 +147,59 @@ class Phase03(State):
     
     def button_red_changed(self):
         if self.is_paused:
-            return 
+            return
         
-        if self.show_teacher:
-            if not self.started:
-                self.started = True
+        if self.teacher.has_next_message():
+            self.teacher.next_message()
+            self.show_teacher = True
+
+        else:
             self.show_teacher = False
+
+            if self.reload:
+                self.reload = False
+                if not self.end_phase:
+                    self.reset_blocks()
+                    self.first_gaming()
+                    self.teacher.next_message()
+
+            if self.end_phase and not self.show_teacher:
+                self.exit_state()
+
+    def first_gaming(self):
+        self.teacher.set_message(
+                "Atenção!\n"+
+                "Prepare-se para começar.\n"+
+                "Remova todos os blocos que\n"+
+                "possam estar sobre o tabuleiro.", 
+                "neutral1"
+        )
+        if self.step == 1:
+            self.tutor_starting = bool(random.getrandbits(1))
+        else:
+            self.tutor_starting = not self.tutor_starting
+
+        if self.tutor_starting:
+            self.teacher.set_message(
+                "Nesta rodada, o tutor irá\n"+
+                "começar jogando. Observe que,\n"+
+                "na primeira jogada, ele já\n"+
+                "estará com um número selecionado\n"+
+                "no tabuleiro.\n"+
+                "Agora, é sua vez.", 
+                "neutral1"
+            )
+            self.next_tutor_number()
+        else:
+            self.teacher.set_message(
+                "Atenção!\n"+
+                "Nesta rodada, você inicia jogando.\n"+
+                "Prepare-se para começar.", 
+                "neutral1"
+            )
+        
+        self.show_teacher = True
+        
 
     def update(self, delta_time):
         pass
@@ -169,7 +238,7 @@ class Phase03(State):
 
         if not self.show_teacher:
             pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
-            white_text = font.render("Pausar", True, (0,0,0))
+            white_text = font.render("Pausar" if not self.is_paused else "Continuar", True, (0,0,0))
             display.blit(white_text, (35, baseline_text))
 
             pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
@@ -204,6 +273,8 @@ class Phase03(State):
     def draw_pause(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        baseline_text = screen_height - 35
+        baseline_circle = screen_height - 23
                 
         rect_background = (0,0,screen_width,screen_height)
         shape_surf = pygame.Surface(pygame.Rect(rect_background).size, pygame.SRCALPHA)
@@ -214,6 +285,11 @@ class Phase03(State):
         instruction_text = font.render('Pause', True, (220,220,220))
         instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
         display.blit(instruction_text, instruction_text_rect)
+
+        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
+        pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
+        white_text = font.render("Continuar", True, WHITE)
+        display.blit(white_text, (35, baseline_text))
 
     def draw_timer(self):
         display = self.game.game_canvas
@@ -330,51 +406,51 @@ class Phase03(State):
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
         font = pygame.font.SysFont(FONT_NAME, 30, False, False)
 
-        if not self.show_teacher and not self.is_paused:
-            x = 690
-            y = 420
-            for i in range(len(self.blocks_tutor)):
-                rect = (x,y,self.box_width,self.box_height)
-                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
-                pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
-                display.blit(shape, rect)
-                text = font.render(str(self.blocks_tutor[i]), True, (255,255,255))
-                text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
-                display.blit(text, text_rect)
-                if (i+1) % 5 == 0:
-                    x = 690
-                    y += self.box_height + self.offset
-                else:
-                    x += self.box_width + self.offset
-            
-            x = 400
-            y = 420
-            
-            for i in range(len(self.blocks_available)):
-                rect = (x,y,self.box_width,self.box_height)
-                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
-                pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
-                display.blit(shape, rect)
-                text = font.render(str(self.blocks_available[i]), True, (255,255,255))
-                text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
-                display.blit(text, text_rect)
-                if (i+1) % 5 == 0:
-                    x = 400
-                    y += self.box_height + self.offset
-                else:
-                    x += self.box_width + self.offset
-            
-            for key in self.blocks_student.keys():
-                pos = self.blocks_student[key]
-                x = self.offset + self.offset * pos[1] + self.box_width * (pos[1] - 1)
-                y = 100 + self.offset * pos[0] + self.box_height * (pos[0] - 1)
-                rect = (x,y,self.box_width,self.box_height)
-                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
-                pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
-                display.blit(shape, rect)
-                text = font.render(str(key), True, (255,255,255))
-                text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
-                display.blit(text, text_rect)
+        #if not self.show_teacher and not self.is_paused:
+        x = 690
+        y = 420
+        for i in range(len(self.blocks_tutor)):
+            rect = (x,y,self.box_width,self.box_height)
+            shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
+            display.blit(shape, rect)
+            text = font.render(str(self.blocks_tutor[i]), True, (255,255,255))
+            text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
+            display.blit(text, text_rect)
+            if (i+1) % 5 == 0:
+                x = 690
+                y += self.box_height + self.offset
+            else:
+                x += self.box_width + self.offset
+        
+        x = 400
+        y = 420
+        
+        for i in range(len(self.blocks_available)):
+            rect = (x,y,self.box_width,self.box_height)
+            shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
+            display.blit(shape, rect)
+            text = font.render(str(self.blocks_available[i]), True, (255,255,255))
+            text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
+            display.blit(text, text_rect)
+            if (i+1) % 5 == 0:
+                x = 400
+                y += self.box_height + self.offset
+            else:
+                x += self.box_width + self.offset
+        
+        for key in self.blocks_student.keys():
+            pos = self.blocks_student[key]
+            x = self.offset + self.offset * pos[1] + self.box_width * (pos[1] - 1)
+            y = 100 + self.offset * pos[0] + self.box_height * (pos[0] - 1)
+            rect = (x,y,self.box_width,self.box_height)
+            shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
+            display.blit(shape, rect)
+            text = font.render(str(key), True, (255,255,255))
+            text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
+            display.blit(text, text_rect)
 
     def draw_possible_sums_student(self):
         display = self.game.game_canvas
@@ -506,17 +582,16 @@ class Phase03(State):
 
     def check_challenge(self):
         numbers_students = self.board.values_positions()
-        
+
         if len(numbers_students) == 0:
             self.teacher.set_message(
                 "Atenção. Você deve colocar\n"+
-                "um bloco numérico sobre o tabuleiro\n"+
-                "para iniciar.", 
+                "um bloco numérico sobre o \n"+
+                "tabuleiro para iniciar.", 
                 "neutral0"
             )
-            self.show_teacher = True
             self.lives -= 1
-        
+
         elif len(numbers_students) == len(self.blocks_student):
             #verificar troca de mais de uma peça
             diff = [x for x in numbers_students if x not in self.blocks_student]
@@ -532,12 +607,11 @@ class Phase03(State):
                 self.teacher.set_message(
                     f"Atenção. Você trocou o número {diff2[0]}\n"+
                     f"pelo número {diff[0]}. Você não deve\n"+
-                    "substitituir nenhum bloco. Desfaça"+
+                    "substitituir nenhum bloco. Desfaça\n"+
                     "a alteração e adicionar um novo bloco.", 
                     "neutral0"
                 )
             
-            self.show_teacher = True
             self.lives -= 1
         
         elif abs(len(numbers_students) - len(self.blocks_student)) > 1:
@@ -547,7 +621,6 @@ class Phase03(State):
                 "tabuleiro. Escolha apenas um.", 
                 "neutral0"
             )
-            self.show_teacher = True
             self.lives -= 1
 
         elif len(self.blocks_student) > len(numbers_students):
@@ -557,7 +630,6 @@ class Phase03(State):
                 "recoloque o bloco retirado e adicione um novo.", 
                 "neutral0"
             )
-            self.show_teacher = True
             self.lives -= 1
 
         else:
@@ -570,6 +642,7 @@ class Phase03(State):
                     "pelo tutor. Por favor, tente outro.", 
                     "happy0"
                 )
+                self.lives -= 1
             else:
                 self.blocks_student.update(numbers_students)
                 for key in self.blocks_student.keys():
@@ -588,31 +661,47 @@ class Phase03(State):
                 else:
                     self.teacher.set_message(
                         "Muito bem! Você adicionou o\n"+
-                        f"número {diff[0]}. Essa foi o último"+
+                        f"número {diff[0]}. Esse foi o último\n"+
                         "número disponível.", 
                         "happy0"
                     )
-                self.show_teacher = True
-            #verificar o numero que foi colocado
-            #verificar se tem algum numeros que o tutor selecionou
-            #verificar se já realizou a soma 15
 
-        """
-        for key in numbers_students.keys():
-            if key in self.blocks_student.keys():
-                pass #O estudante já havia selecionado
-
-        self.blocks_student = numbers_students
-        for key in numbers_students.keys():
-            if key in self.blocks_available:
-                self.blocks_available.remove(key)
+        if len(self.blocks_available) == 0 and not self.end_phase:
+            self.teacher.set_message(
+                "Terminou essa rodada", 
+                "neutral0",
+                modal=False,
+                position=(500, 400)
+            )
+            self.step += 1
+            if self.lives > 0 and self.step <= self.max_steps:
+                self.reload = True
         
-        self.teacher.set_message(
-            "Adicionei.", 
-            "neutral0"
-        )
+        if self.lives == 0:
+            self.teacher.set_message(
+                "Infelizmente, você não conseguiu\n"+
+                "realizar todas as operações corretamente.\n"+
+                "Tente novamente!", 
+                "neutral1"
+            )
+            self.end_phase = True
+
+        if self.step > self.max_steps and not self.end_phase:
+            self.teacher.set_message(
+                "Parabéns!!! Você conseguiu realizar\n"+
+                "as operações corretamente. Nos vemos na\n"+
+                "próxima fase.", 
+                "heart0"
+            )
+            self.end_phase = True
+            
+
+        self.teacher.next_message()
         self.show_teacher = True
-        """
+
+        #verificar o numero que foi colocado
+        #verificar se tem algum numeros que o tutor selecionou
+        #verificar se já realizou a soma 15
 
             
     def exit_state(self):
@@ -633,46 +722,18 @@ class Phase03(State):
         self.draw_student_name()
         self.draw_physical_buttons()
 
-        if not self.started:
-            self.teacher.set_message("Atenção!\nPrepare-se para começar", "neutral1")
-            self.show_teacher = True
-        
         if self.show_teacher:
             self.teacher.draw()
 
         if self.is_paused:
             self.draw_pause()
         
+        if (not self.show_teacher and not self.is_paused) or (self.show_teacher and not self.teacher.modal):
+            self.draw_challenge()
+            self.draw_possible_sums_student()
+            self.draw_possible_sums_tutor()
+
         if self.lives > 0 and self.step <= self.max_steps:
-
-            if not self.show_teacher and not self.is_paused:
-                self.draw_challenge()
-                self.draw_possible_sums_student()
-                self.draw_possible_sums_tutor()
-
             if self.enable_timer:
                 self.draw_timer()
-
-        else:
-            if not self.show_teacher:
-                if self.lives == 0:
-                    self.teacher.set_message(
-                        "Infelizmente, você não conseguiu\n"+
-                        "realizar todas as operações corretamente.\n"+
-                        "Tente novamente!", 
-                        "neutral1"
-                    )
-                    self.show_teacher = True
-                    self.end_phase = True
-                if self.step >= self.max_steps and not self.end_phase:
-                    self.teacher.set_message(
-                        "Parabéns!!! Você conseguiu realizar\n"+
-                        "as operações corretamente. Nos vemos na\n"+
-                        "próxima fase.", 
-                        "heart0"
-                    )
-                    self.show_teacher = True
-                    self.end_phase = True
-                
-                if self.end_phase and not self.show_teacher:
-                    self.exit_state()
+    

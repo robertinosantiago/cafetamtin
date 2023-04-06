@@ -19,6 +19,7 @@
 
 import pygame
 import os
+import queue
 
 from game import FONT_NAME
 
@@ -31,6 +32,9 @@ class Teacher:
         self.image = self.images[self.image_key]
         self.rect = self.image.get_rect(center = (0,0))
         self.message = None
+        self.modal = True
+        self.position = None
+        self.messages = queue.Queue()
 
 
     def load_images(self):
@@ -43,9 +47,27 @@ class Teacher:
             'heart0': pygame.image.load(os.path.join("images", "teacher-heart0.png")),
         }
     
-    def set_message(self, message, image_key = 'happy0'):
-        self.image_key = image_key
-        self.message = message
+    def set_message(self, message, image_key = 'happy0', modal = True, position = None):
+        data = {
+            'image_key': image_key,
+            'message': message,
+            'modal': modal,
+            'position': position
+        }
+        self.messages.put(data)
+
+    def next_message(self):
+        data = self.messages.get()
+        self.image_key = data['image_key']
+        self.message = data['message']
+        self.modal = data['modal']
+        self.position = data['position']
+
+    def has_next_message(self):
+        return not self.messages.empty()
+    
+    def clear_messages(self):
+        self.messages = queue.Queue()
 
     def draw_speech_bubble(self, text, text_colour, bg_colour, pos, size):
         screen_width, screen_height = self.display.get_size()
@@ -91,11 +113,14 @@ class Teacher:
     def draw(self):
         screen_width, screen_height = self.display.get_size()
         self.rect.center = (screen_width / 2, screen_height / 2)
+        if self.position:
+            self.rect.center = self.position
         
         rect_background = (0,0,screen_width,screen_height-46)
         shape_surf = pygame.Surface(pygame.Rect(rect_background).size, pygame.SRCALPHA)
         pygame.draw.rect(shape_surf, (0,0,0,105), shape_surf.get_rect())
-        self.display.blit(shape_surf, rect_background)
+        if self.modal:
+            self.display.blit(shape_surf, rect_background)
 
         self.display.blit(self.images[self.image_key], self.rect)
         self.draw_speech_bubble(self.message, (255, 255, 255), (0, 0, 0), (0, self.rect.midbottom[1]), 16)

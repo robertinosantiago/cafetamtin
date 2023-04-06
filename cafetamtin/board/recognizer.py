@@ -78,7 +78,7 @@ class Recognizer:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.5:
+                if confidence > 0.9:
                     # Extract values to draw bounding box
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
@@ -92,7 +92,7 @@ class Recognizer:
                     confidences.append(float(confidence))
                     class_ids.append(class_id)
 
-                    #print('center: x:{}, y:{} = Number: {}'.format(center_x, center_y, self.classes[class_id]))
+                    #print('center: x:{}, y:{} = Number: {}, confidence: {}'.format(center_x, center_y, self.classes[class_id], confidence))
                     self.draw_prediction(image, class_id, confidence, round(x), round(y), round(x+w), round(y+h))
                     cv2.imwrite("object-detection.jpg", image)
 
