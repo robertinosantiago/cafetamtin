@@ -70,35 +70,28 @@ class Teacher:
         self.messages = queue.Queue()
 
     def draw_speech_bubble(self, text, text_colour, bg_colour, pos, size):
-        screen_width, screen_height = self.display.get_size()
         font = pygame.font.SysFont(FONT_NAME, size, False, False)
-
         collection = [word.split(' ') for word in text.splitlines()]
-        space = font.size(' ')[0]
-        x,y = pos
-        box_width, box_height = 0, 0
-        words_blits = []
-        pos_blits = []
-        
-        for lines in collection:
-            bw = 0
-            for words in lines:
-                word_surface = font.render(words, True, text_colour)
-                word_width , word_height = word_surface.get_size()
-                if x + word_width >= screen_width:
-                    x = pos[0]
-                    y += word_height
-                words_blits.append(word_surface)
-                pos_blits.append((x,y))
-                x += word_width + space
-                bw += word_width + space
-            box_height += word_height
-            if bw > box_width:
-                box_width = bw
-            x = pos[0]
-            y += word_height
+        lines = []
 
-        bg_rect = pygame.Rect(screen_width/2-box_width/2, pos[1], box_width, box_height)
+        for c in collection:
+            t = ''
+            for i in range(0, len(c)):
+                t += c[i]
+                if i < len(c)-1:
+                    t += ' '
+            lines.append(t)
+
+        max_width = 0
+        max_height = 0
+        for line in lines:
+            word_surface = font.render(line, True, text_colour)
+            word_width , word_height = word_surface.get_size()
+            max_width = max(word_width, max_width)
+            max_height += word_height
+        
+        
+        bg_rect = pygame.Rect(pos[0]+pos[2]//2-max_width//2, pos[1]+pos[3], max_width, max_height)
         bg_rect.inflate_ip(10, 10)
 
         frame_rect = bg_rect.copy()
@@ -106,15 +99,21 @@ class Teacher:
 
         pygame.draw.rect(self.display, text_colour, frame_rect)
         pygame.draw.rect(self.display, bg_colour, bg_rect)
-        for word, p in zip(words_blits, pos_blits):
-            x, y = p
-            self.display.blit(word, (frame_rect[0] + 10 + x, y))
+        
+        for i in range(0, len(lines)):
+            word_surface = font.render(lines[i], True, text_colour)
+            word_width , word_height = word_surface.get_size()
+            
+            self.display.blit(word_surface, (pos[0]+pos[2]//2-word_width//2, pos[1] + pos[3] + i * word_height))
 
     def draw(self):
         screen_width, screen_height = self.display.get_size()
-        self.rect.center = (screen_width / 2, screen_height / 2)
+
+        pos = (screen_width / 2, screen_height / 2)
         if self.position:
-            self.rect.center = self.position
+            pos = self.position
+        
+        self.rect = pygame.Surface.get_rect(self.images[self.image_key], center=pos)
         
         rect_background = (0,0,screen_width,screen_height-46)
         shape_surf = pygame.Surface(pygame.Rect(rect_background).size, pygame.SRCALPHA)
@@ -123,4 +122,4 @@ class Teacher:
             self.display.blit(shape_surf, rect_background)
 
         self.display.blit(self.images[self.image_key], self.rect)
-        self.draw_speech_bubble(self.message, (255, 255, 255), (0, 0, 0), (0, self.rect.midbottom[1]), 16)
+        self.draw_speech_bubble(self.message, (255, 255, 255), (0, 0, 0), self.rect, 16)

@@ -23,6 +23,7 @@ from game.states.state import State
 from game.states.phase01 import Phase01
 from game.states.phase02 import Phase02
 from game.states.phase03 import Phase03
+from game.states.phase04 import Phase04
 from database.models import DBUser, DBSteps
 
 from game import BACKGROUND_COLOR
@@ -117,7 +118,7 @@ class Phases(State):
         elif self.current_phase == 3:
             new_state = Phase03(self.game)
         elif self.current_phase == 4:
-            pass
+            new_state = Phase04(self.game)
         
         self.reload = True
         new_state.enter_state()
@@ -169,7 +170,7 @@ class Phases(State):
         phase04 = self.images['phase04'][status_phase]
         phase04_rect = phase04.get_rect(center=(offset_width+slice_width*3, screen_height/2))
         display.blit(phase04, phase04_rect)
-        text = font.render('Fase 04', True, (120, 120, 120))
+        text = font.render('Fase 04', True, TEXT_DISABLE_COLOR if status_phase == 'not-started' else TEXT_COLOR)
         text_rect = text.get_rect(center=(offset_width+slice_width*3, phase01_rect.bottom + 20))
         display.blit(text, text_rect)
         if status_phase == 'completed':

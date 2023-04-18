@@ -24,6 +24,7 @@ from game.states.state import State
 from board.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
+from utils.confetti import Confetti
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -38,6 +39,8 @@ class Phase03(State):
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
+        self.confetti = Confetti()
+        self.frame_confetti = 1
 
         self.lives = 3
         self.score = 0
@@ -65,6 +68,7 @@ class Phase03(State):
         self.blocks_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.blocks_student = {}
         self.blocks_tutor = []
+        self.sums_founds_student = []
 
         self.offset = 10
         self.box_width, self.box_height = 40, 40
@@ -208,6 +212,7 @@ class Phase03(State):
         self.blocks_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.blocks_student = {}
         self.blocks_tutor = []
+        self.sums_founds_student = []
 
 
     def draw_lifes(self):
@@ -511,6 +516,24 @@ class Phase03(State):
                 y += height + self.offset
             else:
                 x += width + self.offset
+    
+    def verify_sums_student(self):
+        numbers = list(self.blocks_student.keys())
+        if len(self.blocks_student) >= 3:
+            combs = combinations(numbers, 3)
+            for c in combs:
+                l = list(c)
+                l.sort()
+                result = sum(l)
+                if result == 15:
+                    key = "".join(map(str, l))
+                    if not key in self.sums_founds_student:
+                        self.sums_founds_student.append(key)
+                        self.frame_confetti = 1
+                        self.confetti.visible = True
+                        return True
+        return False
+
 
     def draw_possible_sums_tutor(self):
         display = self.game.game_canvas
@@ -665,6 +688,13 @@ class Phase03(State):
                         "número disponível.", 
                         "happy0"
                     )
+                
+                if self.verify_sums_student():
+                    self.teacher.set_message(
+                        "Ual!!! Com esse bloco, você conseguiu\n"+
+                        "realizar a soma 15. Parabéns!", 
+                        "heart0"
+                    )
 
         if len(self.blocks_available) == 0 and not self.end_phase:
             self.teacher.set_message(
@@ -703,7 +733,16 @@ class Phase03(State):
         #verificar se tem algum numeros que o tutor selecionou
         #verificar se já realizou a soma 15
 
-            
+    def draw_confetti(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        frame = self.confetti.get_image(self.frame_confetti)
+        frame_rect = frame.get_rect(center=(screen_width/2, screen_height/2 - 80))
+        display.blit(frame, frame_rect)
+        self.frame_confetti += 1
+        if self.frame_confetti > self.confetti.total_frames:
+            self.confetti.visible = False
+
     def exit_state(self):
         super().exit_state()
         #self.timer_challenge.stop()
@@ -727,6 +766,9 @@ class Phase03(State):
 
         if self.is_paused:
             self.draw_pause()
+
+        if self.confetti.visible:
+            self.draw_confetti()
         
         if (not self.show_teacher and not self.is_paused) or (self.show_teacher and not self.teacher.modal):
             self.draw_challenge()

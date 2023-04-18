@@ -79,6 +79,7 @@ class Phase01(State):
         self.timer_response = Timer()
 
         self.tips_times = 0
+        self.starting_game()
 
 
     def load_images(self):
@@ -138,7 +139,16 @@ class Phase01(State):
         #irá contar o tempo enquanto verifica a resposta?
 
 
-        self.teacher.set_message("Verificando...", "neutral0")
+        if self.teacher.has_next_message():
+            self.teacher.clear_messages()
+
+
+        self.teacher.set_message(
+            "Verificando...\n"+
+            "Aguarde.", 
+            "neutral0"
+        )
+        self.teacher.next_message()
         self.show_teacher = True
 
         self.board.avaliable_board()
@@ -150,12 +160,28 @@ class Phase01(State):
         Executed when the red button of the base is pressed
         """
         if self.is_paused:
-            return 
-        
-        if self.show_teacher:
+            return
+
+        if not self.show_teacher:
+            self.timer_challenge.pause()
+            self.timer_response.pause()
+            self.timer_teacher.resume()
+            self.tips_times += 1
+            self.teacher.set_message(
+                "Dicas", 
+                "neutral0"
+            )
+
+        if self.teacher.has_next_message():
+            self.teacher.next_message()
+            self.show_teacher = True
+
             if not self.started:
                 self.started = True
-            
+        else:
+            self.show_teacher = False
+
+
             if self.step == self.max_steps:
                 self.step += 1
                 self.save_steps(1, 'completed')
@@ -174,14 +200,9 @@ class Phase01(State):
                 self.timer_response.resume()
                 
             self.timer_teacher.pause()
-            self.show_teacher = False
-        else:
-            self.timer_challenge.pause()
-            self.timer_response.pause()
-            self.teacher.set_message("Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.\nLorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.")
-            self.timer_teacher.resume()
-            self.show_teacher = True
-            self.tips_times += 1
+            
+            if self.end_phase and not self.show_teacher:
+                self.exit_state()
 
 
     def button_black_changed(self):
@@ -189,6 +210,16 @@ class Phase01(State):
         Executed when the black button of the base is pressed
         """
         pass
+
+    def starting_game(self):
+        if not self.started:
+            self.teacher.set_message(
+                "Atenção!\n"+
+                "Prepare-se para começar", 
+                "neutral1"
+            )
+            self.teacher.next_message()
+            self.show_teacher = True
 
 
     def check_challenge(self):
@@ -203,8 +234,12 @@ class Phase01(State):
             response['informed_result'] = -1
             response['is_correct'] = False
 
-            self.teacher.set_message("Atenção. Você deve colocar\nos bloco numérico correspondente\nà respostas sobre o tabuleiro.", "neutral0")
-            self.show_teacher = True
+            self.teacher.set_message(
+                "Atenção. Você deve colocar\n"+
+                "os bloco numérico correspondente\n"+
+                "à respostas sobre o tabuleiro.", 
+                "neutral0"
+            )
             self.lives -= 1
 
         if len(numbers) == 1:
@@ -214,30 +249,61 @@ class Phase01(State):
                 response['is_correct'] = True
                 
                 emotions = ['happy0', 'happy1', 'happy2', 'heart0']
-                self.teacher.set_message("Parabéns!!!\nVocê acertou.", emotions[random.randrange(0,len(emotions))])
-                self.show_teacher = True
+                self.teacher.set_message(
+                    "Parabéns!!!\n"+
+                    "Você acertou.", 
+                    emotions[random.randrange(0,len(emotions))]
+                )
                 self.score += self.incremental_points
 
             else:
                 response['informed_result'] = numbers[0]
                 response['is_correct'] = False 
 
-                self.teacher.set_message("Ops. Não era esse o resultado.\nVamos tentar novamente?", "neutral0")
-                self.show_teacher = True
+                self.teacher.set_message(
+                    "Ops. Não era esse o resultado.\n"+
+                    "Vamos tentar novamente?", 
+                    "neutral0"
+                )
                 self.lives -= 1
 
         if len(numbers) >= 2:
             response['informed_result'] = -2
             response['is_correct'] = False 
 
-            self.teacher.set_message("Atenção. Você deve informar\no resultado da operação.", "neutral1")
-            self.show_teacher = True
+            self.teacher.set_message(
+                "Atenção. Você deve informar\n"+
+                "o resultado da operação.", 
+                "neutral1"
+            )
+            
             self.lives -= 1
         
         self.responses.append(response)
         self.save_challenge()
         self.generate_new_challenge()
         self.step += 1
+
+        if self.lives == 0:
+            self.teacher.set_message(
+                "Infelizmente, você não conseguiu\n"+
+                "realizar todas as operações corretamente.\n"+
+                "Tente novamente!", 
+                "neutral1"
+            )
+            self.end_phase = True
+
+        if self.step >= self.max_steps and not self.end_phase:
+            self.teacher.set_message(
+                "Parabéns!!! Você conseguiu realizar\n"+
+                "as operações corretamente. Nos vemos na\n"+
+                "próxima fase.", 
+                "heart0"
+            )
+            self.end_phase = True
+        
+        self.teacher.next_message()
+        self.show_teacher = True
         
 
     def draw_lifes(self):
@@ -450,9 +516,6 @@ class Phase01(State):
         self.draw_student_name()
         self.draw_physical_buttons()
 
-        if not self.started:
-            self.teacher.set_message("Atenção!\nPrepare-se para começar", "neutral1")
-            self.show_teacher = True
         
         if self.show_teacher:
             self.teacher.draw()
@@ -466,27 +529,3 @@ class Phase01(State):
 
             if self.enable_timer:
                 self.draw_timer()
-
-        else:
-            if not self.show_teacher:
-                if self.lives == 0:
-                    self.teacher.set_message(
-                        "Infelizmente, você não conseguiu\n"+
-                        "realizar todas as operações corretamente.\n"+
-                        "Tente novamente!", 
-                        "neutral1"
-                    )
-                    self.show_teacher = True
-                    self.end_phase = True
-                if self.step >= self.max_steps and not self.end_phase:
-                    self.teacher.set_message(
-                        "Parabéns!!! Você conseguiu realizar\n"+
-                        "as operações corretamente. Nos vemos na\n"+
-                        "próxima fase.", 
-                        "heart0"
-                    )
-                    self.show_teacher = True
-                    self.end_phase = True
-                
-                if self.end_phase and not self.show_teacher:
-                    self.exit_state()

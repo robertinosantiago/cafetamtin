@@ -71,6 +71,7 @@ class Phase02(State):
 
         self.confetti = Confetti()
         self.frame_confetti = 1
+        self.starting_game()
 
 
     def load_images(self):
@@ -136,7 +137,16 @@ class Phase02(State):
         #irá contar o tempo enquanto verifica a resposta?
 
 
-        self.teacher.set_message("Verificando...", "neutral0")
+        if self.teacher.has_next_message():
+            self.teacher.clear_messages()
+
+
+        self.teacher.set_message(
+            "Verificando...\n"+
+            "Aguarde.", 
+            "neutral0"
+        )
+        self.teacher.next_message()
         self.show_teacher = True
 
         self.board.avaliable_board()
@@ -144,6 +154,56 @@ class Phase02(State):
         self.check_challenge()
     
     def button_red_changed(self):
+        if self.is_paused:
+            return
+
+        if not self.show_teacher:
+            self.timer_challenge.pause()
+            self.timer_response.pause()
+            self.timer_teacher.resume()
+            self.tips_times += 1
+            self.teacher.set_message(
+                "Dicas", 
+                "neutral0"
+            )
+
+        if self.teacher.has_next_message():
+            self.teacher.next_message()
+            self.show_teacher = True
+
+            if not self.started:
+                self.started = True
+        else:
+            self.show_teacher = False
+            self.timer_teacher.pause()
+
+            if self.step == self.max_steps:
+                self.step += 1
+                self.save_steps(2, 'completed')
+                self.save_steps(3, 'not-started')
+            if self.lives == 0 and self.end_phase:
+                self.lives -= 1
+                self.save_challenge()
+                self.save_steps(2, 'not-completed')
+            
+            if self.new_challenge:
+                self.timer_challenge.start()
+                self.timer_response.start()
+                self.new_challenge = False
+                self.tips_times = 0
+            else:
+                self.timer_challenge.resume()
+                if self.new_response:
+                    self.timer_response.start()
+                    self.new_response = False
+                else:
+                    self.timer_response.resume()
+            
+
+            if self.end_phase and not self.show_teacher:
+                self.exit_state()
+
+    def button_red_changed2(self):
         if self.is_paused:
             return 
         
@@ -196,7 +256,15 @@ class Phase02(State):
         }
         return challenges
         
-    
+    def starting_game(self):
+        if not self.started:
+            self.teacher.set_message(
+                "Atenção!\n"+
+                "Prepare-se para começar", 
+                "neutral1"
+            )
+            self.teacher.next_message()
+            self.show_teacher = True
 
     def update(self, delta_time):
         pass
@@ -349,7 +417,6 @@ class Phase02(State):
                 "à respostas sobre o tabuleiro.", 
                 "neutral0"
             )
-            self.show_teacher = True
             self.lives -= 1
         elif len(numbers) == 1:
             response['number01'] = numbers[0]
@@ -363,7 +430,6 @@ class Phase02(State):
                 "para tentar encontrar a soma 15.", 
                 "neutral0"
             )
-            self.show_teacher = True
             self.lives -= 1
 
         elif len(numbers) == 2:
@@ -387,7 +453,6 @@ class Phase02(State):
                     "para tentar encontrar a soma 15.", 
                     "neutral0"
                 )
-            self.show_teacher = True
             self.lives -= 1
 
         elif len(numbers) == 3:
@@ -442,9 +507,7 @@ class Phase02(State):
                     "neutral1"
                 )
                 self.lives -= 1
-            
-            
-            self.show_teacher = True
+        
         else:
             result = sum(numbers)
 
@@ -467,8 +530,29 @@ class Phase02(State):
                     "para tentar encontrar a soma 15.", 
                     "neutral0"
                 )
-            self.show_teacher = True
             self.lives -= 1
+        
+        if self.lives == 0:
+            self.teacher.set_message(
+                "Infelizmente, você não conseguiu\n"+
+                "encontrar todas as possibilidades.\n"+
+                "Tente novamente!", 
+                "neutral1"
+            )
+            self.end_phase = True
+
+        if self.step >= self.max_steps and not self.end_phase:
+            self.teacher.set_message(
+                "Parabéns!!! Você encontrou todas\n"+
+                "as somas  possíveis com 3 números\n"+
+                "que resultam em 15. Nos vemos na\n"+
+                "próxima fase.", 
+                "heart0"
+            )
+            self.end_phase = True
+
+        self.teacher.next_message()
+        self.show_teacher = True
 
     def draw_confetti(self):
         display = self.game.game_canvas
@@ -540,14 +624,6 @@ class Phase02(State):
         self.draw_score()
         self.draw_student_name()
         self.draw_physical_buttons()
-
-        if not self.started:
-            self.teacher.set_message(
-                "Atenção!\n"+
-                "Prepare-se para começar",
-                "neutral1"
-            )
-            self.show_teacher = True
         
         if self.show_teacher:
             self.teacher.draw()
@@ -560,6 +636,7 @@ class Phase02(State):
         
         if self.lives > 0 and self.step < self.max_steps:
             self.draw_challenge()
+        '''
         else:
             if not self.show_teacher:
                 if self.lives == 0:
@@ -584,3 +661,4 @@ class Phase02(State):
                 
                 if self.end_phase and not self.show_teacher:
                     self.exit_state()
+        '''

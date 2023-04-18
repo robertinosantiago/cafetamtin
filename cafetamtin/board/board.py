@@ -42,6 +42,7 @@ class Board:
         self.span_rows = 0
         self.block_width = 0
         self.block_height = 0
+        self.configuration_mode = False
         
         self.camera = self.app.camera_board
         self.recognizer = Recognizer(self)
@@ -110,6 +111,7 @@ class Board:
             print('')
 
     def define_left_limits(self):
+        self.configuration_mode = True
         image = self.camera.take_picture()
         positions = self.recognizer.get_positions(image, True)
 
@@ -133,6 +135,7 @@ class Board:
         return False
 
     def define_right_limits(self):
+        self.configuration_mode = True
         image = self.camera.take_picture()
         positions = self.recognizer.get_positions(image, True)
 

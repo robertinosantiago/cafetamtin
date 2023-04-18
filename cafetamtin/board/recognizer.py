@@ -82,19 +82,27 @@ class Recognizer:
                     # Extract values to draw bounding box
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
-                    centers.append([center_x, center_y])
-                    w = int(detection[2] * width)
-                    h = int(detection[3] * height)
-                    # Rectangle coordinates
-                    x = int(center_x - w / 2)
-                    y = int(center_y - h / 2)
-                    boxes.append([x, y, w, h])
-                    confidences.append(float(confidence))
-                    class_ids.append(class_id)
+                    if (
+                        (center_x >= self.board.top_left[0] and 
+                        center_x <= self.board.top_right[0] and
+                        center_y >= self.board.top_left[1] and
+                        center_y <= self.board.bottom_right[1]) or
+                        self.board.configuration_mode
+                        ):
+                        print("cf: ", self.board.configuration_mode, center_x, center_y)
+                        centers.append([center_x, center_y])
+                        w = int(detection[2] * width)
+                        h = int(detection[3] * height)
+                        # Rectangle coordinates
+                        x = int(center_x - w / 2)
+                        y = int(center_y - h / 2)
+                        boxes.append([x, y, w, h])
+                        confidences.append(float(confidence))
+                        class_ids.append(class_id)
 
-                    #print('center: x:{}, y:{} = Number: {}, confidence: {}'.format(center_x, center_y, self.classes[class_id], confidence))
-                    self.draw_prediction(image, class_id, confidence, round(x), round(y), round(x+w), round(y+h))
-                    cv2.imwrite("object-detection.jpg", image)
+                        print('center: x:{}, y:{} = Number: {}, confidence: {}'.format(center_x, center_y, self.classes[class_id], confidence))
+                        self.draw_prediction(image, class_id, confidence, round(x), round(y), round(x+w), round(y+h))
+                        cv2.imwrite("object-detection.jpg", image)
 
         #print(boxes)
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
