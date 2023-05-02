@@ -29,9 +29,11 @@ from game import WHITE, BLACK, RED, GREEN
 
 from game.states.state import State
 from game.actors.teacher import Teacher
-from board.board import Board
+from base.board import Board
+from base.leds import Leds, RainbowThread
 from utils.timer import Timer
 from database.models import DBUser, DBSteps, DBChallengeP1, DBResponseP1
+from utils.confetti import Confetti
 
 class Phase01(State):
     
@@ -47,14 +49,12 @@ class Phase01(State):
 
         self.lives = 3
         self.score = 0
-        self.max_steps = 5
+        self.max_steps = 6
         self.step = 1
         self.incremental_points = 5
 
         self.min_number = 1
         self.max_number = 10
-        self.operators = ['+', '-']
-        
 
         self.images = self.load_images()
         
@@ -71,12 +71,18 @@ class Phase01(State):
         self.new_challenge = True
         self.challenge = ()
         self.responses = []
+        self.operators = self.generate_operators()
         self.generate_new_challenge()
 
         self.timer_challenge = Timer()
         self.timer_teacher = Timer()
         self.timer_teacher.start()
         self.timer_response = Timer()
+        
+        self.leds = Leds()
+        self.rainbow = RainbowThread()
+        self.confetti = Confetti()
+        self.frame_confetti = 1
 
         self.tips_times = 0
         self.starting_game()
@@ -175,11 +181,14 @@ class Phase01(State):
         if self.teacher.has_next_message():
             self.teacher.next_message()
             self.show_teacher = True
+            self.leds.turnOff()
 
             if not self.started:
                 self.started = True
         else:
             self.show_teacher = False
+            
+            self.leds.central_led()
 
 
             if self.step == self.max_steps:
@@ -210,6 +219,9 @@ class Phase01(State):
         Executed when the black button of the base is pressed
         """
         pass
+    
+    def turn_on_led(self):
+        self.leds.central_led()
 
     def starting_game(self):
         if not self.started:
@@ -255,6 +267,10 @@ class Phase01(State):
                     emotions[random.randrange(0,len(emotions))]
                 )
                 self.score += self.incremental_points
+                self.frame_confetti = 1
+                self.confetti.visible = True
+                rainbow = RainbowThread()
+                rainbow.start()
 
             else:
                 response['informed_result'] = numbers[0]
@@ -382,6 +398,22 @@ class Phase01(State):
             display.blit(instruction_text, instruction_text_rect)
             display.blit(challenge_text, challenge_text_rect)
         
+    def generate_operators(self):
+        operators = ['+', '-']
+        result = []
+
+        for i in range(0, self.max_steps):
+            op = operators[random.randrange(0, len(operators))]
+            
+            if len(result) > 1:
+                if op == result[-1] and op == result[-2]:
+                    if op == operators[0]:
+                        op = operators[1]
+                    else:
+                        op = operators[0]
+            result.append(op)
+        return result
+    
     def generate_new_challenge(self):
         self.challenge = self.random_calc()
         self.responses = []
@@ -391,7 +423,7 @@ class Phase01(State):
     def random_calc(self):
         number1 = random.randrange(self.min_number,self.max_number)
         number2 = random.randrange(self.min_number,self.max_number)
-        operator = random.choice(self.operators)
+        operator = self.operators.pop()
         result = 0
         if operator == '+':
             if number1 + number2 > 9:
@@ -457,9 +489,20 @@ class Phase01(State):
         instruction_text = font.render('Pause', True, (220,220,220))
         instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
         display.blit(instruction_text, instruction_text_rect)
+        
+    def draw_confetti(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        frame = self.confetti.get_image(self.frame_confetti)
+        frame_rect = frame.get_rect(center=(screen_width/2, screen_height/2 - 80))
+        display.blit(frame, frame_rect)
+        self.frame_confetti += 1
+        if self.frame_confetti > self.confetti.total_frames:
+            self.confetti.visible = False
 
     def exit_state(self):
         super().exit_state()
+        self.leds.turnOff()
         self.timer_challenge.stop()
         self.timer_teacher.stop()
 
@@ -522,6 +565,9 @@ class Phase01(State):
 
         if self.is_paused:
             self.draw_pause()
+            
+        if self.confetti.visible:
+            self.draw_confetti()
         
         if self.lives > 0 and self.step <= self.max_steps:
 

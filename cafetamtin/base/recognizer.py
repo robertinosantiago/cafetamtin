@@ -53,9 +53,17 @@ class Recognizer:
     def draw_prediction(self, img, class_id, confidence, x, y, x_plus_w, y_plus_h):
         label = str(self.classes[class_id])
         self.load_colors()
-        color = self.colors[class_id]
+        #color = self.colors[class_id]
+        color = (0, 0, 255)
         cv2.rectangle(img, (x,y), (x_plus_w,y_plus_h), color, 2)
         cv2.putText(img, label, (x-10,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+    
+    def inside_limits(self, x, y):
+        if not self.board.top_left or not self.board.top_right or not self.board.bottom_left or not self.board.bottom_right:
+            return False
+        if x >= self.board.top_left[0] and x <= self.board.top_right[0] and y >= self.board.top_left[1] and y <= self.board.bottom_right[1]:
+            return True
+        return False
 
     def get_positions(self, image, draw_box = False):
         positions = {}
@@ -78,18 +86,12 @@ class Recognizer:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.9:
+                if confidence > 0.8:
                     # Extract values to draw bounding box
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)
-                    if (
-                        (center_x >= self.board.top_left[0] and 
-                        center_x <= self.board.top_right[0] and
-                        center_y >= self.board.top_left[1] and
-                        center_y <= self.board.bottom_right[1]) or
-                        self.board.configuration_mode
-                        ):
-                        print("cf: ", self.board.configuration_mode, center_x, center_y)
+                    if self.inside_limits(center_x, center_y) or self.board.configuration_mode:
+                        #print("cf: ", self.board.configuration_mode, center_x, center_y)
                         centers.append([center_x, center_y])
                         w = int(detection[2] * width)
                         h = int(detection[3] * height)

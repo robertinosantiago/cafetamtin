@@ -19,7 +19,8 @@ import pygame
 from pony.orm import *
 
 from database.models import DBBoard
-from board.recognizer import Recognizer
+from base.recognizer import Recognizer
+from base.leds import Leds
 from utils import message_box
 
 from game import FONT_NAME
@@ -46,6 +47,7 @@ class Board:
         
         self.camera = self.app.camera_board
         self.recognizer = Recognizer(self)
+        self.leds = Leds()
         
         self.matrix_centers_board = []
 
@@ -74,23 +76,44 @@ class Board:
     
     @db_session
     def update_dbboard(self):
-        DBBoard[self.id].set(
-            top_left_x = self.top_left[0],
-            top_left_y = self.top_left[1],
-            top_right_x = self.top_right[0],
-            top_right_y = self.top_right[1],
-            bottom_left_x = self.bottom_left[0],
-            bottom_left_y = self.bottom_left[1],
-            bottom_right_x = self.bottom_right[0],
-            bottom_right_y = self.bottom_right[1],
-            block_width = self.block_width,
-            block_height = self.block_height,
-            width = self.width,
-            height = self.height,
-            span_cols = self.span_cols,
-            span_rows = self.span_rows
+        try:
+            DBBoard[self.id].set(
+                top_left_x = self.top_left[0],
+                top_left_y = self.top_left[1],
+                top_right_x = self.top_right[0],
+                top_right_y = self.top_right[1],
+                bottom_left_x = self.bottom_left[0],
+                bottom_left_y = self.bottom_left[1],
+                bottom_right_x = self.bottom_right[0],
+                bottom_right_y = self.bottom_right[1],
+                block_width = self.block_width,
+                block_height = self.block_height,
+                width = self.width,
+                height = self.height,
+                span_cols = self.span_cols,
+                span_rows = self.span_rows
 
-        )
+            )
+        except ObjectNotFound:
+            board = DBBoard(
+                top_left_x = self.top_left[0],
+                top_left_y = self.top_left[1],
+                top_right_x = self.top_right[0],
+                top_right_y = self.top_right[1],
+                bottom_left_x = self.bottom_left[0],
+                bottom_left_y = self.bottom_left[1],
+                bottom_right_x = self.bottom_right[0],
+                bottom_right_y = self.bottom_right[1],
+                block_width = self.block_width,
+                block_height = self.block_height,
+                width = self.width,
+                height = self.height,
+                span_cols = self.span_cols,
+                span_rows = self.span_rows,
+                lines = 7,
+                columns = 7
+            )
+            self.load_dbboard()
 
     def define_matrix_board(self):
         self.matrix_board.clear()
@@ -156,9 +179,10 @@ class Board:
         return False
 
     def is_validate_positions(self):
-        if self.top_left:
-            if (not self.top_left[0]) or (not self.top_right):
-                return False
+        #print(self.top_left)
+        if not self.top_left:
+            #if (not self.top_left[0]) or (not self.top_right):
+            return False
         if self.top_right:
             if (not self.top_right[0]) or (not self.top_right):
                 return False

@@ -24,7 +24,8 @@ from game import WHITE, BLACK, RED, GREEN
 from game.states.state import State
 from game.states.menu_mixin import MenuMixin
 
-from board.board import Board
+from base.board import Board
+from base.leds import Leds
 
 from pony.orm import *
 from database.models import DBBoard
@@ -40,6 +41,8 @@ class Configuration(MenuMixin, State):
         self.board = Board(self.game.app)
         self.show_configure_left = False
         self.show_configure_right = False
+        self.leds = Leds()
+        self.leds.turnOff()
 
         self.load_board()
 
@@ -80,10 +83,12 @@ class Configuration(MenuMixin, State):
             if self.board.define_left_limits():
                 self.show_configure_left = False
                 self.show_configure_right = True
+                self.leds.configureRightSide()
         elif self.show_configure_right:
             if self.board.define_right_limits():
                 self.show_configure_left = False
                 self.show_configure_right = False
+                self.leds.turnOff()
                 self.board.configure(new_configuration=True)
         else:
             if self.menu_selection == 0:
@@ -139,6 +144,8 @@ class Configuration(MenuMixin, State):
             self.board.bottom_right = (b.bottom_right_x, b.bottom_right_y)
 
     def configure_board(self):
+        #self.game.app.leds.turnOff()
+        self.leds.configureLeftSide()
         self.show_configure_left = True
         self.show_configure_right = False
 
@@ -176,21 +183,25 @@ class Configuration(MenuMixin, State):
             text_columns_rect = text_columns.get_rect(topleft=(screen_width-350, 330))
             display.blit(text_columns, text_columns_rect)
 
-            text_tl = font.render(f'({self.board.top_left[0]}, {self.board.top_left[1]})', True, TEXT_COLOR)
-            text_tl_rect = text_tl.get_rect(topleft=(screen_width-350, 350))
-            display.blit(text_tl, text_tl_rect)
+            if self.board.top_left:
+                text_tl = font.render(f'({self.board.top_left[0]}, {self.board.top_left[1]})', True, TEXT_COLOR)
+                text_tl_rect = text_tl.get_rect(topleft=(screen_width-350, 350))
+                display.blit(text_tl, text_tl_rect)
 
-            text_tr = font.render(f'({self.board.top_right[0]}, {self.board.top_right[1]})', True, TEXT_COLOR)
-            text_tr_rect = text_tr.get_rect(topright=(screen_width-50, 350))
-            display.blit(text_tr, text_tr_rect)
+            if self.board.top_right:
+                text_tr = font.render(f'({self.board.top_right[0]}, {self.board.top_right[1]})', True, TEXT_COLOR)
+                text_tr_rect = text_tr.get_rect(topright=(screen_width-50, 350))
+                display.blit(text_tr, text_tr_rect)
 
-            text_bl = font.render(f'({self.board.bottom_left[0]}, {self.board.bottom_left[1]})', True, TEXT_COLOR)
-            text_bl_rect = text_bl.get_rect(topleft=(screen_width-350, 450))
-            display.blit(text_bl, text_bl_rect)
+            if self.board.bottom_left:
+                text_bl = font.render(f'({self.board.bottom_left[0]}, {self.board.bottom_left[1]})', True, TEXT_COLOR)
+                text_bl_rect = text_bl.get_rect(topleft=(screen_width-350, 450))
+                display.blit(text_bl, text_bl_rect)
 
-            text_br = font.render(f'({self.board.bottom_right[0]}, {self.board.bottom_right[1]})', True, TEXT_COLOR)
-            text_br_rect = text_br.get_rect(topright=(screen_width-50, 450))
-            display.blit(text_br, text_br_rect)
+            if self.board.bottom_right:
+                text_br = font.render(f'({self.board.bottom_right[0]}, {self.board.bottom_right[1]})', True, TEXT_COLOR)
+                text_br_rect = text_br.get_rect(topright=(screen_width-50, 450))
+                display.blit(text_br, text_br_rect)
 
         
             for index, item in enumerate(self.menu_items):

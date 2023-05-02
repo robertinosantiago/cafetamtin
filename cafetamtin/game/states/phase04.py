@@ -21,10 +21,11 @@ import random
 from itertools import combinations
 
 from game.states.state import State
-from board.board import Board
+from base.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
+from base.leds import Leds, RainbowThread
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -65,17 +66,21 @@ class Phase04(State):
         self.reload = False
 
         self.tips_times = 0
+        self.leds = Leds()
+        self.rainbow = RainbowThread()
 
         self.initial_blocks = []
         self.student_blocks = {}
         self.challenge_blocks = []
         self.matrix = []
+        self.challenges_found = []
         self.generate_blocks()
 
         self.timer_challenge = Timer()
         self.timer_teacher = Timer()
         self.timer_teacher.start()
         self.timer_response = Timer()
+        
 
         self.first_gaming()
         self.teacher.next_message()
@@ -159,17 +164,18 @@ class Phase04(State):
 
     def exit_state(self):
         super().exit_state()
+        self.leds.turnOff()
 
     def load_challenges(self):
         challenges = {
-            '159': {'found': False},
-            '168': {'found': False},
-            '249': {'found': False},
-            '258': {'found': False},
-            '267': {'found': False},
-            '348': {'found': False},
-            '357': {'found': False},
-            '456': {'found': False},
+            '159': {'equation': '1 + 5 + 9','found': False},
+            '168': {'equation': '1 + 6 + 8','found': False},
+            '249': {'equation': '2 + 4 + 9','found': False},
+            '258': {'equation': '2 + 5 + 8','found': False},
+            '267': {'equation': '2 + 6 + 7','found': False},
+            '348': {'equation': '3 + 4 + 8','found': False},
+            '357': {'equation': '3 + 5 + 7','found': False},
+            '456': {'equation': '4 + 5 + 6','found': False},
         }
         return challenges
 
@@ -202,7 +208,7 @@ class Phase04(State):
                 [0, 0, 6, 0, 8, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
-            ]
+            ]            
         
         elif self.step == 2:
             self.initial_blocks = [
@@ -247,6 +253,19 @@ class Phase04(State):
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
             ]
+        
+        self.leds_initial_blocks()    
+        
+    def leds_initial_blocks(self):
+        count = 0
+        leds = []
+        for i in range(0, self.board.lines):
+            for j in range(0, self.board.columns):
+                if self.initial_blocks[i][j] != 0:
+                    leds.append(count)
+                count += 1
+        
+        self.leds.turnOn(RED, leds)
 
     def reset_blocks(self):
         self.initial_blocks = []
@@ -331,6 +350,35 @@ class Phase04(State):
             if self.challenges[key]['found']:
                 total += 1
         return total
+    
+    def draw_challenges_found(self):
+        display = self.game.game_canvas
+        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
+        
+        if not self.show_teacher and not self.is_paused:
+            
+            i = 1
+            width = 140
+            height = 60
+            offset = 20
+            x = 160
+            y = 150
+            color = (0,0,0)
+            for key in self.challenges.keys():
+                rect = (x,y,width,height)
+                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+                pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
+                display.blit(shape, rect)
+                inner_text = '? + ? + ?' if not self.challenges[key]['visible'] else self.challenges[key]['equations'][self.challenges[key]['index']]
+                text = font.render(inner_text, True, BLACK if not self.challenges[key]['visible'] else GREEN)
+                text_rect = text.get_rect(center=(x + width/2, y + height/2))
+                display.blit(text, text_rect)
+                if i % 4 == 0:
+                    x = 160
+                    y += height + offset
+                else:
+                    x += width + offset
+                i += 1
 
     def blocks_in_board(self):
         total = 0
@@ -432,6 +480,7 @@ class Phase04(State):
                         )
                         self.frame_confetti = 1
                         self.confetti.visible = True
+                        self.rainbow.run()
 
                         if self.step < self.max_steps:
                             self.teacher.set_message(

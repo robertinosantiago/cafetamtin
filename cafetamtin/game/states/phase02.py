@@ -21,7 +21,7 @@ import random
 from pony.orm import *
 
 from game.states.state import State
-from board.board import Board
+from base.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
@@ -636,29 +636,4 @@ class Phase02(State):
         
         if self.lives > 0 and self.step < self.max_steps:
             self.draw_challenge()
-        '''
-        else:
-            if not self.show_teacher:
-                if self.lives == 0:
-                    self.teacher.set_message(
-                        "Infelizmente, você não conseguiu\n"+
-                        "encontrar todas as possibilidades.\n"+
-                        "Tente novamente!", 
-                        "neutral1"
-                    )
-                    self.show_teacher = True
-                    self.end_phase = True
-                if self.step >= self.max_steps and not self.end_phase:
-                    self.teacher.set_message(
-                        "Parabéns!!! Você encontrou todas\n"+
-                        "as somas  possíveis com 3 números\n"+
-                        "que resultam em 15. Nos vemos na\n"+
-                        "próxima fase.", 
-                        "heart0"
-                    )
-                    self.show_teacher = True
-                    self.end_phase = True
-                
-                if self.end_phase and not self.show_teacher:
-                    self.exit_state()
-        '''
+

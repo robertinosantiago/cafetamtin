@@ -26,8 +26,9 @@ from database.models import DBUser
 from database.models import DBBoard
 from database.models import DBSteps
 from utils.webcam import Webcam
-from board.board import Board
-from board.physical_buttons import PhysicalButtons
+from base.board import Board
+from base.physical_buttons import PhysicalButtons
+from base.leds import Leds
 from utils.timer import Timer
 
 class Application:
@@ -36,9 +37,9 @@ class Application:
         self.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=180)
         self.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=270)
         
-        self.game = Game(self, False)
         self.board = Board(self)
         self.physical_buttons = PhysicalButtons()
+        self.game = Game(self, False)
 
 def main(argv):
     fullpath = os.path.abspath(argv[0])
@@ -66,7 +67,7 @@ def main(argv):
 def create_user():
     user = DBUser(name='Robertino', nickname='Tino', age=41, gender='M')
     steps = DBSteps(phase = 1, user=user)
-    #board = DBBoard(lines= 7, columns = 7)
+    board = DBBoard(lines= 7, columns = 7)
     
 
 if __name__ == '__main__':

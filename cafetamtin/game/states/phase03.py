@@ -21,7 +21,7 @@ import random
 from itertools import combinations
 
 from game.states.state import State
-from board.board import Board
+from base.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti

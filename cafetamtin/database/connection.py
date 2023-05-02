@@ -18,17 +18,6 @@
 from decimal import Decimal
 from datetime import datetime
 
-from pony.converting import str2datetime
 from pony.orm import *
 
-import os
-from dotenv import load_dotenv
-
 db = Database()
-#db.bind(
-#    provider = 'mysql',
-#    user = os.getenv('DATABASE_USER'),
-#    password = os.getenv('DATABASE_PASS'),
-#    host = os.getenv('DATABASE_HOST'),
-#    database = os.getenv('DATABASE_SCHEMA')
-#    )
