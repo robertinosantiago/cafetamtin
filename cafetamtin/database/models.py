@@ -52,12 +52,14 @@ class DBUser(db.Entity):
 class DBChallengeP1(db.Entity):
     id = PrimaryKey(int, auto=True)
     number01 = Required(int)
-    operator = Required(str, 1)
+    operator01 = Required(str, 1)
     number02 = Required(int)
+    operator02 = Optional(str, nullable=True)
+    number03 = Optional(int)
     expected_result = Required(int)
     total_time = Required(float)
-    user = Required(DBUser)
     responsesp1 = Set('DBResponseP1')
+    user = Required(DBUser)
 
 class DBResponseP1(db.Entity):
     id = PrimaryKey(int, auto=True)

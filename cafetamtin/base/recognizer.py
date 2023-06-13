@@ -59,7 +59,8 @@ class Recognizer:
         cv2.putText(img, label, (x-10,y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
     
     def inside_limits(self, x, y):
-        if not self.board.top_left or not self.board.top_right or not self.board.bottom_left or not self.board.bottom_right:
+        
+        if not self.board.top_left[0] or not self.board.top_right[0] or not self.board.bottom_left[0] or not self.board.bottom_right[0]:
             return False
         if x >= self.board.top_left[0] and x <= self.board.top_right[0] and y >= self.board.top_left[1] and y <= self.board.bottom_right[1]:
             return True

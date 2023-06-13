@@ -49,7 +49,8 @@ class Phase01(State):
 
         self.lives = 3
         self.score = 0
-        self.max_steps = 6
+        self.max_steps = 20
+        self.num_terms = 2
         self.step = 1
         self.incremental_points = 5
 
@@ -226,6 +227,14 @@ class Phase01(State):
     def starting_game(self):
         if not self.started:
             self.teacher.set_message(
+                "Nesta fase, você deve informar o resultado das\n"+
+                "operações matemáticas que são exibidas no monitor,\n"+
+                "posicionando o número correspondente ao resultado\n"+
+                "no local indicado no tabuleiro.",
+                "neutral0"
+            )
+            
+            self.teacher.set_message(
                 "Atenção!\n"+
                 "Prepare-se para começar", 
                 "neutral1"
@@ -242,6 +251,8 @@ class Phase01(State):
         response['paused_counter'] = self.timer_response.total_times_paused() - self.tips_times
         response['tips_counter'] = self.tips_times
         
+        terms, operators, result = self.challenge
+        
         if len(numbers) == 0:
             response['informed_result'] = -1
             response['is_correct'] = False
@@ -255,7 +266,7 @@ class Phase01(State):
             self.lives -= 1
 
         if len(numbers) == 1:
-            if numbers[0] == self.challenge[3]:
+            if numbers[0] == result:
                 
                 response['informed_result'] = numbers[0]
                 response['is_correct'] = True
@@ -391,7 +402,13 @@ class Phase01(State):
         instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, 120))
 
         font = pygame.font.SysFont(FONT_NAME, 72, False, False)
-        challenge_text = font.render(f'{self.challenge[0]} {self.challenge[1]} {self.challenge[2]}', True, (220,220,220))
+        expression = ''
+        numbers, operators, result = self.challenge
+        if self.num_terms == 2:
+            expression = f'{numbers[0]} {operators[0]} {numbers[1]}'
+        else:
+            expression = f'{numbers[0]} {operators[0]} {numbers[1]} {operators[1]} {numbers[2]}'
+        challenge_text = font.render(expression, True, (220,220,220))
         challenge_text_rect = challenge_text.get_rect(center=(screen_width/2, 220))
 
         if not self.show_teacher and not self.is_paused:
@@ -420,27 +437,45 @@ class Phase01(State):
         self.new_challenge = True
 
 
+
     def random_calc(self):
-        number1 = random.randrange(self.min_number,self.max_number)
-        number2 = random.randrange(self.min_number,self.max_number)
-        operator = self.operators.pop()
+        if self.num_terms == 2:
+            return self.random_calc_2_terms()
+        else:
+            return self.random_calc_3_terms()
+        
+    def random_calc_2_terms(self):
+        numbers = random.sample(range(1, 10), 3)
+        operators = []
+        operators.append(random.choice(['+', '-']))
         result = 0
-        if operator == '+':
-            if number1 + number2 > 9:
-                if number1 > number2:
-                    number1 = int(abs(number1 - number2))
-                else:
-                    number2 = int(abs(number1 - number2))
-            result = number1 + number2
-        if operator == '-':
-            if number1 == number2:
-                number1 = random.randrange(self.min_number,self.max_number)
-            if number1 < number2:
-                aux = number1
-                number1 = number2
-                number2 = aux
-            result = number1 - number2
-        return number1, operator, number2, result
+        
+        if operators[0] == '+':
+            result = numbers[0] + numbers[1]
+        else:
+            result = numbers[0] - numbers[1]
+            
+        if result < 1 or result > 9:
+            return self.random_calc_2_terms()
+        
+        return numbers, operators, result
+    
+    def random_calc_3_terms(self):
+        numbers = random.sample(range(1, 10), 3)
+        operators = []
+        operators.append(random.choice(['+']))
+        operators.append(random.choice(['+', '-']))
+        result = 0
+        
+        if operators[0] == '+':
+            if operators[1] == '+':
+                result = numbers[0] + numbers[1] + numbers[2]
+            else:
+                result = numbers[0] + numbers[1] - numbers[2]
+        if result < 1 or result > 9:
+            return self.random_calc_3_terms()
+        
+        return numbers, operators, result
 
     def draw_student_name(self):
         display = self.game.game_canvas
@@ -510,11 +545,20 @@ class Phase01(State):
     def save_challenge(self):
         user = DBUser[self.game.student.id]
         responses = []
+        numbers, operators, result = self.challenge
+        number1 = numbers[0]
+        number2 = numbers[1]
+        number3 = -99 if len(numbers) == 2 else numbers[2]
+        operator1 = operators[0]
+        operator2 = '' if len(operators) == 1 else operators[1]
+        
         challenge = DBChallengeP1(
-            number01 = self.challenge[0],
-            operator = self.challenge[1],
-            number02 = self.challenge[2],
-            expected_result = self.challenge[3],
+            number01 = number1,
+            operator01 = operator1,
+            number02 = number2,
+            operator02 = operator2,
+            number03 = number3,
+            expected_result = result,
             total_time = self.timer_challenge.total_time_seconds(),
             user = user
         )

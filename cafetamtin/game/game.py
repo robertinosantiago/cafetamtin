@@ -45,7 +45,7 @@ class Game():
         self.student = None
 
         #pygame.mouse.set_visible(0)
-        pygame.display.set_caption('CaFE-TaMTIn')
+        pygame.display.set_caption('Jogo do 15 - CaFE-TaMTIn')
 
         self.clock = pygame.time.Clock()
         self.dt = self.clock.tick(60)

@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-BACKGROUND_COLOR = (16, 74, 139)
-TEXT_COLOR = (216, 220, 81)
+BACKGROUND_COLOR = (22, 96, 180)
+TEXT_COLOR = (246, 196, 5)
 TEXT_DISABLE_COLOR = (120, 120, 120)
 ERROR_COLOR = (216, 10, 10)
 FONT_NAME = 'Arial'

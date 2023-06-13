@@ -16,6 +16,7 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import pygame
+import os
 
 from game.states.state import State
 from game.states.about import About
@@ -32,6 +33,12 @@ class Menu(MenuMixin, State):
         super().__init__(game) # or  State.__init__(self, game)
         self.menu_items = ['Novo jogo', 'Configurações', 'Sobre', 'Sair']
         self.menu_selection = 0
+        self.images = self.load_images()
+        
+    def load_images(self):
+        return {
+            'background': pygame.image.load(os.path.join("images", "background-initial.png")),
+        }
     
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.when_pressed = self.buttonUpChanged
@@ -93,10 +100,13 @@ class Menu(MenuMixin, State):
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
         offset_height = 0
 
-        display.fill(BACKGROUND_COLOR)
+        background = self.images['background']
+        display.blit(background, (0,0))
+        
+        top_position = screen_height/2 + 120
     
         for index, item in enumerate(self.menu_items):
             button = font.render('>>'+item+'<<' if index == self.menu_selection else item, True, TEXT_COLOR)
-            button_rect = button.get_rect(center=(screen_width/2, screen_height/2  + offset_height*30))
+            button_rect = button.get_rect(center=(screen_width/2, top_position  + offset_height*30))
             display.blit(button, button_rect)
             offset_height += 1
