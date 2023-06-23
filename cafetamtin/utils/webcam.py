@@ -43,17 +43,21 @@ class Webcam:
 
         return buffer
 
-    def take_picture(self, delay=30):
+    def take_picture(self, delay=30, process=True):
         if not self.camera.isOpened():
             self.camera.open(self.cam_number)
             
         for i in range(delay):
             temp = self.camera.read()
         success, image = self.camera.read()
-
         image = imutils.rotate(image, self.angle_rotation)
         image = imutils.resize(image, width=640)
-        cv2.imwrite('color.jpg', image)
+        cv2.imwrite(f'color-cam-{self.cam_number}.jpg', image)
+        
+        if not process:
+            self.release()
+            return image
+
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         blurred = cv2.GaussianBlur(gray, (3, 3), cv2.BORDER_DEFAULT)
         edged = cv2.Canny(blurred, 100, 200, 5)

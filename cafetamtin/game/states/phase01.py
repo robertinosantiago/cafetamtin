@@ -31,6 +31,7 @@ from game.states.state import State
 from game.actors.teacher import Teacher
 from base.board import Board
 from base.leds import Leds, RainbowThread
+from base.facial import FacialThread
 from utils.timer import Timer
 from database.models import DBUser, DBSteps, DBChallengeP1, DBResponseP1
 from utils.confetti import Confetti
@@ -40,6 +41,7 @@ class Phase01(State):
     def __init__(self, game):
         super().__init__(game)
 
+        self.facial = FacialThread(self.game.app)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -158,6 +160,8 @@ class Phase01(State):
         self.teacher.next_message()
         self.show_teacher = True
 
+        self.facial = FacialThread(self.game.app)
+        self.facial.start()
         self.board.avaliable_board()
         self.board.draw_matrix_board()
         self.check_challenge()
@@ -305,7 +309,8 @@ class Phase01(State):
             )
             
             self.lives -= 1
-        
+        self.facial.join()
+        print("Expressao: ", self.facial.expression)
         self.responses.append(response)
         self.save_challenge()
         self.generate_new_challenge()

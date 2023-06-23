@@ -243,7 +243,7 @@ class Board:
 
     def avaliable_board(self):
         self.define_matrix_board()
-        image = self.camera.take_picture()
+        image = self.camera.take_picture(delay = 1)
         positions = self.recognizer.get_positions(image, True)
 
         for key, value in positions.items():

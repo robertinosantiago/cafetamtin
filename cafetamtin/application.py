@@ -29,6 +29,7 @@ from utils.webcam import Webcam
 from base.board import Board
 from base.physical_buttons import PhysicalButtons
 from base.leds import Leds
+from base.facial import Facial
 from utils.timer import Timer
 
 class Application:
@@ -37,6 +38,7 @@ class Application:
         self.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=180)
         self.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=270)
         
+        self.facial = Facial(self)
         self.board = Board(self)
         self.physical_buttons = PhysicalButtons()
         self.game = Game(self, False)
@@ -58,7 +60,7 @@ def main(argv):
 
     db.generate_mapping(create_tables=True)
 
-    create_user()
+    #create_user()
 
     app = Application()
     app.game.loop()
