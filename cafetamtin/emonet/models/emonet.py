@@ -221,7 +221,7 @@ class EmoNet(nn.Module):
 
         return {'heatmap': tmp_out, 'expression': final_features[:,:-2], 'valence': final_features[:,-2], 'arousal':final_features[:,-1]}
 
-  
+
     def eval(self):
         
         for module in self.children():

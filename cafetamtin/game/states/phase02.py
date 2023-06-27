@@ -83,10 +83,10 @@ class Phase02(State):
         }
 
     def handle_events(self, events):
-        self.game.app.physical_buttons.white_button.when_pressed = self.button_white_changed
-        self.game.app.physical_buttons.black_button.when_pressed = self.button_black_changed
-        self.game.app.physical_buttons.green_button.when_pressed = self.button_green_changed
-        self.game.app.physical_buttons.red_button.when_pressed = self.button_red_changed
+        self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
+        self.game.app.physical_buttons.black_button.set_callback(self.button_black_changed)
+        self.game.app.physical_buttons.green_button.set_callback(self.button_green_changed)
+        self.game.app.physical_buttons.red_button.set_callback(self.button_red_changed)
 
         for event in events:
             if event.type == pygame.QUIT:
@@ -105,10 +105,10 @@ class Phase02(State):
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
                     pass
 
-    def button_black_changed(self):
+    def button_black_changed(self, data):
         pass
 
-    def button_white_changed(self):
+    def button_white_changed(self, data):
         if self.show_teacher:
             return
         
@@ -121,7 +121,7 @@ class Phase02(State):
             self.timer_response.pause()
             self.is_paused = True
 
-    def button_green_changed(self):
+    def button_green_changed(self, data):
         """
         Executed when the green button of the base is pressed
         """
@@ -153,7 +153,7 @@ class Phase02(State):
         self.board.draw_matrix_board()
         self.check_challenge()
     
-    def button_red_changed(self):
+    def button_red_changed(self, data):
         if self.is_paused:
             return
 

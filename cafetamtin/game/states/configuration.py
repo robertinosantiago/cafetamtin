@@ -42,15 +42,15 @@ class Configuration(MenuMixin, State):
         self.show_configure_left = False
         self.show_configure_right = False
         self.leds = Leds()
-        self.leds.turnOff()
+        #self.leds.turnOff()
 
         self.load_board()
 
     def handle_events(self, events):
-        self.game.app.physical_buttons.white_button.when_pressed = self.buttonUpChanged
-        self.game.app.physical_buttons.black_button.when_pressed = self.buttonDownChanged
-        self.game.app.physical_buttons.green_button.when_pressed = self.buttonOkChanged
-        self.game.app.physical_buttons.red_button.when_pressed = self.buttonPauseChanged
+        self.game.app.physical_buttons.white_button.set_callback(self.buttonUpChanged)
+        self.game.app.physical_buttons.black_button.set_callback(self.buttonDownChanged)
+        self.game.app.physical_buttons.green_button.set_callback(self.buttonOkChanged)
+        self.game.app.physical_buttons.red_button.set_callback(self.buttonPauseChanged)
 
         for event in events:
             if event.type == pygame.QUIT:
@@ -83,12 +83,12 @@ class Configuration(MenuMixin, State):
             if self.board.define_left_limits():
                 self.show_configure_left = False
                 self.show_configure_right = True
-                self.leds.configureRightSide()
+                #self.leds.configureRightSide()
         elif self.show_configure_right:
             if self.board.define_right_limits():
                 self.show_configure_left = False
                 self.show_configure_right = False
-                self.leds.turnOff()
+                #self.leds.turnOff()
                 self.board.configure(new_configuration=True)
         else:
             if self.menu_selection == 0:
@@ -96,16 +96,16 @@ class Configuration(MenuMixin, State):
             if self.menu_selection == 1:
                 self.exit_state()
 
-    def buttonUpChanged(self):
+    def buttonUpChanged(self, data):
         self.menu_selection = self.move_menu_up(self.menu_items, self.menu_selection)
 
-    def buttonDownChanged(self):
+    def buttonDownChanged(self, data):
         self.menu_selection = self.move_menu_down(self.menu_items, self.menu_selection)
 
-    def buttonOkChanged(self):
+    def buttonOkChanged(self, data):
         self.execute_action_menu()
     
-    def buttonPauseChanged(self):
+    def buttonPauseChanged(self, data):
         pass
 
     def update(self, delta_time):
@@ -145,7 +145,7 @@ class Configuration(MenuMixin, State):
 
     def configure_board(self):
         #self.game.app.leds.turnOff()
-        self.leds.configureLeftSide()
+        #self.leds.configureLeftSide()
         self.show_configure_left = True
         self.show_configure_right = False
 

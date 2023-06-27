@@ -75,10 +75,10 @@ class Phases(State):
         return phase, score
 
     def handle_events(self, events):
-        self.game.app.physical_buttons.white_button.when_pressed = self.buttonUpChanged
-        self.game.app.physical_buttons.black_button.when_pressed = self.buttonDownChanged
-        self.game.app.physical_buttons.green_button.when_pressed = self.buttonOkChanged
-        self.game.app.physical_buttons.red_button.when_pressed = self.buttonExitChanged
+        self.game.app.physical_buttons.white_button.set_callback(self.buttonUpChanged)
+        self.game.app.physical_buttons.black_button.set_callback(self.buttonDownChanged)
+        self.game.app.physical_buttons.green_button.set_callback(self.buttonOkChanged)
+        self.game.app.physical_buttons.red_button.set_callback(self.buttonExitChanged)
 
         for event in events:
             if event.type == pygame.QUIT:
@@ -91,16 +91,16 @@ class Phases(State):
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
                     self.execute_action_menu()
 
-    def buttonUpChanged(self):
+    def buttonUpChanged(self, data):
         pass
 
-    def buttonDownChanged(self):
+    def buttonDownChanged(self, data):
         pass
 
-    def buttonOkChanged(self):
+    def buttonOkChanged(self, data):
         self.execute_action_menu()
     
-    def buttonExitChanged(self):
+    def buttonExitChanged(self, data):
         self.exit_state()
 
     def update(self, delta_time):

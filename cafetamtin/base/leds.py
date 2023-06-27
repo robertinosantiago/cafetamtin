@@ -16,8 +16,8 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
-import board
-import neopixel
+#import board
+#import neopixel
 from threading import Thread
 
 class RainbowThread(Thread):
@@ -27,10 +27,12 @@ class RainbowThread(Thread):
         self.leds = Leds()
     
     def run(self):
-        self.leds.rainbow_cycle()
+        pass
+        #self.leds.rainbow_cycle()
 
 class Leds:
-    
+    pass
+    '''
     def __init__(self):
         self.__data_pin = board.D10
         self.__num_pixels = 49
@@ -106,3 +108,4 @@ class Leds:
             g = int(pos * 3)
             b = int(255 - pos * 3)
         return (r, g, b) if self.__pixel_order in (neopixel.RGB, neopixel.GRB) else (r, g, b, 0)
+'''

@@ -51,7 +51,7 @@ class Webcam:
             temp = self.camera.read()
         success, image = self.camera.read()
         image = imutils.rotate(image, self.angle_rotation)
-        image = imutils.resize(image, width=640)
+        image = imutils.resize(image, width=412)
         cv2.imwrite(f'color-cam-{self.cam_number}.jpg', image)
         
         if not process:

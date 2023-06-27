@@ -35,7 +35,7 @@ from utils.timer import Timer
 class Application:
     
     def __init__(self):
-        self.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=180)
+        self.camera_student = Webcam(int(os.getenv('INDEX_CAMERA_STUDENT')), angle_rotation=0)
         self.camera_board = Webcam(int(os.getenv('INDEX_CAMERA_BOARD')), angle_rotation=270)
         
         self.facial = Facial(self)

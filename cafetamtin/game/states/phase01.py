@@ -100,10 +100,10 @@ class Phase01(State):
         }
 
     def handle_events(self, events):
-        self.game.app.physical_buttons.white_button.when_pressed = self.button_white_changed
-        self.game.app.physical_buttons.black_button.when_pressed = self.button_black_changed
-        self.game.app.physical_buttons.green_button.when_pressed = self.button_green_changed
-        self.game.app.physical_buttons.red_button.when_pressed = self.button_red_changed
+        self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
+        self.game.app.physical_buttons.black_button.set_callback(self.button_black_changed)
+        self.game.app.physical_buttons.green_button.set_callback(self.button_green_changed)
+        self.game.app.physical_buttons.red_button.set_callback(self.button_red_changed)
 
         for event in events:
             if event.type == pygame.QUIT:
@@ -116,7 +116,7 @@ class Phase01(State):
     def update(self, delta_time):
         pass
 
-    def button_white_changed(self):
+    def button_white_changed(self, data):
         """
         Executed when the white button of the base is pressed
         """
@@ -132,7 +132,7 @@ class Phase01(State):
             self.timer_response.pause()
             self.is_paused = True
 
-    def button_green_changed(self):
+    def button_green_changed(self, data):
         """
         Executed when the green button of the base is pressed
         """
@@ -166,7 +166,7 @@ class Phase01(State):
         self.board.draw_matrix_board()
         self.check_challenge()
 
-    def button_red_changed(self):
+    def button_red_changed(self, data):
         """
         Executed when the red button of the base is pressed
         """
@@ -186,14 +186,14 @@ class Phase01(State):
         if self.teacher.has_next_message():
             self.teacher.next_message()
             self.show_teacher = True
-            self.leds.turnOff()
+            #self.leds.turnOff()
 
             if not self.started:
                 self.started = True
         else:
             self.show_teacher = False
             
-            self.leds.central_led()
+            #self.leds.central_led()
 
 
             if self.step == self.max_steps:
@@ -219,14 +219,15 @@ class Phase01(State):
                 self.exit_state()
 
 
-    def button_black_changed(self):
+    def button_black_changed(self, data):
         """
         Executed when the black button of the base is pressed
         """
         pass
     
     def turn_on_led(self):
-        self.leds.central_led()
+        pass
+        #self.leds.central_led()
 
     def starting_game(self):
         if not self.started:
@@ -284,8 +285,8 @@ class Phase01(State):
                 self.score += self.incremental_points
                 self.frame_confetti = 1
                 self.confetti.visible = True
-                rainbow = RainbowThread()
-                rainbow.start()
+                #rainbow = RainbowThread()
+                #rainbow.start()
 
             else:
                 response['informed_result'] = numbers[0]
@@ -542,7 +543,7 @@ class Phase01(State):
 
     def exit_state(self):
         super().exit_state()
-        self.leds.turnOff()
+        #self.leds.turnOff()
         self.timer_challenge.stop()
         self.timer_teacher.stop()
 

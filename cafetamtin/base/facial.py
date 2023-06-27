@@ -88,7 +88,7 @@ class Facial:
         valence = None
         arousal = None
         
-        image = self.camera.take_picture(delay = 1, process=False)
+        image = self.camera.take_picture(delay = 0, process=False)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         rects = self.detector(gray, 0)
 
