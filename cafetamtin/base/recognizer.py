@@ -87,7 +87,7 @@ class Recognizer:
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.8:
+                if confidence > 0.6:
                     # Extract values to draw bounding box
                     center_x = int(detection[0] * width)
                     center_y = int(detection[1] * height)

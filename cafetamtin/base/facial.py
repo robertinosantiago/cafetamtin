@@ -74,6 +74,7 @@ class Facial:
             str(self.__get_data_path().joinpath('affectnet', 'shape_predictor_68_face_landmarks.dat'))
         )
         self.__expressions = {0: 'neutral', 1:'happy', 2:'sad', 3:'surprise', 4:'fear', 5:'disgust', 6:'anger', 7:'contempt', 8:'none'}
+        print('init facial')
 
         
         
@@ -88,7 +89,7 @@ class Facial:
         valence = None
         arousal = None
         
-        image = self.camera.take_picture(delay = 0, process=False)
+        image = self.camera.take_picture(delay = 10, width=412, process=False)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         rects = self.detector(gray, 0)
 

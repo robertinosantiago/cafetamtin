@@ -41,7 +41,7 @@ class Phase01(State):
     def __init__(self, game):
         super().__init__(game)
 
-        self.facial = FacialThread(self.game.app)
+        self.facial = self.game.app.facial #FacialThread(self.game.app)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -160,8 +160,9 @@ class Phase01(State):
         self.teacher.next_message()
         self.show_teacher = True
 
-        self.facial = FacialThread(self.game.app)
-        self.facial.start()
+        #self.facial = FacialThread(self.game.app)
+        #self.facial.start()
+        self.facial.evaluate()
         self.board.avaliable_board()
         self.board.draw_matrix_board()
         self.check_challenge()
@@ -283,8 +284,7 @@ class Phase01(State):
                     emotions[random.randrange(0,len(emotions))]
                 )
                 self.score += self.incremental_points
-                self.frame_confetti = 1
-                self.confetti.visible = True
+                
                 #rainbow = RainbowThread()
                 #rainbow.start()
 
@@ -310,8 +310,14 @@ class Phase01(State):
             )
             
             self.lives -= 1
-        self.facial.join()
-        print("Expressao: ", self.facial.expression)
+        
+        #self.facial.join()
+        
+        if response['is_correct']:
+            self.frame_confetti = 1
+            self.confetti.visible = True
+            
+        #print("Expressao: ", self.facial.expression)
         self.responses.append(response)
         self.save_challenge()
         self.generate_new_challenge()

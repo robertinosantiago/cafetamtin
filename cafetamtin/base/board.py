@@ -135,7 +135,7 @@ class Board:
 
     def define_left_limits(self):
         self.configuration_mode = True
-        image = self.camera.take_picture()
+        image = self.camera.take_picture(delay=10)
         positions = self.recognizer.get_positions(image, True)
 
         if 'block-01' in positions and 'block-02' in positions:

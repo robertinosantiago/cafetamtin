@@ -43,7 +43,7 @@ class Webcam:
 
         return buffer
 
-    def take_picture(self, delay=30, process=True):
+    def take_picture(self, delay=30, width=640, height=480, process=True):
         if not self.camera.isOpened():
             self.camera.open(self.cam_number)
             
@@ -51,7 +51,7 @@ class Webcam:
             temp = self.camera.read()
         success, image = self.camera.read()
         image = imutils.rotate(image, self.angle_rotation)
-        image = imutils.resize(image, width=412)
+        image = imutils.resize(image, width=width)
         cv2.imwrite(f'color-cam-{self.cam_number}.jpg', image)
         
         if not process:
