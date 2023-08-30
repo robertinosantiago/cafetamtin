@@ -52,7 +52,7 @@ class Phase01(State):
         self.lives = 3
         self.score = 0
         self.max_steps = 20
-        self.num_terms = 2
+        self.num_terms = 3
         self.step = 1
         self.incremental_points = 5
 

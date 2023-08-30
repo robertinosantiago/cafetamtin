@@ -164,7 +164,7 @@ class Phase04(State):
 
     def exit_state(self):
         super().exit_state()
-        self.leds.turnOff()
+        #self.leds.turnOff()
 
     def load_challenges(self):
         challenges = {
@@ -254,7 +254,7 @@ class Phase04(State):
                 [0, 0, 0, 0, 0, 0, 0]
             ]
         
-        self.leds_initial_blocks()    
+        #self.leds_initial_blocks()    
         
     def leds_initial_blocks(self):
         count = 0
