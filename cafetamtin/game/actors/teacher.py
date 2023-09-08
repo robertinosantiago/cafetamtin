@@ -34,6 +34,7 @@ class Teacher:
         self.message = None
         self.modal = True
         self.position = None
+        self.image_explication = False
         self.messages = queue.Queue()
 
 
@@ -42,17 +43,21 @@ class Teacher:
             'happy0': pygame.image.load(os.path.join("images", "teacher-happy0.png")),
             'happy1': pygame.image.load(os.path.join("images", "teacher-happy1.png")),
             'happy2': pygame.image.load(os.path.join("images", "teacher-happy2.png")),
+            'happy3': pygame.image.load(os.path.join("images", "teacher-happy3.png")),
+            'happy4': pygame.image.load(os.path.join("images", "teacher-happy4.png")),
             'neutral0': pygame.image.load(os.path.join("images", "teacher-neutral0.png")),
             'neutral1': pygame.image.load(os.path.join("images", "teacher-neutral1.png")),
+            'neutral2': pygame.image.load(os.path.join("images", "teacher-neutral2.png")),
             'heart0': pygame.image.load(os.path.join("images", "teacher-heart0.png")),
         }
     
-    def set_message(self, message, image_key = 'happy0', modal = True, position = None):
+    def set_message(self, message, image_key = 'happy0', image_explication = False, modal = True, position = None):
         data = {
             'image_key': image_key,
             'message': message,
             'modal': modal,
-            'position': position
+            'position': position,
+            'image_explication': image_explication
         }
         self.messages.put(data)
 
@@ -62,6 +67,7 @@ class Teacher:
         self.message = data['message']
         self.modal = data['modal']
         self.position = data['position']
+        self.image_explication = data['image_explication']
 
     def has_next_message(self):
         return not self.messages.empty()
@@ -108,7 +114,7 @@ class Teacher:
 
     def draw(self):
         screen_width, screen_height = self.display.get_size()
-
+        
         pos = (screen_width / 2, screen_height / 2)
         if self.position:
             pos = self.position
@@ -123,3 +129,8 @@ class Teacher:
 
         self.display.blit(self.images[self.image_key], self.rect)
         self.draw_speech_bubble(self.message, (255, 255, 255), (0, 0, 0), self.rect, 16)
+        
+        if (self.image_explication != False):
+            image_explication = pygame.image.load(os.path.join("images", self.image_explication))
+            image_explication_rect = image_explication.get_rect(center=(screen_width/2, screen_height/2 - 170))
+            self.display.blit(image_explication, image_explication_rect)

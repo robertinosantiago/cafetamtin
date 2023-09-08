@@ -31,6 +31,7 @@ from base.physical_buttons import PhysicalButtons
 from base.leds import Leds
 from base.facial import Facial
 from utils.timer import Timer
+import logging
 
 class Application:
     
@@ -44,6 +45,8 @@ class Application:
         self.game = Game(self, False)
 
 def main(argv):
+    logging.basicConfig(level=logging.INFO)
+    
     fullpath = os.path.abspath(argv[0])
     dir = os.path.dirname(fullpath)
     os.chdir(dir)

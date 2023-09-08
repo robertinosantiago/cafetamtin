@@ -1,4 +1,4 @@
-# Copyright (C) 2022 Robertino Mendes Santiago Junior
+# Copyright (C) 2023 Robertino Mendes Santiago Junior
 # 
 # This file is part of CaFE-TaMTIn Approach.
 # 
@@ -15,28 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-import pygame
-from gpiozero import Button
-
-class State():
-    def __init__(self, game):
-        self.game = game
-        self.previous_state = None
-
-    def update(self, delta_time):
-        pass
-
-    def render(self, surface):
-        pass
-
-    def handle_events(self, events):
-        pass
-
-    def enter_state(self):
-        if len(self.game.state_stack) > 1:
-            self.previous_state = self.game.state_stack[-1]
-        self.game.state_stack.append(self)
+class Rule:
     
-    def exit_state(self, stages = 1):
-        for i in range(0, stages):
-            self.game.state_stack.pop()
+    def __init__(self, name, condition, action):
+        self.name = name
+        self.condition = condition
+        self.action = action
+
+    def evaluate(self, working_memory):
+        if self.condition(working_memory):
+            self.action(working_memory, self.name)
+            

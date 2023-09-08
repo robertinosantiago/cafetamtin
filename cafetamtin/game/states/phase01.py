@@ -232,13 +232,6 @@ class Phase01(State):
 
     def starting_game(self):
         if not self.started:
-            self.teacher.set_message(
-                "Nesta fase, você deve informar o resultado das\n"+
-                "operações matemáticas que são exibidas no monitor,\n"+
-                "posicionando o número correspondente ao resultado\n"+
-                "no local indicado no tabuleiro.",
-                "neutral0"
-            )
             
             self.teacher.set_message(
                 "Atenção!\n"+
