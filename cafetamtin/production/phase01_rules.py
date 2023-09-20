@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-from rule import Rule
-from inference_engine import InferenceEngine
-from phase01_checks import Phase01Checks
-from error import Error
-from type_error import TypeError
+from production.rule import Rule
+from production.inference_engine import InferenceEngine
+from production.phase01_checks import Phase01Checks
+from production.error import Error
+from production.type_error import TypeError
 
 from datetime import datetime
 
@@ -37,7 +37,9 @@ class Phase01Rules:
             Rule(
                 name = 'Nenhum numero',
                 condition=lambda wm: self.phase01checks.zero_numbers(self.wm),
-                action=self.type_error.not_valid
+                action=self.type_error.not_valid,
+                message='Atenção. Você deve colocar os bloco numérico correspondente à respostas sobre o tabuleiro.',
+                tutor_emotion='neutral0'
             )
         )
         
@@ -45,7 +47,9 @@ class Phase01Rules:
             Rule(
                 name = 'Mais de um numero',
                 condition=lambda wm: self.phase01checks.more_numbers(self.wm),
-                action=self.type_error.not_valid
+                action=self.type_error.not_valid,
+                message='Atenção. Você deve informar o resultado da operação.',
+                tutor_emotion='neutral0'
             )
         )
         
@@ -53,7 +57,7 @@ class Phase01Rules:
             Rule(
                 name = 'Apenas um numero',
                 condition=lambda wm: self.phase01checks.one_number(self.wm),
-                action=self.type_error.valid
+                action=self.type_error.valid,
             )
         )
         

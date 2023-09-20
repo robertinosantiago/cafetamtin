@@ -15,11 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-from error import Error
+from production.error import Error
 
 import logging
 
 class TypeError:
+    ERROR_NOT_VALID = 'Expressão não válida'
     
     TYPE_DIRECTLY_IDENTIFIABLE = 'Diretamente identificáveis'
     TYPE_MISINTERPRETATION_LANGUAGE = 'Interpretação equivocada da linguagem'
@@ -40,15 +41,21 @@ class TypeError:
         errors.append(error)
         wm.add_fact('errors', errors)
     
-    def not_valid(self, wm, rule_name):
-        logging.info(f'A regra {rule_name} disparou a funçao not_valid')
+    def not_valid(self, wm, rule_name, message, image, tutor_emotion):
+        #logging.info(f'A regra {rule_name} disparou a funçao not_valid')
         wm.add_fact('valid', False)
+        error = Error(
+            type=TypeError.ERROR_NOT_VALID,
+            message=message,
+            image=image
+        )
+        self.__add_error_in_wm__(error, wm, rule_name, 'not_valid')
         
-    def valid(self, wm, rule_name):
+    def valid(self, wm, rule_name, message, image, tutor_emotion):
         logging.info(f'A regra {rule_name} disparou a funçao valid')
         wm.add_fact('valid', True)
         
-    def error_rule_deficiency(self, wm, rule_name):
+    def error_rule_deficiency(self, wm, rule_name, message, image, tutor_emotion):
         error = Error(
                 type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
                 subtype=TypeError.SUBTYPE_RULE_DEFICIECY
@@ -56,35 +63,35 @@ class TypeError:
         self.__add_error_in_wm__(error, wm, rule_name, 'error_rule_deficiency')
         
         
-    def error_operator_usage(self, wm, rule_name):
+    def error_operator_usage(self, wm, rule_name, message, image, tutor_emotion):
         error = Error(
                 type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
                 subtype=TypeError.SUBTYPE_OPERATOR_USAGE
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_operator_usage')
         
-    def error_domain_deficiency(self, wm, rule_name):
+    def error_domain_deficiency(self, wm, rule_name, message, image, tutor_emotion):
         error = Error(
                 type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
                 subtype=TypeError.SUBTYPE_DOMAIN_DEFICIENCY
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_domain_deficiency')
         
-    def error_misinterpretation_language(self, wm, rule_name):
+    def error_misinterpretation_language(self, wm, rule_name, message, image, tutor_emotion):
         error = Error(
                 type=TypeError.TYPE_MISINTERPRETATION_LANGUAGE,
                 subtype= TypeError.SUBTYPE_NONE
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_misinterpretation_language')
     
-    def error_indirectly_identifiable(self, wm, rule_name):
+    def error_indirectly_identifiable(self, wm, rule_name, message, image, tutor_emotion):
         error = Error(
                 type=TypeError.TYPE_INDIRECTLY_IDENTIFIABLE,
                 subtype= TypeError.SUBTYPE_NONE
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_indirectly_identifiable')
         
-    def error_uncategorized_solution(self, wm, rule_name):
+    def error_uncategorized_solution(self, wm, rule_name, message, image, tutor_emotion):
         error = Error(
                 type=TypeError.TYPE_UNCATEGORIZED_SOLUTION,
                 subtype= TypeError.SUBTYPE_NONE

@@ -21,6 +21,7 @@ import random
 import pygame
 from pygame.locals import *
 from pony.orm import *
+from datetime import datetime
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -33,14 +34,22 @@ from base.board import Board
 from base.leds import Leds, RainbowThread
 from base.facial import FacialThread
 from utils.timer import Timer
-from database.models import DBUser, DBSteps, DBChallengeP1, DBResponseP1
 from utils.confetti import Confetti
+from database.models import DBUser, DBSteps, DBChallengeP1, DBResponseP1
+from production.memory import Memory
+from production.phase01_rules import Phase01Rules
+from game.states.phase01_feedback import Phase01Feedback
+
 
 class Phase01(State):
     
     def __init__(self, game):
         super().__init__(game)
 
+        self.memory = Memory()
+        self.rules = Phase01Rules(self.memory)
+        self.memory.add_fact('game', self.game)
+        
         self.facial = self.game.app.facial #FacialThread(self.game.app)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
@@ -97,6 +106,7 @@ class Phase01(State):
             'heart': pygame.image.load(os.path.join("images", "heart.png")),
             'table': pygame.image.load(os.path.join("images", "table.png")),
             'student-desk': pygame.image.load(os.path.join("images", "student-desk.png")),
+            'arrow-red': pygame.image.load(os.path.join("images", "arrow-red.png")),
         }
 
     def handle_events(self, events):
@@ -110,6 +120,13 @@ class Phase01(State):
                 self.exit_state()
 
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_f:
+                    self.button_green_changed(True)
+                    return
+                
+                if event.key == pygame.K_v:
+                    self.button_red_changed(True)
+                    
                 if event.key == pygame.K_ESCAPE:
                     self.exit_state()
 
@@ -191,6 +208,7 @@ class Phase01(State):
 
             if not self.started:
                 self.started = True
+                self.memory.add_fact('last_execution', datetime.now())
         else:
             self.show_teacher = False
             
@@ -235,7 +253,7 @@ class Phase01(State):
             
             self.teacher.set_message(
                 "Atenção!\n"+
-                "Prepare-se para começar", 
+                "Prepare-se para começar. Tente responder o mais rápido possível", 
                 "neutral1"
             )
             self.teacher.next_message()
@@ -243,6 +261,36 @@ class Phase01(State):
 
 
     def check_challenge(self):
+        blocks = self.board.result_matrix_board()
+        response = {}
+        response['total_time'] = self.timer_response.total_time_seconds()
+        response['time_without_pauses'] = (self.timer_response.total_time_seconds() - self.timer_response.total_time_paused_seconds())
+        response['paused_counter'] = self.timer_response.total_times_paused() - self.tips_times
+        response['tips_counter'] = self.tips_times
+        
+        expression = ''
+        numbers, operators, result = self.challenge
+        if self.num_terms == 2:
+            expression = f'{numbers[0]}{operators[0]}{numbers[1]}={result}'
+        else:
+            expression = f'{numbers[0]}{operators[0]}{numbers[1]}{operators[1]}{numbers[2]}={result}'
+            
+        self.memory.add_fact('last_execution', datetime.now())
+        self.memory.add_fact('expression', expression)
+        self.memory.add_fact('result', blocks)
+        
+        self.rules.execute_rules()
+        
+        feedback = Phase01Feedback(self.game, self.memory)
+        feedback.enter_state()
+        self.generate_new_challenge()
+        self.step += 1
+        self.teacher.clear_messages()
+        self.show_teacher = False
+        
+        
+    
+    def check_challenge_old(self):
         numbers = self.board.result_matrix_board()
         response = {}
         response['total_time'] = self.timer_response.total_time_seconds()
@@ -601,13 +649,13 @@ class Phase01(State):
 
         background = self.images['background']
         display.blit(background, (0,0))
+        
         self.draw_table()
         self.draw_student_desk()
         self.draw_lifes()
         self.draw_score()
         self.draw_student_name()
         self.draw_physical_buttons()
-
         
         if self.show_teacher:
             self.teacher.draw()

@@ -75,18 +75,31 @@ class Teacher:
     def clear_messages(self):
         self.messages = queue.Queue()
 
-    def draw_speech_bubble(self, text, text_colour, bg_colour, pos, size):
+    def draw_speech_bubble(self, text, text_colour, bg_colour, pos, size, max_words = 10):
         font = pygame.font.SysFont(FONT_NAME, size, False, False)
         collection = [word.split(' ') for word in text.splitlines()]
         lines = []
-
-        for c in collection:
+        
+        for words in collection:
             t = ''
-            for i in range(0, len(c)):
-                t += c[i]
-                if i < len(c)-1:
+            words_count = 0    
+            for i in range(len(words)):
+                t += words[i]
+                words_count += 1
+                if i < len(words)-1 and words_count < max_words:
                     t += ' '
-            lines.append(t)
+                if i >= len(words)-1 or words_count >= max_words:
+                    words_count = 0
+                    lines.append(t)
+                    t = ''
+
+        # for c in collection:
+        #     t = ''
+        #     for i in range(0, len(c)):
+        #         t += c[i]
+        #         if i < len(c)-1:
+        #             t += ' '
+        #     lines.append(t)
 
         max_width = 0
         max_height = 0

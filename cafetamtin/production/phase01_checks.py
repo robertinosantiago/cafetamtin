@@ -20,7 +20,7 @@ import logging
 import re
 from datetime import datetime
 
-from error import Error
+from production.error import Error
 
 class Phase01Checks:
     
@@ -56,6 +56,8 @@ class Phase01Checks:
             numbers_expression = r.sub('', part1).strip()
                         
             result = ''.join(str(e) for e in result).strip()
+            
+            print(numbers_expression, '<>', result)
 
             return result == numbers_expression
         

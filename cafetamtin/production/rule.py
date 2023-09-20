@@ -17,12 +17,20 @@
 
 class Rule:
     
-    def __init__(self, name, condition, action):
+    def __init__(self, name, condition, action, message=None, image=None, tutor_emotion=None):
         self.name = name
         self.condition = condition
         self.action = action
+        self.message = message
+        self.image = image
+        self.tutor_emotion = tutor_emotion
 
     def evaluate(self, working_memory):
         if self.condition(working_memory):
-            self.action(working_memory, self.name)
+            self.action(working_memory, self.name, self.message, self.image, self.tutor_emotion)
+            
+    def __eq__(self, other):
+        if isinstance(other, Rule):
+            return (self.condition == other.condition and self.action == other.action)
+        return False
             
