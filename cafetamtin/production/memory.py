@@ -21,6 +21,8 @@ class Memory:
         self.facts = {}
         self.errors = []
         self.facts['errors'] = []
+        self.facts['valid'] = False
+        self.facts['correct'] = False
         
     def add_fact(self, fact, value):
         self.facts[fact] = value
@@ -28,14 +30,19 @@ class Memory:
     def get_fact(self, fact):
         return self.facts.get(fact)
     
-    def clean_facts(self):
+    def clear_facts(self):
         self.facts = {}
-    
-    def add_error(self, error):
-        self.errors.append(error)
         
-    def list_errors(self):
-        return self.errors
+    def reset(self):
+        self.facts['valid'] = False
+        self.facts['correct'] = False
+        self.clear_errors()
     
-    def clean_errors(self):
-        self.errors = []
+    #def add_error(self, error):
+    #    self.errors.append(error)
+        
+    #def list_errors(self):
+    #    return self.errors
+    
+    def clear_errors(self):
+        self.facts['errors'] = []

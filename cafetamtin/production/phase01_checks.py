@@ -53,11 +53,13 @@ class Phase01Checks:
             part1, part2 = expression.split('=')
             
             r = re.compile(r'[^0-9]')
-            numbers_expression = r.sub('', part1).strip()
-                        
-            result = ''.join(str(e) for e in result).strip()
+            x = r.sub('', part1).strip()
+            n = [int(i) for i in x]
+            n.sort()
+            numbers_expression = ''.join(str(e) for e in n).strip()
             
-            print(numbers_expression, '<>', result)
+            result.sort()
+            result = ''.join(str(e) for e in result).strip()
 
             return result == numbers_expression
         
@@ -69,7 +71,7 @@ class Phase01Checks:
         expression = wm.get_fact('expression')
         result = wm.get_fact('result')
         valid = wm.get_fact('valid')
-        
+                
         if valid:
             result = int(result[0])
             part1, part2 = expression.split('=')
@@ -145,19 +147,43 @@ class Phase01Checks:
         in_time = False
         now = datetime.now()
         
-        if valid:
-            last_execution = wm.get_fact('last_execution')
-            total_time = now - last_execution
-            seconds = total_time.total_seconds()
-            '''
-            @ToDo calcular o tempo gasto teto em tempo de execução
-            '''
-            in_time = seconds > 4
+        
+        last_execution = wm.get_fact('last_execution')
+        total_time = now - last_execution
+        seconds = total_time.total_seconds()
+        
+        print('last execution: ' + last_execution.strftime("%d-%m-%Y %H:%M:%S"))
+        print('now: ' + now.strftime("%d-%m-%Y %H:%M:%S"))
+        print(f'total seconds: {seconds}')
+        '''
+        @ToDo calcular o tempo gasto teto em tempo de execução
+        '''
+        #in_time = seconds > 4
                 
         wm.add_fact('last_execution', now)
         return in_time
     
+    def many_errors(self, wm):
+        logging.info(f'Executando função: many_errors')
+        quantity_errors = wm.get_fact('quantity_errors')
+        limit_errors = wm.get_fact('limit_errors')
+        if (quantity_errors > limit_errors):
+            wm.add_fact('quantity_errors', 0)
+            return True
+        return False
+        
+    
     def is_correct(self, wm):
         logging.info(f'Executando função: is_correct')
-        correct = wm.get_fact('correct')
-        print("Correct: ", correct)
+        expression = wm.get_fact('expression')
+        result = wm.get_fact('result')
+        valid = wm.get_fact('valid')
+            
+        if valid:
+            result = int(result[0])
+            part1, part2 = expression.split('=')
+            n = int(part2[0])
+            
+            return n == result
+                
+        return False

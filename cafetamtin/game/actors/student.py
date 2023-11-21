@@ -17,9 +17,15 @@
 
 class Student:
     
+    INHIBITORY_CAPACITY_LOW = 0
+    INHIBITORY_CAPACITY_MEDIUM = 1
+    INHIBITORY_CAPACITY_HIGH = 2
+    
     def __init__(self, id, name, nickname, age, gender):
         self.id = id
         self.name = name
         self.nickname = nickname
         self.age = age
         self.gender = gender
+        self.inhibitory_capacity_test = Student.INHIBITORY_CAPACITY_MEDIUM
+        self.inhibitory_capacity_online = Student.INHIBITORY_CAPACITY_MEDIUM

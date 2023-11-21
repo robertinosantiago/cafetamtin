@@ -41,59 +41,64 @@ class TypeError:
         errors.append(error)
         wm.add_fact('errors', errors)
     
-    def not_valid(self, wm, rule_name, message, image, tutor_emotion):
-        #logging.info(f'A regra {rule_name} disparou a funçao not_valid')
+    def not_valid(self, wm, rule_name, weight):
+        logging.info(f'A regra {rule_name} disparou a funçao not_valid')
         wm.add_fact('valid', False)
-        error = Error(
-            type=TypeError.ERROR_NOT_VALID,
-            message=message,
-            image=image
-        )
-        self.__add_error_in_wm__(error, wm, rule_name, 'not_valid')
+        #error = Error(
+        #    type=TypeError.ERROR_NOT_VALID
+        #)
+        #self.__add_error_in_wm__(error, wm, rule_name, 'not_valid')
         
-    def valid(self, wm, rule_name, message, image, tutor_emotion):
+    def valid(self, wm, rule_name, weight):
         logging.info(f'A regra {rule_name} disparou a funçao valid')
         wm.add_fact('valid', True)
         
-    def error_rule_deficiency(self, wm, rule_name, message, image, tutor_emotion):
+    def error_domain_deficiency(self, wm, rule_name, weight):
         error = Error(
                 type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
-                subtype=TypeError.SUBTYPE_RULE_DEFICIECY
-            )
-        self.__add_error_in_wm__(error, wm, rule_name, 'error_rule_deficiency')
-        
-        
-    def error_operator_usage(self, wm, rule_name, message, image, tutor_emotion):
-        error = Error(
-                type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
-                subtype=TypeError.SUBTYPE_OPERATOR_USAGE
-            )
-        self.__add_error_in_wm__(error, wm, rule_name, 'error_operator_usage')
-        
-    def error_domain_deficiency(self, wm, rule_name, message, image, tutor_emotion):
-        error = Error(
-                type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
-                subtype=TypeError.SUBTYPE_DOMAIN_DEFICIENCY
+                subtype=TypeError.SUBTYPE_DOMAIN_DEFICIENCY,
+                weight= weight
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_domain_deficiency')
         
-    def error_misinterpretation_language(self, wm, rule_name, message, image, tutor_emotion):
+    def error_operator_usage(self, wm, rule_name, weight):
+        error = Error(
+                type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
+                subtype=TypeError.SUBTYPE_OPERATOR_USAGE,
+                weight= 1
+            )
+        self.__add_error_in_wm__(error, wm, rule_name, 'error_operator_usage')
+        
+    def error_rule_deficiency(self, wm, rule_name, weight):
+        error = Error(
+                type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
+                subtype=TypeError.SUBTYPE_RULE_DEFICIECY,
+                weight= 3
+            )
+        self.__add_error_in_wm__(error, wm, rule_name, 'error_rule_deficiency')
+        
+    def error_misinterpretation_language(self, wm, rule_name, weight):
         error = Error(
                 type=TypeError.TYPE_MISINTERPRETATION_LANGUAGE,
-                subtype= TypeError.SUBTYPE_NONE
+                subtype= TypeError.SUBTYPE_NONE,
+                weight= 4
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_misinterpretation_language')
     
-    def error_indirectly_identifiable(self, wm, rule_name, message, image, tutor_emotion):
+    def error_indirectly_identifiable(self, wm, rule_name, weight):
         error = Error(
                 type=TypeError.TYPE_INDIRECTLY_IDENTIFIABLE,
                 subtype= TypeError.SUBTYPE_NONE
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_indirectly_identifiable')
         
-    def error_uncategorized_solution(self, wm, rule_name, message, image, tutor_emotion):
+    def error_uncategorized_solution(self, wm, rule_name, weight):
         error = Error(
                 type=TypeError.TYPE_UNCATEGORIZED_SOLUTION,
                 subtype= TypeError.SUBTYPE_NONE
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_uncategorized_solution')
+        
+    def correct(self, wm, rule_name, weight):
+        logging.info(f'A regra {rule_name} disparou a funçao correct')
+        wm.add_fact('correct', True)

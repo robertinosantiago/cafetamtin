@@ -37,9 +37,7 @@ class Phase01Rules:
             Rule(
                 name = 'Nenhum numero',
                 condition=lambda wm: self.phase01checks.zero_numbers(self.wm),
-                action=self.type_error.not_valid,
-                message='Atenção. Você deve colocar os bloco numérico correspondente à respostas sobre o tabuleiro.',
-                tutor_emotion='neutral0'
+                action=self.type_error.not_valid
             )
         )
         
@@ -47,9 +45,15 @@ class Phase01Rules:
             Rule(
                 name = 'Mais de um numero',
                 condition=lambda wm: self.phase01checks.more_numbers(self.wm),
-                action=self.type_error.not_valid,
-                message='Atenção. Você deve informar o resultado da operação.',
-                tutor_emotion='neutral0'
+                action=self.type_error.not_valid
+            )
+        )
+        
+        self.engine.add_rule(
+            Rule(
+                name = 'Mais de um numero',
+                condition=lambda wm: self.phase01checks.more_numbers(self.wm),
+                action=self.type_error.error_rule_deficiency
             )
         )
         
@@ -60,12 +64,12 @@ class Phase01Rules:
                 action=self.type_error.valid,
             )
         )
-        
         self.engine.add_rule(
             Rule(
-                name = 'Juncao de termos',
-                condition=lambda wm: self.phase01checks.union_terms(self.wm),
-                action=self.type_error.error_rule_deficiency
+                name = 'Resposta errada',
+                condition=lambda wm: self.phase01checks.wrong_answer(self.wm),
+                action=self.type_error.error_domain_deficiency,
+                weight= 0
             )
         )
         
@@ -73,15 +77,17 @@ class Phase01Rules:
             Rule(
                 name = 'Troca de operadores',
                 condition=lambda wm: self.phase01checks.switched_operators(self.wm),
-                action=self.type_error.error_operator_usage
+                action=self.type_error.error_operator_usage,
+                weight= 1
             )
         )
         
         self.engine.add_rule(
             Rule(
-                name = 'Resposta errada',
-                condition=lambda wm: self.phase01checks.wrong_answer(self.wm),
-                action=self.type_error.error_domain_deficiency
+                name = 'Juncao de termos',
+                condition=lambda wm: self.phase01checks.union_terms(self.wm),
+                action=self.type_error.error_rule_deficiency,
+                weight= 2
             )
         )
         
@@ -89,7 +95,17 @@ class Phase01Rules:
             Rule(
                 name = 'Demora para responder',
                 condition=lambda wm: self.phase01checks.long_time(self.wm),
-                action=self.type_error.error_misinterpretation_language
+                action=self.type_error.error_misinterpretation_language,
+                weight= 3
+            )
+        )
+        
+        self.engine.add_rule(
+            Rule(
+                name = 'Muitos erros',
+                condition = lambda wm: self.phase01checks.many_errors(self.wm),
+                action = self.type_error.error_uncategorized_solution,
+                weight= 4
             )
         )
         
@@ -97,7 +113,7 @@ class Phase01Rules:
             Rule(
                 name = 'Resposta correta',
                 condition=lambda wm: self.phase01checks.is_correct(self.wm),
-                action=self.type_error.error_misinterpretation_language
+                action=self.type_error.correct
             )
         )
         

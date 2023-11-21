@@ -45,7 +45,7 @@ class TutorialPhase01(State):
         
     def load_messages(self):
         self.teacher.set_message(
-            "Olá, meu nome é Monique e estou aqui para lhe auxiliar. "+
+            f"Olá {self.game.student.nickname}, meu nome é Monique e estou aqui para lhe auxiliar. "+
             "Vou apresentar a você cada fase disponível no jogo.\n"+
             "\n"+
             "Pressione o botão VERMELHO para continuar", 
@@ -63,7 +63,7 @@ class TutorialPhase01(State):
         )
         
         self.teacher.set_message(
-            "No exemplo acima, é exibido a operação de adição "+
+            "No exemplo acima, é exibida a operação de adição "+
             "entre os números 3 e 2. Neste caso, o bloco com "+
             "o número 5 deve ser colocado sobre o tabuleiro.\n\n"+
             "Após, deve ser pressionado o botão VERDE para "+

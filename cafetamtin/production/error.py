@@ -20,17 +20,16 @@ from datetime import datetime;
 
 class Error:
     
-    def __init__(self, type = None, subtype = None, message = None, image = None):
+    def __init__(self, type = None, subtype = None, weight=0):
         self.type = type
         self.subtype = subtype
-        self.message = message
-        self.image = image
         self.timestamp = time.time()
+        self.weight = weight
         
     def __repr__(self):
         date_time = datetime.fromtimestamp(self.timestamp)
         strtime = date_time.strftime("%d/%m/%Y %H:%M") 
-        return f"Error type: {self.type}, subtype: {self.subtype}, message: {self.message}, datetime: {strtime}"
+        return f"Error type: {self.type}, subtype: {self.subtype}, datetime: {strtime}"
     
     def __eq__(self, other):
         if isinstance(other, Error):
