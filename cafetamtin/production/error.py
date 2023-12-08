@@ -16,7 +16,7 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
-from datetime import datetime;
+from datetime import datetime
 
 class Error:
     

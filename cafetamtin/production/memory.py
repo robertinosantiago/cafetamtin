@@ -20,7 +20,6 @@ class Memory:
     def __init__(self):
         self.facts = {}
         self.errors = []
-        self.facts['errors'] = []
         self.facts['valid'] = False
         self.facts['correct'] = False
         
@@ -45,4 +44,4 @@ class Memory:
     #    return self.errors
     
     def clear_errors(self):
-        self.facts['errors'] = []
+        self.facts['history_errors'] = []

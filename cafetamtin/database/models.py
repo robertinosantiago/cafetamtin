@@ -20,6 +20,19 @@ from pony.orm import *
 from datetime import datetime
 from database.connection import db
 
+class DBUser(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    name = Required(str)
+    nickname = Required(str)
+    age = Required(int)
+    gender = Required(str)
+    inhibitory_capacity_test = Optional(int, default=1)
+    inhibitory_capacity_online = Optional(int, default=1)
+    steps = Set('DBSteps')
+    challenges_p1 = Set('DBChallengeP1')
+    challenges_p2 = Set('DBChallengeP2')
+
+
 class DBBoard(db.Entity):
     id = PrimaryKey(int, auto=True)
     lines = Required(int)
@@ -39,69 +52,6 @@ class DBBoard(db.Entity):
     span_cols = Optional(int)
     span_rows = Optional(int)
 
-class DBUser(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    name = Required(str)
-    nickname = Required(str)
-    age = Required(int)
-    gender = Required(str)
-    steps = Set('DBSteps')
-    challenges_p1 = Set('DBChallengeP1')
-    challenges_p2 = Set('DBChallengeP2')
-
-class DBChallengeP1(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    number01 = Required(int)
-    operator01 = Required(str, 1)
-    number02 = Required(int)
-    operator02 = Optional(str, nullable=True)
-    number03 = Optional(int)
-    expected_result = Required(int)
-    total_time = Required(float)
-    responsesp1 = Set('DBResponseP1')
-    user = Required(DBUser)
-
-class DBResponseP1(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    informed_result = Required(int)
-    is_correct = Required(bool)
-    total_time = Required(float)
-    time_without_pauses = Required(float)
-    paused_counter = Required(int)
-    tips_counter = Required(int)
-    distractors = Optional(int)
-    affective_state = Optional(str)
-    affective_quad = Optional(str)
-    type_er = Optional(str)
-    type_error = Optional(str)
-    challengep1 = Required(DBChallengeP1)
-
-class DBChallengeP2(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    number01 = Required(int)
-    number02 = Required(int)
-    number03 = Required(int)
-    total_time = Required(float)
-    user = Required(DBUser)
-    responsesp2 = Set('DBResponseP2')
-
-
-class DBResponseP2(db.Entity):
-    id = PrimaryKey(int, auto=True)
-    number01 = Optional(int)
-    number02 = Optional(int)
-    number03 = Optional(int)
-    is_correct = Optional(bool)
-    total_time = Optional(float)
-    time_without_pauses = Optional(float)
-    paused_counter = Optional(int)
-    tips_counter = Optional(int)
-    distractors = Optional(int)
-    affective_state = Optional(str)
-    affective_quad = Optional(str)
-    type_er = Optional(str)
-    type_error = Optional(str)
-    challengep2 = Required(DBChallengeP2)
 
 class DBSteps(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -109,4 +59,59 @@ class DBSteps(db.Entity):
     score = Optional(int)
     lifes = Optional(int)
     status = Optional(str)
-    user = Optional(DBUser)
+    user = Required(DBUser)
+
+
+class DBSession(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    start_time = Optional(datetime)
+    challenges_p1 = Set('DBChallengeP1')
+    challenges_p2 = Set('DBChallengeP2')
+
+
+class DBChallengeP1(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    number01 = Optional(int)
+    operator01 = Optional(str)
+    number02 = Optional(int)
+    operator02 = Optional(str)
+    number03 = Optional(int)
+    expected_result = Optional(int)
+    informed_result = Optional(int)
+    is_correct = Optional(bool)
+    start_time = Optional(datetime)
+    end_time = Optional(datetime)
+    reaction_time = Optional(float)
+    reaction_time_without_pauses = Optional(float)
+    pauses_counter = Optional(int)
+    tips_counter = Optional(int)
+    distractors = Optional(int)
+    affective_state = Optional(str)
+    affective_quad = Optional(str)
+    type_external_representations = Optional(str)
+    type_error = Optional(str)
+    subtype_error = Optional(str)
+    user = Required(DBUser)
+    session = Required(DBSession)
+
+
+class DBChallengeP2(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    number01 = Optional(int)
+    number02 = Optional(int)
+    number03 = Optional(int)
+    is_correct = Optional(bool)
+    start_time = Optional(datetime)
+    end_time = Optional(datetime)
+    reaction_time = Optional(float)
+    reaction_time_without_pauses = Optional(float)
+    pauses_counter = Optional(int)
+    tips_counter = Optional(int)
+    distractors = Optional(int)
+    affective_state = Optional(str)
+    affective_quad = Optional(str)
+    type_external_repesentations = Optional(str)
+    type_error = Optional(str)
+    subtype_error = Optional(str)
+    user = Required(DBUser)
+    session = Required(DBSession)

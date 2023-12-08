@@ -145,22 +145,22 @@ class Phase01Checks:
         valid = wm.get_fact('valid')
         
         in_time = False
-        now = datetime.now()
+        end_time = datetime.now()
         
         
-        last_execution = wm.get_fact('last_execution')
-        total_time = now - last_execution
+        start_time = wm.get_fact('start_time')
+        total_time = end_time - start_time
         seconds = total_time.total_seconds()
         
-        print('last execution: ' + last_execution.strftime("%d-%m-%Y %H:%M:%S"))
-        print('now: ' + now.strftime("%d-%m-%Y %H:%M:%S"))
+        print('start_time: ' + start_time.strftime("%d-%m-%Y %H:%M:%S"))
+        print('end_time: ' + end_time.strftime("%d-%m-%Y %H:%M:%S"))
         print(f'total seconds: {seconds}')
         '''
         @ToDo calcular o tempo gasto teto em tempo de execução
         '''
         #in_time = seconds > 4
                 
-        wm.add_fact('last_execution', now)
+        wm.add_fact('end_time', end_time)
         return in_time
     
     def many_errors(self, wm):
@@ -186,4 +186,27 @@ class Phase01Checks:
             
             return n == result
                 
+        return False
+    
+    def impulsive_errors(self, wm):
+        return False
+    
+    def persist_same_error(self, wm):
+        history_errors = wm.get_fact('history_errors')
+        if len(history_errors) < 2:
+            return False
+        else:
+            return history_errors[-1] == history_errors[-2]
+    
+    def most_common_errors(self, wm):
+        return False
+    
+    def problem_solving_time(self, wm):
+        return False
+    
+    def number_attempts(self, wm):
+        history_errors = wm.get_fact('history_errors')
+        return len(history_errors) >= 5
+    
+    def student_efficiency(self, wm):
         return False

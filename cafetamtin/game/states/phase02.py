@@ -25,7 +25,7 @@ from base.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
-from database.models import DBUser, DBSteps, DBChallengeP2, DBResponseP2
+from database.models import DBUser, DBSteps, DBChallengeP2
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -493,7 +493,7 @@ class Phase02(State):
                     self.confetti.visible = True
                     self.score += self.incremental_points
                     self.step += 1
-                    self.save_challenge(numbers)
+                    #self.save_challenge(numbers)
             else:
                 response['is_correct'] = False
                 self.add_response(response)

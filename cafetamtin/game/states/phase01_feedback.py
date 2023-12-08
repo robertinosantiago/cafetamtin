@@ -15,19 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import pygame
 import random
-import os
+from pony.orm import *
+from pygame.locals import *
 from datetime import datetime
 
 from game import FONT_NAME
 from game import WHITE, BLACK, RED, GREEN, YELLOW
 
-from game.actors.teacher import Teacher
 from base.board import Board
 from game.states.state import State
 from utils.confetti import Confetti
+from game.actors.teacher import Teacher
 from production.type_error import TypeError
+from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
 
 class Phase01Feedback(State):
     
@@ -108,7 +111,9 @@ class Phase01Feedback(State):
             self.exit_state()
     
     def exit_state(self):
-        self.memory.add_fact('last_execution', datetime.now())
+        self.memory.get_fact('timer_response').start()
+        print("TIMER: started - feedback")
+        self.memory.add_fact('tips_times', 0)
         super().exit_state()
         
     def draw_confetti(self):
@@ -521,12 +526,39 @@ class Phase01Feedback(State):
         quantity_corrects = self.memory.get_fact('quantity_corrects')
         num_terms = self.memory.get_fact('num_terms')
         
+        response = {}
+        response['reaction_time'] = self.memory.get_fact('timer_response').total_time_seconds()
+        response['reaction_time_without_pauses'] = self.memory.get_fact('timer_response').total_time_without_paused_seconds()
+        response['paused_counter'] = self.memory.get_fact('timer_response').total_times_paused() - self.memory.get_fact('tips_times')
+        response['tips_counter'] = self.memory.get_fact('tips_times')
+
+        response['start_time'] = self.memory.get_fact('timer_response').get_time_started()
+        response['end_time'] = self.memory.get_fact('timer_response').get_time_finished()
+        response['affective_state'] = ''
+        response['affective_quad'] = ''
+        
+        response['type_error'] = ''
+        response['subtype_error'] = ''
+        
         
         if len(result) > 0:
             result = int(result[0])
         else:
             result = 0
         part1, part2 = expression.split('=')
+        
+        response['number01'] = int(part1[0])
+        response['operator01'] = part1[1]
+        response['number02'] = int(part1[2])
+        if len(part1) == 3:
+            response['operator02'] = ''
+            response['number03'] = 0
+        else:
+            response['operator02'] = part1[3]
+            response['number03'] = int(part1[4])
+            
+        response['expected_result'] = int(part2)
+        response['informed_result'] = result
         
         count_plus = part1.count('+')
         count_minus = part1.count('-')
@@ -538,6 +570,9 @@ class Phase01Feedback(State):
                 '\n\nPressione o botão VERMELHO para continuar', 
                 emotions[random.randrange(0,len(emotions))]
             )
+            
+            response['is_correct'] = True
+            
             self.frame_confetti = 1
             self.confetti.visible = True
             quantity_corrects += 1
@@ -548,6 +583,7 @@ class Phase01Feedback(State):
                 self.memory.add_fact('num_terms', num_terms)
             
         else:
+            response['is_correct'] = False
             quantity_corrects = 0
             errors = sorted(errors, key=lambda error: error.weight, reverse=True)
             error = errors[0]
@@ -558,6 +594,9 @@ class Phase01Feedback(State):
             quantity_errors = self.memory.get_fact('quantity_errors')
             quantity_errors += 1
             self.memory.add_fact('quantity_errors', quantity_errors)
+            
+            response['type_error'] = error.type
+            response['subtype_error'] = error.subtype
             
             if error.type == TypeError.TYPE_MISINTERPRETATION_LANGUAGE:
                 self.message_teacher_misinterpretation_language()
@@ -573,6 +612,8 @@ class Phase01Feedback(State):
             elif error.type == TypeError.TYPE_UNCATEGORIZED_SOLUTION:
                 self.message_teacher_uncategorized_solution()
                 
+            
+                
             self.memory.reset()
             
             
@@ -582,10 +623,42 @@ class Phase01Feedback(State):
             #self.message_teacher_operator_use()
             #self.message_teacher_rule_deficiency()
             
+        self.save_challenge(response)
         self.memory.add_fact('quantity_corrects', quantity_corrects)
+        
+        
         self.teacher.next_message()
         self.show_teacher = True
-        
+    
+    @db_session
+    def save_challenge(self, response):
+        user = DBUser[self.game.student.id]
+        session = DBSession[int(self.memory.get_fact('session_id'))]
+        challenge = DBChallengeP1(
+            number01 = response['number01'],
+            number02 = response['number02'],
+            number03 = response['number03'],
+            operator01 = response['operator01'],
+            operator02 = response['operator02'],
+            expected_result = response['expected_result'],
+            informed_result = response['informed_result'],
+            is_correct = response['is_correct'],
+            start_time = response['start_time'],
+            end_time = response['end_time'],
+            reaction_time = response['reaction_time'],
+            reaction_time_without_pauses = response['reaction_time_without_pauses'],
+            # @TODO: corrigir o nome desse atributo no modelo
+            pauses_counter = response['paused_counter'],
+            tips_counter = response['tips_counter'],
+            affective_state = response['affective_state'],
+            affective_quad = response['affective_quad'],
+            type_error = response['type_error'],
+            subtype_error = response['subtype_error'],
+            user = user,
+            session = session
+        )
+    
+    
     def draw_confetti(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
