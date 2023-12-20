@@ -16,6 +16,7 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import math
 import pygame
 import random
 from pony.orm import *
@@ -29,7 +30,9 @@ from base.board import Board
 from game.states.state import State
 from utils.confetti import Confetti
 from game.actors.teacher import Teacher
+from game.actors.student import Student
 from production.type_error import TypeError
+from production.phase01_levels import Phase01Levels
 from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
 
 class Phase01Feedback(State):
@@ -37,6 +40,7 @@ class Phase01Feedback(State):
     def __init__(self, game, working_memory):
         super().__init__(game)
         self.memory = working_memory
+        self.rules = Phase01Levels(self.memory)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.confetti = Confetti()
@@ -114,6 +118,11 @@ class Phase01Feedback(State):
         self.memory.get_fact('timer_response').start()
         print("TIMER: started - feedback")
         self.memory.add_fact('tips_times', 0)
+        step = self.memory.get_fact('step')
+        step += 1
+        step = self.memory.add_fact('step', step)
+        self.memory.add_fact('reset_timer', True)
+    
         super().exit_state()
         
     def draw_confetti(self):
@@ -527,6 +536,7 @@ class Phase01Feedback(State):
         num_terms = self.memory.get_fact('num_terms')
         
         response = {}
+        response['step'] = self.memory.get_fact('step')
         response['reaction_time'] = self.memory.get_fact('timer_response').total_time_seconds()
         response['reaction_time_without_pauses'] = self.memory.get_fact('timer_response').total_time_without_paused_seconds()
         response['paused_counter'] = self.memory.get_fact('timer_response').total_times_paused() - self.memory.get_fact('tips_times')
@@ -539,7 +549,6 @@ class Phase01Feedback(State):
         
         response['type_error'] = ''
         response['subtype_error'] = ''
-        
         
         if len(result) > 0:
             result = int(result[0])
@@ -560,8 +569,7 @@ class Phase01Feedback(State):
         response['expected_result'] = int(part2)
         response['informed_result'] = result
         
-        count_plus = part1.count('+')
-        count_minus = part1.count('-')
+        self.memory.get_fact('time_per_step').append(response['reaction_time'])
         
         if (len(errors) == 0 and correct and valid):
             emotions = ['happy0', 'happy1', 'happy2', 'happy3', 'happy4', 'heart0']
@@ -572,6 +580,8 @@ class Phase01Feedback(State):
             )
             
             response['is_correct'] = True
+            self.memory.add_fact('is_correct', True)
+            #self.add_points_score()
             
             self.frame_confetti = 1
             self.confetti.visible = True
@@ -583,52 +593,125 @@ class Phase01Feedback(State):
                 self.memory.add_fact('num_terms', num_terms)
             
         else:
-            response['is_correct'] = False
-            quantity_corrects = 0
-            errors = sorted(errors, key=lambda error: error.weight, reverse=True)
-            error = errors[0]
-            history_errors = self.memory.get_fact('history_errors')
-            history_errors.append(error)
-            self.memory.add_fact('history_errors', history_errors)
+            print("Result: ", result)
+            if not valid and result == 0:
+                print("sem numeros")
+            else:
             
-            quantity_errors = self.memory.get_fact('quantity_errors')
-            quantity_errors += 1
-            self.memory.add_fact('quantity_errors', quantity_errors)
-            
-            response['type_error'] = error.type
-            response['subtype_error'] = error.subtype
-            
-            if error.type == TypeError.TYPE_MISINTERPRETATION_LANGUAGE:
-                self.message_teacher_misinterpretation_language()
-            elif error.type == TypeError.TYPE_DIRECTLY_IDENTIFIABLE:
-                if error.subtype == TypeError.SUBTYPE_DOMAIN_DEFICIENCY:
-                    self.message_teacher_domain_deficiency()
-                elif error.subtype == TypeError.SUBTYPE_RULE_DEFICIECY:
-                    self.message_teacher_rule_deficiency()
-                elif error.subtype == TypeError.SUBTYPE_OPERATOR_USAGE:
-                    self.message_teacher_operator_use()
-            elif error.type == TypeError.TYPE_INDIRECTLY_IDENTIFIABLE:
-                pass
-            elif error.type == TypeError.TYPE_UNCATEGORIZED_SOLUTION:
-                self.message_teacher_uncategorized_solution()
+                response['is_correct'] = False
+                self.memory.add_fact('is_correct', False)
+                #self.remove_points_score()
                 
-            
+                quantity_corrects = 0
+                errors = sorted(errors, key=lambda error: error.weight, reverse=True)
+                error = errors[0]
+                history_errors = self.memory.get_fact('history_errors')
+                history_errors.append(error)
+                self.memory.add_fact('history_errors', history_errors)
                 
-            self.memory.reset()
-            
-            
-            #self.message_teacher_domain_deficiency()
-            #self.message_teacher_misinterpretation_language()
-            #self.message_teacher_uncategorized_solution()
-            #self.message_teacher_operator_use()
-            #self.message_teacher_rule_deficiency()
-            
+                quantity_errors = self.memory.get_fact('quantity_errors')
+                quantity_errors += 1
+                self.memory.add_fact('quantity_errors', quantity_errors)
+                
+                response['type_error'] = error.type
+                response['subtype_error'] = error.subtype
+                
+                if error.type == TypeError.TYPE_MISINTERPRETATION_LANGUAGE:
+                    self.message_teacher_misinterpretation_language()
+                elif error.type == TypeError.TYPE_DIRECTLY_IDENTIFIABLE:
+                    if error.subtype == TypeError.SUBTYPE_DOMAIN_DEFICIENCY:
+                        self.message_teacher_domain_deficiency()
+                    elif error.subtype == TypeError.SUBTYPE_RULE_DEFICIECY:
+                        self.message_teacher_rule_deficiency()
+                    elif error.subtype == TypeError.SUBTYPE_OPERATOR_USAGE:
+                        self.message_teacher_operator_use()
+                elif error.type == TypeError.TYPE_INDIRECTLY_IDENTIFIABLE:
+                    pass
+                elif error.type == TypeError.TYPE_UNCATEGORIZED_SOLUTION:
+                    self.message_teacher_uncategorized_solution()
+                    
+                self.memory.reset()
+                
+        self.memory.get_fact('responses').append(response)
         self.save_challenge(response)
         self.memory.add_fact('quantity_corrects', quantity_corrects)
         
-        
+        self.rules.execute_rules()
+        self.adjust_game_levels()
         self.teacher.next_message()
         self.show_teacher = True
+    
+    def adjust_game_levels(self):
+        print("\n\nAdjust\n\n")
+        student: Student = self.memory.get_fact('student')
+        average_time = self.memory.get_fact('average_time')
+        amount_time = self.memory.get_fact('amount_time')
+        is_correct = self.memory.get_fact('is_correct')
+        response = self.memory.get_fact('responses')[-1]
+        
+        if is_correct:
+            self.add_points_score()
+        else:
+            self.remove_lives()
+        
+        bonus = False
+        if is_correct and response['reaction_time'] < (amount_time / 2):
+            bonus = True
+        
+        if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', False)
+            if bonus:
+                self.add_lives()
+                self.add_bonus_points()
+                
+        elif student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_MEDIUM:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', True)
+            if bonus:
+                self.add_bonus_points()
+                
+        else:
+            self.memory.add_fact('amount_time', math.ceil(average_time * 0.5))
+            self.memory.add_fact('enable_timer', True)
+            if bonus:
+                self.add_bonus_points()
+            
+            if not is_correct:
+                self.remove_points_score()
+            
+        self.memory.add_fact('reset_timer', True)
+    
+    def add_points_score(self):
+        score = self.memory.get_fact('score')
+        score += self.memory.get_fact('correct_points')
+        self.memory.add_fact('score', score)
+        
+    def remove_points_score(self):
+        score = self.memory.get_fact('score')
+        print("Score antes: ", score)
+        score -= self.memory.get_fact('incorrect_points')
+        if score < 0:
+            score = 0
+        self.memory.add_fact('score', score)
+        print('Score depois: ', score)
+        
+    def add_bonus_points(self):
+        score = self.memory.get_fact('score')
+        score += self.memory.get_fact('bonus_points')
+        self.memory.add_fact('score', score)
+    
+    def add_lives(self):
+        max_lives = self.memory.get_fact('max_lives')
+        lives = self.memory.get_fact('lives')
+        if lives < max_lives:
+            lives += 1
+        self.memory.add_fact('lives', lives)
+    
+    def remove_lives(self):
+        lives = self.memory.get_fact('lives')
+        lives -= 1
+        self.memory.add_fact('lives', lives)
     
     @db_session
     def save_challenge(self, response):

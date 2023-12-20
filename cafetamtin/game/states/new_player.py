@@ -112,7 +112,7 @@ class NewPlayer(MenuMixin, State):
     def load_user(self, user_id):
         if user_id:
             user = DBUser[user_id]
-            student = Student(user.id, user.name, user.nickname, user.age, user.gender)
+            student = Student(user.id, user.name, user.nickname, user.age, user.gender, user.inhibitory_capacity_test, user.inhibitory_capacity_online)
             self.game.student = student
 
     def render(self, display):

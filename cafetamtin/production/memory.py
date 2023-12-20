@@ -37,11 +37,13 @@ class Memory:
         self.facts['correct'] = False
         self.clear_errors()
     
-    #def add_error(self, error):
-    #    self.errors.append(error)
+    def add_error(self, error):
+        self.errors.append(error)
         
-    #def list_errors(self):
-    #    return self.errors
+    def list_errors(self):
+        return self.errors
     
     def clear_errors(self):
-        self.facts['history_errors'] = []
+        #self.facts['history_errors'] = []
+        self.facts['errors'] = []
+        self.errors = []

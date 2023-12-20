@@ -21,11 +21,11 @@ class Student:
     INHIBITORY_CAPACITY_MEDIUM = 1
     INHIBITORY_CAPACITY_HIGH = 2
     
-    def __init__(self, id, name, nickname, age, gender):
+    def __init__(self, id, name, nickname, age, gender, inhibitory_capacity_test, inhibitory_capacity_online):
         self.id = id
         self.name = name
         self.nickname = nickname
         self.age = age
         self.gender = gender
-        self.inhibitory_capacity_test = Student.INHIBITORY_CAPACITY_MEDIUM
-        self.inhibitory_capacity_online = Student.INHIBITORY_CAPACITY_MEDIUM
+        self.inhibitory_capacity_test = inhibitory_capacity_test
+        self.inhibitory_capacity_online = inhibitory_capacity_online
