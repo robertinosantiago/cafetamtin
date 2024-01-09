@@ -19,13 +19,21 @@ import pygame
 import os
 import random
 from pony.orm import *
+from datetime import datetime
 
 from game.states.state import State
 from base.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
-from database.models import DBUser, DBSteps, DBChallengeP2
+from database.models import DBChallengeP2, DBSession, DBUser, DBSteps
+
+from production.error import Error
+from production.memory import Memory
+from production.type_error import TypeError
+from production.phase02_rules import Phase02Rules
+from game.states.phase02_feedback import Phase02Feedback
+
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -36,6 +44,13 @@ class Phase02(State):
 
     def __init__(self, game):
         super().__init__(game)
+        
+        self.memory = Memory()
+        self.rules = Phase02Rules(self.memory)
+        self.init_working_memory()
+        
+        #@TODO: implementar o reconhecimento do estado afetivo
+        
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -44,7 +59,7 @@ class Phase02(State):
         self.challenges = self.load_challenges()
         self.responses = []
 
-        self.lives = 3
+        self.lives = 5
         self.score = 0
         self.max_steps = 8
         self.step = 0
@@ -72,6 +87,42 @@ class Phase02(State):
         self.confetti = Confetti()
         self.frame_confetti = 1
         self.starting_game()
+        
+    @db_session
+    def init_working_memory(self):
+        session = DBSession(
+            start_time = datetime.now()
+        )
+        session.flush()
+        self.memory.add_fact('student', self.game.student)
+        self.memory.add_fact('session_id', session.id)
+        self.memory.add_fact('game', self.game)
+        self.memory.add_fact('challenges', self.load_challenges())
+        self.memory.add_fact('quantity_corrects', 0)
+        self.memory.add_fact('quantity_errors', 0)
+        self.memory.add_fact('quantity_same_error', 0)
+        self.memory.add_fact('limit_errors', 2)
+        self.memory.add_fact('history_errors', [])
+        self.memory.add_fact('tips_times', 0)
+        self.memory.add_fact('step', 1)
+        self.memory.add_fact('average_time', 60)
+        self.memory.add_fact('minimum_time', 5)
+        self.memory.add_fact('time_per_step', [])
+        self.memory.add_fact('accumulated_time', 0)
+        self.memory.add_fact('errors', [])
+        self.memory.add_fact('responses', [])
+        self.memory.add_fact('reset_timer', True)
+        self.memory.add_fact('max_lives', 5)
+        self.memory.add_fact('lives', 5)
+        self.memory.add_fact('score', 0)
+        self.memory.add_fact('correct_points', 10)
+        self.memory.add_fact('incorrect_points', 5)
+        self.memory.add_fact('bonus_points', 5)
+        
+        self.memory.add_fact('timer_challenge', Timer())
+        self.memory.add_fact('timer_response', Timer())
+        self.memory.add_fact('timer_teacher', Timer())
+        self.memory.get_fact('timer_teacher').start()
 
 
     def load_images(self):
@@ -113,12 +164,12 @@ class Phase02(State):
             return
         
         if self.is_paused:
-            self.timer_challenge.resume()
-            self.timer_response.resume()
+            self.memory.get_fact('timer_challenge').resume()
+            self.memory.get_fact('timer_response').resume()
             self.is_paused = False
         else:
-            self.timer_challenge.pause()
-            self.timer_response.pause()
+            self.memory.get_fact('timer_challenge').pause()
+            self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
     def button_green_changed(self, data):
@@ -131,9 +182,9 @@ class Phase02(State):
         if self.is_paused:
             return
         
-        self.timer_teacher.resume()
-        self.timer_response.stop()
-        self.timer_challenge.pause()
+        self.memory.get_fact('timer_teacher').resume()
+        self.memory.get_fact('timer_response').stop()
+        self.memory.get_fact('timer_challenge').stop()
         #irá contar o tempo enquanto verifica a resposta?
 
 
@@ -149,6 +200,7 @@ class Phase02(State):
         self.teacher.next_message()
         self.show_teacher = True
 
+        #TODO: capturar a imagem do rosto
         self.board.avaliable_board()
         self.board.draw_matrix_board()
         self.check_challenge()
@@ -158,10 +210,13 @@ class Phase02(State):
             return
 
         if not self.show_teacher:
-            self.timer_challenge.pause()
-            self.timer_response.pause()
-            self.timer_teacher.resume()
-            self.tips_times += 1
+            self.memory.get_fact('timer_challenge').pause()
+            self.memory.get_fact('timer_response').pause()
+            self.memory.get_fact('timer_teacher').resume()
+            
+            tips_times = self.memory.get_fact('tips_times')
+            self.memory.add_fact('tips_times', tips_times + 1)
+            
             self.teacher.set_message(
                 "Dicas", 
                 "neutral0"
@@ -172,76 +227,41 @@ class Phase02(State):
             self.show_teacher = True
 
             if not self.started:
+                self.memory.add_fact('reset_timer', True)
+                self.enable_timer = self.memory.get_fact('enable_timer')
                 self.started = True
         else:
             self.show_teacher = False
             self.timer_teacher.pause()
 
-            if self.step == self.max_steps:
-                self.step += 1
+            if self.memory.get_fact('step') == self.max_steps:
+                step = self.memory.get_fact('step')
+                step += 1
+                step = self.memory.add_fact('step', step)
                 self.save_steps(2, 'completed')
                 self.save_steps(3, 'not-started')
-            if self.lives == 0 and self.end_phase:
-                self.lives -= 1
+            if self.memory.get_fact('lives') == 0 and self.end_phase:
+                self.memory.get_fact('lives', -1)
                 self.save_challenge()
                 self.save_steps(2, 'not-completed')
             
             if self.new_challenge:
-                self.timer_challenge.start()
-                self.timer_response.start()
+                self.memory.get_fact('timer_challenge').start()
+                self.memory.get_fact('timer_response').start()
                 self.new_challenge = False
                 self.tips_times = 0
             else:
-                self.timer_challenge.resume()
+                self.memory.get_fact('timer_challenge').resume()
                 if self.new_response:
-                    self.timer_response.start()
+                    self.memory.get_fact('timer_response').start()
                     self.new_response = False
                 else:
-                    self.timer_response.resume()
+                    self.memory.get_fact('timer_response').resume()
             
 
             if self.end_phase and not self.show_teacher:
                 self.exit_state()
 
-    def button_red_changed2(self):
-        if self.is_paused:
-            return 
-        
-        if self.show_teacher:
-            if not self.started:
-                self.started = True
-            
-            if self.step == self.max_steps:
-                self.step += 1
-                self.save_steps(2, 'completed')
-                self.save_steps(3, 'not-started')
-            if self.lives == 0 and self.end_phase:
-                self.lives -= 1
-                self.save_challenge()
-                self.save_steps(2, 'not-completed')
-            
-            if self.new_challenge:
-                self.timer_challenge.start()
-                self.timer_response.start()
-                self.new_challenge = False
-                self.tips_times = 0
-            else:
-                self.timer_challenge.resume()
-                if self.new_response:
-                    self.timer_response.start()
-                    self.new_response = False
-                else:
-                    self.timer_response.resume()
-                
-            self.timer_teacher.pause()
-            self.show_teacher = False
-        else:
-            self.timer_challenge.pause()
-            self.timer_response.pause()
-            self.teacher.set_message("Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.\nLorem ipsum dolor sit amet, consectetur adipiscing elit. \nFusce ultricies massa elit, nec lacinia mauris ultricies vitae.")
-            self.timer_teacher.resume()
-            self.show_teacher = True
-            self.tips_times += 1
 
     def load_challenges(self):
         challenges = {
@@ -260,7 +280,8 @@ class Phase02(State):
         if not self.started:
             self.teacher.set_message(
                 "Atenção!\n"+
-                "Prepare-se para começar", 
+                "Prepare-se para começar. Tente responder o mais rápido possível. "+
+                "\n\nPressione o botão VERMELHO para continuar", 
                 "neutral1"
             )
             self.teacher.next_message()
@@ -373,13 +394,14 @@ class Phase02(State):
             offset = 20
             x = 160
             y = 150
-            for key in self.challenges.keys():
+            challenges = self.memory.get_fact('challenges')
+            for key in challenges.keys():
                 rect = (x,y,width,height)
                 shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
                 pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
                 display.blit(shape, rect)
-                inner_text = '? + ? + ?' if not self.challenges[key]['visible'] else self.challenges[key]['equations'][self.challenges[key]['index']]
-                text = font.render(inner_text, True, BLACK if not self.challenges[key]['visible'] else GREEN)
+                inner_text = '? + ? + ?' if not challenges[key]['visible'] else challenges[key]['equations'][challenges[key]['index']]
+                text = font.render(inner_text, True, BLACK if not challenges[key]['visible'] else GREEN)
                 text_rect = text.get_rect(center=(x + width/2, y + height/2))
                 display.blit(text, text_rect)
                 if i % 4 == 0:
@@ -396,6 +418,48 @@ class Phase02(State):
         self.new_response = True
 
     def check_challenge(self):
+        blocks = self.board.result_matrix_board()
+        self.memory.add_fact('result', blocks)
+        
+        self.rules.execute_rules()
+        
+        feedback = Phase02Feedback(self.game, self.memory)
+        feedback.enter_state()
+        
+        self.teacher.clear_messages()
+        self.show_teacher = False
+        
+        if self.memory.get_fact('lives') == 0:
+            self.teacher.set_message(
+                "Infelizmente, você não conseguiu "+
+                "encontrar todas as combinações.\n\n"+
+                "Tente novamente!\n"
+                "\n"+
+                "Pressione o botão VERMELHO para continuar", 
+                "neutral1"
+            )
+            self.end_phase = True
+            self.teacher.next_message()
+            self.show_teacher = True
+            
+
+        if self.step >= self.max_steps and not self.end_phase:
+            self.teacher.set_message(
+                "Parabéns!!! Você encontrou todas "+
+                "as somas possíveis com 3 números "+
+                "que resultam em 15. Nos vemos na "+
+                "próxima fase.\n"+
+                "\n"+
+                "Pressione o botão VERMELHO para continuar",
+                "heart0"
+            )
+            self.end_phase = True
+            self.teacher.next_message()
+            self.show_teacher = True
+
+        
+        
+    def check_challenge2(self):
         numbers = self.board.result_matrix_board()
         response = {}
         response['total_time'] = self.timer_response.total_time_seconds()

@@ -29,7 +29,10 @@ class Error:
     def __repr__(self):
         date_time = datetime.fromtimestamp(self.timestamp)
         strtime = date_time.strftime("%d/%m/%Y %H:%M") 
-        return f"Error type: {self.type}, subtype: {self.subtype}, datetime: {strtime}"
+        message =  f'Error type: {self.type} \n'
+        message += f'Subtype...: {self.subtype} \n'
+        message += f'Weight....: {self.weight} \n'
+        return message
     
     def __eq__(self, other):
         if isinstance(other, Error):

@@ -25,7 +25,7 @@ from base.board import Board
 from game.states.state import State
 from game.actors.teacher import Teacher
 
-class TutorialPhase01(State):
+class Phase01Tutorial(State):
     
     def __init__(self, game):
         super().__init__(game)

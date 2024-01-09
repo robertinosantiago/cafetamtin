@@ -20,13 +20,8 @@ import logging
 import re
 from datetime import datetime
 
-from production.error import Error
 from production.memory import Memory
-
-class Eficiency:
-    LOW = 0
-    MEDIUM = 1
-    HIGH = 2
+from production.eficiency import Eficiency
 
 class Phase01Checks:
     
@@ -185,7 +180,7 @@ class Phase01Checks:
         logging.info(f'Executando função: many_errors')
         quantity_errors = wm.get_fact('quantity_errors')
         limit_errors = wm.get_fact('limit_errors')
-        if (quantity_errors > limit_errors):
+        if (quantity_errors >= limit_errors):
             wm.add_fact('quantity_errors', 0)
             return True
         return False

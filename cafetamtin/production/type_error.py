@@ -66,7 +66,7 @@ class TypeError:
         error = Error(
                 type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
                 subtype=TypeError.SUBTYPE_OPERATOR_USAGE,
-                weight= 1
+                weight= weight
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_operator_usage')
         
@@ -74,7 +74,7 @@ class TypeError:
         error = Error(
                 type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE,
                 subtype=TypeError.SUBTYPE_RULE_DEFICIECY,
-                weight= 3
+                weight= weight
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_rule_deficiency')
         
@@ -82,21 +82,23 @@ class TypeError:
         error = Error(
                 type=TypeError.TYPE_MISINTERPRETATION_LANGUAGE,
                 subtype= TypeError.SUBTYPE_NONE,
-                weight= 4
+                weight= weight
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_misinterpretation_language')
     
     def error_indirectly_identifiable(self, wm, rule_name, weight):
         error = Error(
                 type=TypeError.TYPE_INDIRECTLY_IDENTIFIABLE,
-                subtype= TypeError.SUBTYPE_NONE
+                subtype= TypeError.SUBTYPE_NONE,
+                weight= weight
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_indirectly_identifiable')
         
     def error_uncategorized_solution(self, wm, rule_name, weight):
         error = Error(
                 type=TypeError.TYPE_UNCATEGORIZED_SOLUTION,
-                subtype= TypeError.SUBTYPE_NONE
+                subtype= TypeError.SUBTYPE_NONE,
+                weight= weight
             )
         self.__add_error_in_wm__(error, wm, rule_name, 'error_uncategorized_solution')
         

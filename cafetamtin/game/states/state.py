@@ -23,8 +23,9 @@ from game import WHITE, BLACK, RED, GREEN, YELLOW
 from utils.confetti import Confetti
 
 class State():
-    def __init__(self, game):
+    def __init__(self, game, memory = None):
         self.game = game
+        self.memory = memory
         self.previous_state = None
         self.confetti = Confetti()
         self.frame_confetti = 1

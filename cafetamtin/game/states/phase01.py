@@ -177,12 +177,10 @@ class Phase01(State):
         if self.is_paused:
             self.memory.get_fact('timer_challenge').resume()
             self.memory.get_fact('timer_response').resume()
-            print("TIMER: resumed - white")
             self.is_paused = False
         else:
             self.memory.get_fact('timer_challenge').pause()
             self.memory.get_fact('timer_response').pause()
-            print("TIMER: paused - white")
             self.is_paused = True
 
     def button_green_changed(self, data):
@@ -332,16 +330,20 @@ class Phase01(State):
             self.teacher.set_message(
                 "Infelizmente, você não conseguiu\n"+
                 "realizar todas as operações corretamente.\n"+
-                "Tente novamente!", 
+                "Tente novamente!\n"
+                "\n"+
+                "Pressione o botão VERMELHO para continuar",
                 "neutral1"
             )
             self.end_phase = True
         
         if self.memory.get_fact('step') >= self.max_steps and not self.end_phase:
             self.teacher.set_message(
-                "Parabéns!!! Você conseguiu realizar\n"+
-                "as operações corretamente. Nos vemos na\n"+
-                "próxima fase.", 
+                "Parabéns!!! Você conseguiu realizar "+
+                "as operações corretamente. Nos vemos na "+
+                "próxima fase.\n"+
+                "\n"+
+                "Pressione o botão VERMELHO para continuar",
                 "heart0"
             )
             self.end_phase = True

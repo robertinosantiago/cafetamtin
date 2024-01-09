@@ -37,8 +37,8 @@ from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
 class Phase01Feedback(State):
     
     def __init__(self, game, working_memory):
-        super().__init__(game)
-        self.memory = working_memory
+        super().__init__(game, working_memory)
+        #self.memory = working_memory
         self.rules = Phase01Levels(self.memory)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
@@ -640,12 +640,10 @@ class Phase01Feedback(State):
         
     def remove_points_score(self):
         score = self.memory.get_fact('score')
-        print("Score antes: ", score)
         score -= self.memory.get_fact('incorrect_points')
         if score < 0:
             score = 0
         self.memory.add_fact('score', score)
-        print('Score depois: ', score)
         
     def add_bonus_points(self):
         score = self.memory.get_fact('score')
