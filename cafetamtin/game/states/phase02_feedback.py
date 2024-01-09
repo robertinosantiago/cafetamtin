@@ -474,7 +474,6 @@ class Phase02Feedback(State):
             'neutral2', modal=False, position=(screen_width/2,370)
         )
         
-        
         self.show_error_uncategorized_solution = True
     
     
