@@ -28,21 +28,22 @@ from game import FONT_NAME
 from game import WHITE, BLACK, RED, GREEN, YELLOW
 
 from base.board import Board
+from base.facial import FacialThread
 from game.states.state import State
 from game.actors.teacher import Teacher
 from game.actors.student import Student
 from production.type_error import TypeError
-from production.phase01_levels import Phase01Levels
-from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
+from production.level_rules import LevelRules
+from database.models import DBChallengeP2, DBSession, DBSteps, DBUser
 
 class Phase02Feedback(State):
     def __init__(self, game, working_memory):
-        super().__init__(game)
-        self.memory = working_memory
-        self.rules = Phase01Levels(self.memory)
+        super().__init__(game, working_memory)
+    
+        self.rules = LevelRules(self.memory)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
-                        
+                                
         self.box_width, self.box_height = 60, 60
         
         self.show_error_misinterpretation_language = False
@@ -596,13 +597,76 @@ class Phase02Feedback(State):
             self.memory.reset()
             
         self.memory.get_fact('responses').append(response)
-        #self.save_challenge(response)
+        self.save_challenge(response)
         self.memory.add_fact('quantity_corrects', quantity_corrects)
         
-        #self.rules.execute_rules()
-        #self.adjust_game_levels()
+        self.rules.execute_rules()
+        self.adjust_game_levels()
         self.teacher.next_message()
         self.show_teacher = True
+    
+    def add_points_score(self):
+        score = self.memory.get_fact('score')
+        score += self.memory.get_fact('correct_points')
+        self.memory.add_fact('score', score)
+        
+    def remove_points_score(self):
+        score = self.memory.get_fact('score')
+        score -= self.memory.get_fact('incorrect_points')
+        if score < 0:
+            score = 0
+        self.memory.add_fact('score', score)
+        
+    def add_bonus_points(self):
+        score = self.memory.get_fact('score')
+        score += self.memory.get_fact('bonus_points')
+        self.memory.add_fact('score', score)
+    
+    def add_lives(self):
+        max_lives = self.memory.get_fact('max_lives')
+        lives = self.memory.get_fact('lives')
+        if lives < max_lives:
+            lives += 1
+        self.memory.add_fact('lives', lives)
+    
+    def remove_lives(self):
+        lives = self.memory.get_fact('lives')
+        lives -= 1
+        self.memory.add_fact('lives', lives)
+    
+    @db_session
+    def save_challenge(self, response) -> None:
+        user = DBUser[self.game.student.id]
+        session = DBSession[int(self.memory.get_fact('session_id'))]
+        challenge = DBChallengeP2(
+            number01 = response['number01'],
+            number02 = response['number02'],
+            number03 = response['number03'],
+            is_correct = response['is_correct'],
+            start_time = response['start_time'],
+            end_time = response['end_time'],
+            reaction_time = response['reaction_time'],
+            reaction_time_without_pauses = response['reaction_time_without_pauses'],
+            pauses_counter = response['paused_counter'],
+            tips_counter = response['tips_counter'],
+            affective_state = response['affective_state'],
+            affective_quad = response['affective_quad'],
+            type_error = response['type_error'],
+            subtype_error = response['subtype_error'],
+            user = user,
+            session = session
+        )
+        challenge.flush()
+        facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
+        facialThread.start()
+    
+    @db_session
+    def update_challenge(self, id, expression, quad):
+        logging.info(f'Atualizando challenge')
+        challenge = DBChallengeP2[id]
+        challenge.set(affective_state = expression, affective_quad = quad)
+        challenge.flush()
+        logging.info(f'Atualizado')
     
     def __count_odd_numbers__(self, numbers) -> int:
         count = 0
@@ -632,7 +696,44 @@ class Phase02Feedback(State):
         return even, odd
     
     def adjust_game_levels(self):
-        pass
+        student: Student = self.memory.get_fact('student')
+        average_time = self.memory.get_fact('average_time')
+        amount_time = self.memory.get_fact('amount_time')
+        is_correct = self.memory.get_fact('is_correct')
+        response = self.memory.get_fact('responses')[-1]
+        
+        if is_correct:
+            self.add_points_score()
+        else:
+            self.remove_lives()
+        
+        bonus = False
+        if is_correct and response['reaction_time'] < (amount_time / 2):
+            bonus = True
+        
+        if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', False)
+            if bonus:
+                self.add_lives()
+                self.add_bonus_points()
+                
+        elif student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_MEDIUM:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', True)
+            if bonus:
+                self.add_bonus_points()
+                
+        else:
+            self.memory.add_fact('amount_time', math.ceil(average_time * 0.5))
+            self.memory.add_fact('enable_timer', True)
+            if bonus:
+                self.add_bonus_points()
+            
+            if not is_correct:
+                self.remove_points_score()
+            
+        self.memory.add_fact('reset_timer', True)
     
     def render(self, display):        
         display.fill((255,255,255))

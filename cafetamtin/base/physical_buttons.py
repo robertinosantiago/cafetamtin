@@ -40,7 +40,7 @@ class Button:
             self.__time_start = data[3]
         if data[2] == 0:
             time_total = data[3] - self.__time_start
-            if time_total > 0.001:
+            if time_total > 0.01:
                 self.__execute_callback(data)
                 
             

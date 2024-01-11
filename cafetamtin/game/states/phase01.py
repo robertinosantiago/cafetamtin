@@ -20,6 +20,7 @@ import os
 import math
 import random
 import pygame
+import logging
 from pygame.locals import *
 from pony.orm import *
 from datetime import datetime
@@ -54,7 +55,7 @@ class Phase01(State):
         self.rules = Phase01Rules(self.memory)
         self.init_working_memory()
                 
-        self.facial = self.game.app.facial #FacialThread(self.game.app)
+        #self.facial = self.game.app.facial #FacialThread(self.game.app)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -211,7 +212,7 @@ class Phase01(State):
         self.teacher.next_message()
         self.show_teacher = True
 
-        self.facial.evaluate()
+        #self.facial.evaluate()
         self.board.avaliable_board()
         self.board.draw_matrix_board()
         self.check_challenge()
@@ -491,15 +492,6 @@ class Phase01(State):
             self.total_time = self.start_time + self.total_seconds*1000
             #self.new_challenge = True
 
-    def draw_score(self):
-        score = self.memory.get_fact('score')
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
-        score_text = font.render(f'Pontos: {score:>4}', True, (0,0,0))
-        score_text_rect = score_text.get_rect(midright=(screen_width-5, 30))
-        display.blit(score_text, score_text_rect)
-
     def draw_challenge(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -585,16 +577,6 @@ class Phase01(State):
         
         return numbers, operators, result
 
-    def draw_student_name(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        baseline_text = screen_height - 23
-
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        name_text = font.render(self.game.student.nickname, True, (0,0,0))
-        name_text_rect = name_text.get_rect(midright=(screen_width-5, baseline_text))
-        display.blit(name_text, name_text_rect)
-
     def draw_table(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -620,6 +602,7 @@ class Phase01(State):
             display.blit(student_desk, student_desk_rect)
 
     def draw_pause(self):
+        #@TODO: pausar o timer
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
                 
@@ -654,7 +637,7 @@ class Phase01(State):
         user = DBUser[self.game.student.id]
         step = DBSteps(
             phase = phase,
-            score = self.score,
+            score = self.memory.get_fact('score'),
             lifes = self.memory.get_fact('lives'),
             status = status,
             user = user
@@ -688,6 +671,18 @@ class Phase01(State):
             user = user,
             session = session
         )
+        
+        challenge.flush()
+        facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
+        facialThread.start()
+        
+    @db_session
+    def update_challenge(self, id, expression, quad):
+        logging.info(f'Atualizando challenge')
+        challenge = DBChallengeP1[id]
+        challenge.set(affective_state = expression, affective_quad = quad)
+        challenge.flush()
+        logging.info(f'Atualizado')
         
     def adjust_game_levels(self):
         student: Student = self.memory.get_fact('student')

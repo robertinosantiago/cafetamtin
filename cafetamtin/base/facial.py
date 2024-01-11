@@ -40,12 +40,15 @@ from emonet.models import EmoNet
 
 class FacialThread(Thread):
     
-    def __init__ (self, app):
+    def __init__ (self, app, id = None, action = None):
         Thread.__init__(self)
         self.app = app
+        self.id = id
+        self.action = action
         self.expression = ''
         self.valence = None
         self.arousal = None
+        self.quad = ''
         
     
     def run(self):
@@ -53,7 +56,30 @@ class FacialThread(Thread):
         self.expression = expression
         self.valence = valence
         self.arousal = arousal
-    
+        self.calculateQuad()
+        self.action(self.id, self.expression, self.quad)
+        
+    def calculateQuad(self):
+        if self.expression == 'fear' or self.expression == 'anger' or self.expression == 'disgust' or self.expression == 'contempt':
+            self.quad = 'Q2'
+        elif self.expression == 'sad':
+            self.quad = 'Q3'
+        elif self.expression == 'surprise':
+            if self.valence > 0:
+                self.quad = 'Q1'
+            else:
+                self.quad = 'Q2'
+        elif self.expression == 'happy':
+            if self.arousal > 0:
+                self.quad = 'Q1'
+            else:
+                self.quad = 'Q4'
+        else:
+            self.quad = 'QN'
+            
+        if self.quad == '':
+            self.quad = 'QN'
+        
 
 class Facial:
     
@@ -89,7 +115,7 @@ class Facial:
         valence = None
         arousal = None
         
-        image = self.camera.take_picture(delay = 10, width=412, process=False)
+        image = self.camera.take_picture(delay = 6, width=412, process=False)
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         rects = self.detector(gray, 0)
 

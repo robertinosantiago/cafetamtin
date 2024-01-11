@@ -1,17 +1,17 @@
-# Copyright (C) 2023 Robertino Mendes Santiago Junior
-# 
+#  Copyright (C) 2024 Robertino Mendes Santiago Junior
+#
 # This file is part of CaFE-TaMTIn Approach.
-# 
+#
 # CaFE-TaMTIn Approach is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # CaFE-TaMTIn Approach is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -19,75 +19,73 @@ import logging
 
 from production.rule import Rule
 from production.inference_engine import InferenceEngine
-from production.phase01_checks import Phase01Checks
+from production.level_checks import LevelChecks
 from production.memory import Memory
 from production.type_error import TypeError
 from game.actors.student import Student
 
-from datetime import datetime
-
-class Phase01Levels:
+class LevelRules():
     
-    def __init__(self, wm):
+    def __init__(self, wm: Memory) -> None:
         self.wm = wm
         self.engine = InferenceEngine()
-        self.phase01checks = Phase01Checks()
+        self.checks = LevelChecks()
         self.define_rules()
         
     def define_rules(self):
         self.engine.add_rule(
             Rule(
                 name = 'Erros de impulsividade',
-                condition=lambda wm: self.phase01checks.impulsive_errors(self.wm),
+                condition=lambda wm: self.checks.impulsive_errors(self.wm),
                 action=self.decrease_inhibitory_control
             )
         )
         self.engine.add_rule(
             Rule(
                 name = 'Insistir no mesmo erro',
-                condition=lambda wm: self.phase01checks.persist_same_error(self.wm),
+                condition=lambda wm: self.checks.persist_same_error(self.wm),
                 action=self.decrease_inhibitory_control
             )
         )
         self.engine.add_rule(
             Rule(
                 name = 'Cometer erros mais comuns',
-                condition=lambda wm: self.phase01checks.most_common_errors(self.wm),
+                condition=lambda wm: self.checks.most_common_errors(self.wm),
                 action=self.decrease_inhibitory_control
             )
         )
         self.engine.add_rule(
             Rule(
                 name = 'Tempo de resolução de problemas',
-                condition=lambda wm: self.phase01checks.problem_solving_time(self.wm),
+                condition=lambda wm: self.checks.problem_solving_time(self.wm),
                 action=self.decrease_inhibitory_control
             )
         )
         self.engine.add_rule(
             Rule(
                 name = 'Número de tentativas / comportamento motor',
-                condition=lambda wm: self.phase01checks.number_attempts(self.wm),
+                condition=lambda wm: self.checks.number_attempts(self.wm),
                 action=self.decrease_inhibitory_control
             )
         )
         self.engine.add_rule(
             Rule(
                 name = 'Baixa eficiência',
-                condition=lambda wm: self.phase01checks.is_student_efficiency_low(self.wm),
+                condition=lambda wm: self.checks.is_student_efficiency_low(self.wm),
                 action=self.decrease_inhibitory_control
             )
         )
         self.engine.add_rule(
             Rule(
                 name = 'Eficiência média',
-                condition=lambda wm: self.phase01checks.is_student_efficiency_medium(self.wm),
+                condition=lambda wm: self.checks.is_student_efficiency_medium(self.wm),
                 action=self.medium_inhibitory_control
             )
         )
         self.engine.add_rule(
             Rule(
                 name = 'Alta eficiência',
-                condition=lambda wm: self.phase01checks.is_student_efficiency_high(self.wm),
+                condition=lambda wm: self.checks.is_student_efficiency_high(self.wm),
                 action=self.increase_inhibitory_control
             )
         )

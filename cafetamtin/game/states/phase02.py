@@ -17,13 +17,17 @@
 
 import pygame
 import os
+import math
 import random
+import logging
 from pony.orm import *
 from datetime import datetime
 
-from game.states.state import State
 from base.board import Board
+from base.facial import FacialThread
+from game.states.state import State
 from game.actors.teacher import Teacher
+from game.actors.student import Student
 from utils.timer import Timer
 from utils.confetti import Confetti
 from database.models import DBChallengeP2, DBSession, DBUser, DBSteps
@@ -86,6 +90,8 @@ class Phase02(State):
 
         self.confetti = Confetti()
         self.frame_confetti = 1
+        
+        self.adjust_game_levels()
         self.starting_game()
         
     @db_session
@@ -241,8 +247,8 @@ class Phase02(State):
                 self.save_steps(2, 'completed')
                 self.save_steps(3, 'not-started')
             if self.memory.get_fact('lives') == 0 and self.end_phase:
-                self.memory.get_fact('lives', -1)
-                self.save_challenge()
+                self.memory.add_fact('lives', -1)
+                #self.save_challenge()
                 self.save_steps(2, 'not-completed')
             
             if self.new_challenge:
@@ -275,6 +281,15 @@ class Phase02(State):
             '456': {'equations': ['4 + 5 + 6', '4 + 6 + 5', '5 + 4 + 6', '5 + 6 + 4', '6 + 4 + 5', '6 + 5 + 4'], 'visible': False, 'index': random.randrange(0, 6)},
         }
         return challenges
+    
+    def count_challenges_visible(self):
+        count = 0
+        challenges = self.memory.get_fact('challenges')
+        for key, value in challenges.items():
+            if value['visible']:
+                count += 1
+        return count
+            
         
     def starting_game(self):
         if not self.started:
@@ -313,31 +328,95 @@ class Phase02(State):
     
     def draw_lifes(self):
         display = self.game.game_canvas
-        for i in range(0, self.lives):
+        for i in range(0, self.memory.get_fact('lives')):
             heart = self.images['heart']
             heart_rect = heart.get_rect()
             heart_rect.x = 10 + 50 * i
             heart_rect.y = 5
             display.blit(heart, heart_rect)
-
-    def draw_score(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
-        score_text = font.render(f'Pontos: {self.score:>4}', True, (0,0,0))
-        score_text_rect = score_text.get_rect(midright=(screen_width-5, 30))
-        display.blit(score_text, score_text_rect)
+            
     
-    def draw_student_name(self):
+    def draw_timer(self):
         display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        baseline_text = screen_height - 23
+        timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
+        screen_width = self.game.GAME_WIDTH
+        reset_timer = self.memory.get_fact('reset_timer')
+        if reset_timer and not self.show_teacher:
+            self.memory.add_fact('reset_timer', False)
+            self.start_time = pygame.time.get_ticks()
+            self.total_time = self.start_time + self.memory.get_fact('amount_time')*1000
+            
+        time_ms = self.total_time - pygame.time.get_ticks()
 
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        name_text = font.render(self.game.student.nickname, True, (0,0,0))
-        name_text_rect = name_text.get_rect(midright=(screen_width-5, baseline_text))
-        display.blit(name_text, name_text_rect)
+        if time_ms >= 0:
+            self.time_hms = ((time_ms//(1000*60*60))%24, (time_ms//(1000*60))%60, (time_ms//1000)%60)
+        else:
+            self.end_timer()
 
+        timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
+        timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
+        display.blit(timer_text, timer_text_rect)
+        
+    def end_timer(self):
+        #@TODO: verificar se é melhor iniciar o Feedback
+        student: Student = self.memory.get_fact('student')
+        if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
+            self.memory.add_fact('reset_timer', True)
+            
+            self.memory.get_fact('timer_teacher').resume()
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_challenge').stop()
+            
+            self.memory.add_fact('is_correct', False)
+            
+            response = {}
+            response['number01'] = -1
+            response['number02'] = -1
+            response['number03'] = -1
+            response['is_correct'] = False
+            response['start_time'] = self.memory.get_fact('timer_response').get_time_started()
+            response['end_time'] = self.memory.get_fact('timer_response').get_time_finished()
+        
+            response['reaction_time'] = self.memory.get_fact('timer_response').total_time_seconds()
+            response['reaction_time_without_pauses'] = self.memory.get_fact('timer_response').total_time_without_paused_seconds()
+            response['paused_counter'] = self.memory.get_fact('timer_response').total_times_paused() - self.memory.get_fact('tips_times')
+            response['tips_counter'] = self.memory.get_fact('tips_times')
+
+            response['affective_state'] = ''
+            response['affective_quad'] = ''
+            
+            response['type_error'] = TypeError.ERROR_TIMEOUT
+            response['subtype_error'] = TypeError.SUBTYPE_NONE
+            
+            self.memory.get_fact('responses').append(response)
+            
+            self.save_challenge(response)
+            
+            history_errors = self.memory.get_fact('history_errors')
+            history_errors.append(Error(type=TypeError.ERROR_TIMEOUT, subtype=TypeError.SUBTYPE_NONE))
+            self.memory.add_fact('history_errors', history_errors)
+            
+            quantity_errors = self.memory.get_fact('quantity_errors')
+            quantity_errors += 1
+            self.memory.add_fact('quantity_errors', quantity_errors)
+            
+            self.teacher.set_message(
+                f"Preste atenção {student.nickname}!!! Tente resolver o \n"+
+                "exercício antes que o tempo acabe. Mantenha o foco \n"+
+                "na resolução dos exercícios.\n"+
+                "\n\nPressione o botão VERMELHO para continuar",  
+                "neutral1"
+            )
+            self.teacher.next_message()
+            self.show_teacher = True
+            self.lose_life()
+            
+    def lose_life(self):
+        if self.memory.get_fact('lives') > 0:
+            self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
+            self.start_time = pygame.time.get_ticks()
+            self.total_time = self.start_time + self.total_seconds*1000
+    
     def draw_table(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -364,6 +443,7 @@ class Phase02(State):
     
     def draw_pause(self):
         display = self.game.game_canvas
+        #@TODO: pausar o timer
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
                 
         rect_background = (0,0,screen_width,screen_height)
@@ -410,12 +490,6 @@ class Phase02(State):
                 else:
                     x += width + offset
                 i += 1
-    
-    def add_response(self, response):
-        self.responses.append(response)
-        self.timer_response.stop()
-        self.tips_times = 0
-        self.new_response = True
 
     def check_challenge(self):
         blocks = self.board.result_matrix_board()
@@ -443,7 +517,7 @@ class Phase02(State):
             self.show_teacher = True
             
 
-        if self.step >= self.max_steps and not self.end_phase:
+        if self.count_challenges_visible() >= self.max_steps and not self.end_phase:
             self.teacher.set_message(
                 "Parabéns!!! Você encontrou todas "+
                 "as somas possíveis com 3 números "+
@@ -457,167 +531,6 @@ class Phase02(State):
             self.teacher.next_message()
             self.show_teacher = True
 
-        
-        
-    def check_challenge2(self):
-        numbers = self.board.result_matrix_board()
-        response = {}
-        response['total_time'] = self.timer_response.total_time_seconds()
-        response['time_without_pauses'] = (self.timer_response.total_time_seconds() - self.timer_response.total_time_paused_seconds())
-        #@TODO: corrigir quantidade de pausas
-        response['paused_counter'] = self.timer_response.total_times_paused() - self.tips_times
-        response['tips_counter'] = self.tips_times
-
-        if len(numbers) == 0:
-            response['number01'] = -1
-            response['number02'] = -1
-            response['number03'] = -1
-            response['is_correct'] = False
-            self.add_response(response)
-
-            self.teacher.set_message(
-                "Atenção. Você deve colocar\n"+
-                "os bloco numérico correspondente\n"+
-                "à respostas sobre o tabuleiro.", 
-                "neutral0"
-            )
-            self.lives -= 1
-        elif len(numbers) == 1:
-            response['number01'] = numbers[0]
-            response['number02'] = -1
-            response['number03'] = -1
-            response['is_correct'] = False
-            self.add_response(response)
-
-            self.teacher.set_message(
-                "Atenção! Você deve usar 3 números\n"+
-                "para tentar encontrar a soma 15.", 
-                "neutral0"
-            )
-            self.lives -= 1
-
-        elif len(numbers) == 2:
-            response['number01'] = numbers[0]
-            response['number02'] = numbers[1]
-            response['number03'] = -1
-            response['is_correct'] = False
-            self.add_response(response)
-            
-            result = sum(numbers)
-            if result == 15:
-                self.teacher.set_message(
-                    "Apesar do resultado da operação\n"+
-                    "resultar em 15, é necessário\n"+
-                    "utilizar 3 números distintos na soma.", 
-                    "neutral0"
-                )
-            else:
-                self.teacher.set_message(
-                    "Atenção! Você deve usar 3 números\n"+
-                    "para tentar encontrar a soma 15.", 
-                    "neutral0"
-                )
-            self.lives -= 1
-
-        elif len(numbers) == 3:
-            response['number01'] = numbers[0]
-            response['number02'] = numbers[1]
-            response['number03'] = numbers[2]
-
-            numbers.sort()
-            key = "".join(map(str, numbers))
-            if self.challenges.get(key) is not None:
-                if self.challenges[key]['visible']:
-                    response['is_correct'] = False
-                    self.add_response(response)
-                    
-                    self.teacher.set_message(
-                        "Atenção. Você já informou\n"+
-                        f"essa operação: {numbers[0]}+{numbers[1]}+{numbers[2]}.\n"+
-                        "Tente resolver outras.",
-                        "happy0"
-                    )
-                    self.lives -= 1
-
-                else:
-                    response['is_correct'] = True
-                    self.add_response(response)
-
-                    emotions = ['happy0', 'happy1', 'happy2', 'heart0']
-                    self.teacher.set_message(
-                        "Parabéns!!!\n"+
-                        "Está correto. Quando somados,\n"+
-                        f" os valores {numbers[0]}, {numbers[1]} e {numbers[2]}, produzem\n"+
-                        "resultado 15.", 
-                        emotions[random.randrange(0,len(emotions))]
-                    )
-
-                    self.challenges[key]['visible'] = True
-                    self.frame_confetti = 1
-                    self.confetti.visible = True
-                    self.score += self.incremental_points
-                    self.step += 1
-                    #self.save_challenge(numbers)
-            else:
-                response['is_correct'] = False
-                self.add_response(response)
-
-                result = sum(numbers)
-                fault = abs(15 - result)
-                self.teacher.set_message(
-                    f"Atenção. Essa operação resulta {result}.\n"+
-                    f"Há uma diferença de {fault} para o\n"+
-                    "resultado esperado 15. Tente novamente.", 
-                    "neutral1"
-                )
-                self.lives -= 1
-        
-        else:
-            result = sum(numbers)
-
-            response['number01'] = -result
-            response['number02'] = -result
-            response['number03'] = -result
-            response['is_correct'] = False
-            self.add_response(response)
-
-            if result == 15:
-                self.teacher.set_message(
-                    "Apesar do resultado da operação\n"+
-                    "resultar em 15, é necessário\n"+
-                    "utilizar 3 números distintos na soma.", 
-                    "neutral0"
-                )
-            else:
-                self.teacher.set_message(
-                    "Atenção! Você deve usar 3 números\n"+
-                    "para tentar encontrar a soma 15.", 
-                    "neutral0"
-                )
-            self.lives -= 1
-        
-        if self.lives == 0:
-            self.teacher.set_message(
-                "Infelizmente, você não conseguiu\n"+
-                "encontrar todas as possibilidades.\n"+
-                "Tente novamente!", 
-                "neutral1"
-            )
-            self.end_phase = True
-
-        if self.step >= self.max_steps and not self.end_phase:
-            self.teacher.set_message(
-                "Parabéns!!! Você encontrou todas\n"+
-                "as somas  possíveis com 3 números\n"+
-                "que resultam em 15. Nos vemos na\n"+
-                "próxima fase.", 
-                "heart0"
-            )
-            self.end_phase = True
-
-        self.teacher.next_message()
-        self.show_teacher = True
-
     def draw_confetti(self):
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -629,54 +542,69 @@ class Phase02(State):
             self.confetti.visible = False
     
     @db_session
-    def save_challenge(self, numbers = None):
+    def save_challenge(self, response) -> None:
         user = DBUser[self.game.student.id]
-        responses = []
-        if not numbers:
-            numbers = [-99, -99, -99]
-
+        session = DBSession[int(self.memory.get_fact('session_id'))]
         challenge = DBChallengeP2(
-            number01 = numbers[0],
-            number02 = numbers[1],
-            number03 = numbers[2],
-            total_time = self.timer_challenge.total_time_seconds(),
-            user = user
+            number01 = response['number01'],
+            number02 = response['number02'],
+            number03 = response['number03'],
+            is_correct = response['is_correct'],
+            start_time = response['start_time'],
+            end_time = response['end_time'],
+            reaction_time = response['reaction_time'],
+            reaction_time_without_pauses = response['reaction_time_without_pauses'],
+            pauses_counter = response['paused_counter'],
+            tips_counter = response['tips_counter'],
+            affective_state = response['affective_state'],
+            affective_quad = response['affective_quad'],
+            type_error = response['type_error'],
+            subtype_error = response['subtype_error'],
+            user = user,
+            session = session
         )
-
-        for r in self.responses:
-            data = DBResponseP2(
-                number01 = r['number01'],
-                number02 = r['number02'],
-                number03 = r['number03'],
-                is_correct = r['is_correct'],
-                total_time = r['total_time'],
-                time_without_pauses = r['time_without_pauses'],
-                paused_counter = r['paused_counter'],
-                tips_counter = r['tips_counter'],
-                challengep2 = challenge
-            )
-            commit()
-        self.timer_challenge.stop()
-        self.timer_response.stop()
-        self.new_challenge = True
-        self.responses = []
+        challenge.flush()
+        facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
+        facialThread.start()
+    
+    @db_session
+    def update_challenge(self, id, expression, quad):
+        logging.info(f'Atualizando challenge')
+        challenge = DBChallengeP2[id]
+        challenge.set(affective_state = expression, affective_quad = quad)
+        challenge.flush()
+        logging.info(f'Atualizado')
 
     @db_session
     def save_steps(self, phase, status):
         user = DBUser[self.game.student.id]
         step = DBSteps(
             phase = phase,
-            score = self.score,
-            lifes = self.lives,
+            score = self.memory.get_fact('score'),
+            lifes = self.memory.get_fact('lives'),
             status = status,
             user = user
         )
         commit()
 
+    def adjust_game_levels(self):
+        student: Student = self.memory.get_fact('student')
+        
+        average_time = self.memory.get_fact('average_time')
+        
+        if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', False)
+        elif student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_MEDIUM:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', True)
+        else:
+            self.memory.add_fact('amount_time', math.ceil(average_time * 0.5))
+            self.memory.add_fact('enable_timer', True)
+            
+        self.enable_timer = self.memory.get_fact('enable_timer')
+
     def render(self, display):
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        offset_height = 0
 
         display.fill((255,255,255))
 
@@ -698,6 +626,9 @@ class Phase02(State):
         if self.confetti.visible:
             self.draw_confetti()
         
-        if self.lives > 0 and self.step < self.max_steps:
+        if self.lives > 0 and self.count_challenges_visible() < self.max_steps:
             self.draw_challenge()
+            
+            if self.memory.get_fact('enable_timer') and not self.show_teacher:
+                self.draw_timer()
 

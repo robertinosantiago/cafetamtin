@@ -90,6 +90,13 @@ class Phase02Checks:
         logging.info(f'Executando função: many_errors')
         quantity_errors = wm.get_fact('quantity_errors')
         limit_errors = wm.get_fact('limit_errors')
+        
+        result = wm.get_fact('result')
+        if len(result) == 3:
+            if sum(result) == 15:
+                wm.add_fact('quantity_errors', 0)
+                return False
+        
         if (quantity_errors >= limit_errors):
             wm.add_fact('quantity_errors', 0)
             return True
@@ -102,11 +109,8 @@ class Phase02Checks:
         max_time = wm.get_fact('average_time')
         
         if len(result) == 3:
-            n1 = result[0]
-            n2 = result[1]
-            n3 = result[2]
 
-            if n1 + n2 + n3 != 15:
+            if sum(result) != 15:
                 return time > max_time
 
         return False
@@ -116,11 +120,8 @@ class Phase02Checks:
         result = wm.get_fact('result')
         
         if len(result) == 3:
-            n1 = result[0]
-            n2 = result[1]
-            n3 = result[2]
-
-            return n1 + n2 + n3 == 15
+            return sum(result) == 15
+        
         return False
     
     def __count_odd_numbers__(self, *numbers: int) -> int:

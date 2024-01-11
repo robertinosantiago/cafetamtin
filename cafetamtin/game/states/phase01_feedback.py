@@ -19,6 +19,7 @@ import os
 import math
 import pygame
 import random
+import logging
 from pony.orm import *
 from pygame.locals import *
 from datetime import datetime
@@ -27,19 +28,20 @@ from game import FONT_NAME
 from game import WHITE, BLACK, RED, GREEN, YELLOW
 
 from base.board import Board
+from base.facial import FacialThread
 from game.states.state import State
 from game.actors.teacher import Teacher
 from game.actors.student import Student
 from production.type_error import TypeError
-from production.phase01_levels import Phase01Levels
+from production.level_rules import LevelRules
 from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
 
 class Phase01Feedback(State):
     
     def __init__(self, game, working_memory):
         super().__init__(game, working_memory)
-        #self.memory = working_memory
-        self.rules = Phase01Levels(self.memory)
+        
+        self.rules = LevelRules(self.memory)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
                         
@@ -689,6 +691,17 @@ class Phase01Feedback(State):
             user = user,
             session = session
         )
+        challenge.flush()
+        facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
+        facialThread.start()
+    
+    @db_session
+    def update_challenge(self, id, expression, quad):
+        logging.info(f'Atualizando challenge')
+        challenge = DBChallengeP1[id]
+        challenge.set(affective_state = expression, affective_quad = quad)
+        challenge.flush()
+        logging.info(f'Atualizado')
         
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)

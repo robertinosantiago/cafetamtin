@@ -93,3 +93,22 @@ class State():
         self.frame_confetti += 1
         if self.frame_confetti > self.confetti.total_frames:
             self.confetti.visible = False
+            
+    def draw_score(self):
+        score = self.memory.get_fact('score')
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
+        score_text = font.render(f'Pontos: {score:>4}', True, (0,0,0))
+        score_text_rect = score_text.get_rect(midright=(screen_width-5, 30))
+        display.blit(score_text, score_text_rect)
+        
+    def draw_student_name(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        baseline_text = screen_height - 23
+
+        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
+        name_text = font.render(self.game.student.nickname, True, (0,0,0))
+        name_text_rect = name_text.get_rect(midright=(screen_width-5, baseline_text))
+        display.blit(name_text, name_text_rect)
