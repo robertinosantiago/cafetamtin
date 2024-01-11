@@ -494,6 +494,7 @@ class Phase01Feedback(State):
         response['reaction_time_without_pauses'] = self.memory.get_fact('timer_response').total_time_without_paused_seconds()
         response['paused_counter'] = self.memory.get_fact('timer_response').total_times_paused() - self.memory.get_fact('tips_times')
         response['tips_counter'] = self.memory.get_fact('tips_times')
+        response['max_time'] = self.memory.get_fact('average_time')
 
         response['start_time'] = self.memory.get_fact('timer_response').get_time_started()
         response['end_time'] = self.memory.get_fact('timer_response').get_time_finished()

@@ -142,39 +142,16 @@ class Phase01Checks:
         return False
         
     def long_time(self, wm):
-        
+        logging.info(f'Executando função: long_time')
         
         time = wm.get_fact('timer_response').total_time_seconds()
         max_time = wm.get_fact('average_time')
+        is_correct = wm.get_fact('is_correct')
         
-        print("time: ", time, "max: ", max_time)
-        
-        valid = wm.get_fact('valid')
+        if is_correct:
+            return False
         
         return time > max_time
-        
-    def long_time_old(self, wm):
-        logging.info(f'Executando função: long_time')
-        valid = wm.get_fact('valid')
-        
-        in_time = False
-        end_time = datetime.now()
-        
-        
-        start_time = wm.get_fact('start_time')
-        total_time = end_time - start_time
-        seconds = total_time.total_seconds()
-        
-        print('start_time: ' + start_time.strftime("%d-%m-%Y %H:%M:%S"))
-        print('end_time: ' + end_time.strftime("%d-%m-%Y %H:%M:%S"))
-        print(f'total seconds: {seconds}')
-        '''
-        @ToDo calcular o tempo gasto teto em tempo de execução
-        '''
-        #in_time = seconds > 4
-                
-        wm.add_fact('end_time', end_time)
-        return in_time
     
     def many_errors(self, wm):
         logging.info(f'Executando função: many_errors')
@@ -200,87 +177,3 @@ class Phase01Checks:
             return n == result
                 
         return False
-    
-    def impulsive_errors(self, wm: Memory):
-        logging.info(f'Executando função: impulsive_errors')
-        responses = wm.get_fact('responses')
-        is_correct = wm.get_fact('is_correct')
-        minimum_time = wm.get_fact('minimum_time')
-        
-        if is_correct:
-            return False
-        
-        if len(responses) < 3:
-            return False
-        
-        count = 0
-        for response in responses:
-            if not response['is_correct']:
-                if response['reaction_time'] < minimum_time:
-                    count += 1
-        
-        #@TODO: verificar como reagir quando já aconteceu isso
-        
-        return count >= 3
-    
-    def persist_same_error(self, wm: Memory):
-        logging.info(f'Executando função: persist_same_error')
-        #@TODO: verificar como reagir quando acerta. Zera os erros?
-        history_errors = wm.get_fact('history_errors')
-        if len(history_errors) < 2:
-            return False
-        
-        return history_errors[-1] == history_errors[-2]
-    
-    def most_common_errors(self, wm: Memory):
-        logging.info(f'Executando função: most_common_errors')
-        return False
-    
-    def problem_solving_time(self, wm: Memory):
-        logging.info(f'Executando função: time_per_step')
-        time_per_step = wm.get_fact('time_per_step')
-        if len(time_per_step) < 3:
-            return False
-        
-        return time_per_step[-1] == time_per_step[-2] and time_per_step[-2] == time_per_step[-3]
-    
-    def number_attempts(self, wm: Memory):
-        logging.info(f'Executando função: number_attemps')
-        history_errors = wm.get_fact('history_errors')
-        return len(history_errors) >= 5
-    
-    def is_student_efficiency_high(self, wm: Memory):
-        logging.info(f'Executando função: is_student_efficiency_high')
-        return self.student_efficiency(wm) == Eficiency.HIGH
-    
-    def is_student_efficiency_medium(self, wm: Memory):
-        logging.info(f'Executando função: is_student_efficiency_medium')
-        return self.student_efficiency(wm) == Eficiency.MEDIUM
-    
-    def is_student_efficiency_low(self, wm: Memory):
-        logging.info(f'Executando função: is_student_efficiency_low')
-        return self.student_efficiency(wm) == Eficiency.LOW
-    
-    def student_efficiency(self, wm: Memory):
-        corrects = self.__get_corrects(wm)
-        #step = wm.get_fact('step')
-        step = len(wm.get_fact('responses'))
-        index =  float(corrects) / float(step)
-        logging.info(f'Student efficiency: {corrects} div {step} = {index}')
-        if index <= 0.33:
-            return Eficiency.LOW
-        elif index > 0.66:
-            return Eficiency.HIGH
-        return Eficiency.MEDIUM
-    
-    def __get_corrects(self, wm: Memory):
-        responses = wm.get_fact('responses')
-        corrects = 0
-        for response in responses:
-            if response['is_correct']:
-                corrects += 1
-                
-        return corrects
-        
-        
-    

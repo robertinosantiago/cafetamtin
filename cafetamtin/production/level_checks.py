@@ -45,38 +45,53 @@ class LevelChecks():
                 if response['reaction_time'] < minimum_time:
                     count += 1
         
-        #@TODO: verificar como reagir quando já aconteceu isso
-        
-        return count >= 3
+        return count % 3 == 0
     
     def persist_same_error(self, wm: Memory):
         logging.info(f'Executando função: persist_same_error')
-        #@TODO: verificar como reagir quando acerta. Zera os erros?
-        #trocar para analizar o response
-        history_errors = wm.get_fact('history_errors')
-        if len(history_errors) < 2:
+        responses = wm.get_fact('responses') 
+        
+        if len(responses) < 2:
             return False
         
-        return history_errors[-1] == history_errors[-2]
+        for i in range(-1,-3,-1):
+            if responses[i]['is_correct']:
+                return False
+
+        return responses[-1]['type_error'] == responses[-2]['type_error'] and responses[-1]['subtype_error'] == responses[-2]['subtype_error']
     
     def most_common_errors(self, wm: Memory):
         logging.info(f'Executando função: most_common_errors')
+        #@TODO: implementar a busca no banco de dados pelo erro mais comum
         return False
     
     def problem_solving_time(self, wm: Memory):
         logging.info(f'Executando função: time_per_step')
-        time_per_step = wm.get_fact('time_per_step')
-        if len(time_per_step) < 3:
+        responses = wm.get_fact('responses')
+                
+        if len(responses) < 3:
             return False
         
-        #@TODO: corrigir para comparar com o tempo máximo e usar o response
-        return time_per_step[-1] == time_per_step[-2] and time_per_step[-2] == time_per_step[-3]
+        count = 0
+        for i in range(-1,-4,-1):
+            if responses[i]['is_correct']:
+                return False
+            
+            if responses[i]['reaction_time'] > responses[i]['max_time']:
+                count += 1
+        
+        return count >= 3
     
     def number_attempts(self, wm: Memory):
         logging.info(f'Executando função: number_attemps')
-        history_errors = wm.get_fact('history_errors')
-        #@TODO: trocar para analizar o response
-        return len(history_errors) >= 5
+        responses = wm.get_fact('responses')
+        
+        count = 0
+        for response in responses:
+            if not response['is_correct']:
+                count += 1
+                
+        return count % 5 == 0
     
     def is_student_efficiency_high(self, wm: Memory):
         logging.info(f'Executando função: is_student_efficiency_high')
