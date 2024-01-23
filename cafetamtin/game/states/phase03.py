@@ -18,6 +18,9 @@
 import pygame
 import os
 import random
+import logging
+from pony.orm import *
+from datetime import datetime
 from itertools import combinations
 
 from game.states.state import State
@@ -25,6 +28,13 @@ from base.board import Board
 from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
+from database.models import DBSession, DBUser, DBSteps#, DBChallengeP2
+
+from production.error import Error
+from production.memory import Memory
+from production.type_error import TypeError
+#from production.phase03_rules import Phase03Rules
+#from game.states.phase03_feedback import Phase03Feedback
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -36,6 +46,11 @@ class Phase03(State):
 
     def __init__(self, game):
         super().__init__(game)
+        
+        self.memory = Memory()
+        #self.rules = Phase02Rules(self.memory)
+        self.init_working_memory()
+        
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -87,6 +102,47 @@ class Phase03(State):
             'heart': pygame.image.load(os.path.join("images", "heart.png")),
         }
 
+    @db_session
+    def init_working_memory(self):
+        session = DBSession(
+            start_time = datetime.now()
+        )
+        session.flush()
+        self.memory.add_fact('student', self.game.student)
+        self.memory.add_fact('session_id', session.id)
+        self.memory.add_fact('game', self.game)
+        
+        self.memory.add_fact('blocks_available', [1, 2, 3, 4, 5, 6, 7, 8, 9])
+        self.memory.add_fact('blocks_student', {})
+        self.memory.add_fact('blocks_tutor', [])
+        self.memory.add_fact('sums_founds_student', [])
+        
+        
+        self.memory.add_fact('quantity_corrects', 0)
+        self.memory.add_fact('quantity_errors', 0)
+        self.memory.add_fact('quantity_same_error', 0)
+        self.memory.add_fact('limit_errors', 2)
+        self.memory.add_fact('history_errors', [])
+        self.memory.add_fact('tips_times', 0)
+        self.memory.add_fact('step', 1)
+        self.memory.add_fact('average_time', 60)
+        self.memory.add_fact('minimum_time', 5)
+        self.memory.add_fact('time_per_step', [])
+        self.memory.add_fact('accumulated_time', 0)
+        self.memory.add_fact('errors', [])
+        self.memory.add_fact('responses', [])
+        self.memory.add_fact('reset_timer', True)
+        self.memory.add_fact('max_lives', 5)
+        self.memory.add_fact('lives', 5)
+        self.memory.add_fact('score', 0)
+        self.memory.add_fact('correct_points', 10)
+        self.memory.add_fact('incorrect_points', 5)
+        self.memory.add_fact('bonus_points', 5)
+        
+        self.memory.add_fact('timer_challenge', Timer())
+        self.memory.add_fact('timer_response', Timer())
+        self.memory.add_fact('timer_teacher', Timer())
+        self.memory.get_fact('timer_teacher').start()
 
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
@@ -173,9 +229,10 @@ class Phase03(State):
     def first_gaming(self):
         self.teacher.set_message(
                 "Atenção!\n"+
-                "Prepare-se para começar.\n"+
-                "Remova todos os blocos que\n"+
-                "possam estar sobre o tabuleiro.", 
+                "Prepare-se para começar. Remova todos os blocos que "+
+                "possam estar sobre o tabuleiro. \n"+
+                "\n"+
+                "Pressione o botão VERMELHO para continuar",  
                 "neutral1"
         )
         if self.step == 1:
@@ -185,21 +242,22 @@ class Phase03(State):
 
         if self.tutor_starting:
             self.teacher.set_message(
-                "Nesta rodada, o tutor irá\n"+
-                "começar jogando. Observe que,\n"+
-                "na primeira jogada, ele já\n"+
-                "estará com um número selecionado\n"+
-                "no tabuleiro.\n"+
-                "Agora, é sua vez.", 
-                "neutral1"
+                "Nesta rodada, eu irei começar jogando. "+
+                "Observe que já selecionei um número. "+
+                "Agora, é sua vez\n."+
+                "\n"+
+                "Pressione o botão VERMELHO para continuar",
+                "neutral2"
             )
             self.next_tutor_number()
         else:
             self.teacher.set_message(
                 "Atenção!\n"+
-                "Nesta rodada, você inicia jogando.\n"+
-                "Prepare-se para começar.", 
-                "neutral1"
+                "Nesta rodada, você começa jogando "+
+                "Prepare-se para começar.\n"+
+                "\n"+
+                "Pressione o botão VERMELHO para continuar",
+                "neutral2"
             )
         
         self.show_teacher = True
