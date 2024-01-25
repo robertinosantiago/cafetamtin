@@ -43,6 +43,8 @@ class Phase03Tutorial(State):
         }
         
     def load_messages(self) -> None:
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT        
+        
         self.teacher.set_message(
             f"Oi {self.game.student.nickname}. Você está na terceira fase. "+
             "Vou explicar como jogá-la. Preste muita atenção.\n"+
@@ -54,7 +56,7 @@ class Phase03Tutorial(State):
         self.teacher.set_message(
             "Nesta fase, você irá jogar contra mim. Iremos alternar quem começará "+
             "a jogar, e cada um escolhe um número por vez. O objetivo é obter "+
-            "o maior número de somas 15\n"+
+            "o maior número de somas 15.\n"+
             "\n"+
             "Pressione o botão VERMELHO para continuar",  
             "neutral1"
@@ -66,6 +68,7 @@ class Phase03Tutorial(State):
             "\n"+
             "Pressione o botão VERMELHO para continuar",  
             "neutral1",
+            position=(screen_width/2, 160)
         )
         
         self.teacher.set_message(

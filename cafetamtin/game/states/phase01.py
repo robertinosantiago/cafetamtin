@@ -372,7 +372,13 @@ class Phase01(State):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
         
         pygame.draw.circle(display,RED,(130,baseline_circle),10)
-        red_text = font.render("Dicas" if not self.show_teacher else "Fechar", True, (0,0,0))
+        text = "Dicas"
+        if self.show_teacher:
+            if self.teacher.has_next_message():
+                text = "Continuar"
+            else:
+                text = "Fechar"
+        red_text = font.render(text, True, (0,0,0))
         display.blit(red_text, (145, baseline_text))
 
         if not self.show_teacher:

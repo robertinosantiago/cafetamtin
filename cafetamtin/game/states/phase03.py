@@ -26,6 +26,7 @@ from itertools import combinations
 from game.states.state import State
 from base.board import Board
 from game.actors.teacher import Teacher
+from game.actors.student import Student
 from utils.timer import Timer
 from utils.confetti import Confetti
 from database.models import DBSession, DBUser, DBSteps#, DBChallengeP2
@@ -33,8 +34,8 @@ from database.models import DBSession, DBUser, DBSteps#, DBChallengeP2
 from production.error import Error
 from production.memory import Memory
 from production.type_error import TypeError
-#from production.phase03_rules import Phase03Rules
-#from game.states.phase03_feedback import Phase03Feedback
+from production.phase03_rules import Phase03Rules
+from game.states.phase03_feedback import Phase03Feedback
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -48,7 +49,7 @@ class Phase03(State):
         super().__init__(game)
         
         self.memory = Memory()
-        #self.rules = Phase02Rules(self.memory)
+        self.rules = Phase03Rules(self.memory)
         self.init_working_memory()
         
         self.board = Board(self.game.app)
@@ -73,7 +74,6 @@ class Phase03(State):
         self.started = False
         self.end_phase = False
         self.new_challenge = True
-        self.tutor_starting = False
         self.reload = False
 
         self.tips_times = 0
@@ -117,7 +117,7 @@ class Phase03(State):
         self.memory.add_fact('blocks_tutor', [])
         self.memory.add_fact('sums_founds_student', [])
         
-        
+        self.memory.add_fact('tutor_starting', False)
         self.memory.add_fact('quantity_corrects', 0)
         self.memory.add_fact('quantity_errors', 0)
         self.memory.add_fact('quantity_same_error', 0)
@@ -166,12 +166,12 @@ class Phase03(State):
             return
         
         if self.is_paused:
-            self.timer_challenge.resume()
-            self.timer_response.resume()
+            self.memory.get_fact('timer_challenge').resume()
+            self.memory.get_fact('timer_response').resume()
             self.is_paused = False
         else:
-            self.timer_challenge.pause()
-            self.timer_response.pause()
+            self.memory.get_fact('timer_challenge').pause()
+            self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
     def button_black_changed(self, data):
@@ -184,9 +184,9 @@ class Phase03(State):
         if self.is_paused:
             return
         
-        self.timer_teacher.resume()
-        self.timer_response.stop()
-        self.timer_challenge.pause()
+        self.memory.get_fact('timer_teacher').resume()
+        self.memory.get_fact('timer_response').stop()
+        self.memory.get_fact('timer_challenge').stop()
         #irá contar o tempo enquanto verifica a resposta?
 
         if self.teacher.has_next_message():
@@ -209,6 +209,19 @@ class Phase03(State):
         if self.is_paused:
             return
         
+        if not self.show_teacher:
+            self.memory.get_fact('timer_challenge').pause()
+            self.memory.get_fact('timer_response').pause()
+            self.memory.get_fact('timer_teacher').resume()
+            
+            tips_times = self.memory.get_fact('tips_times')
+            self.memory.add_fact('tips_times', tips_times + 1)
+            
+            self.teacher.set_message(
+                "Dicas", 
+                "neutral0"
+            )
+        
         if self.teacher.has_next_message():
             self.teacher.next_message()
             self.show_teacher = True
@@ -217,11 +230,15 @@ class Phase03(State):
             self.show_teacher = False
 
             if self.reload:
+                self.memory.get_fact('timer_challenge').start()
+                self.memory.get_fact('timer_response').start()
                 self.reload = False
                 if not self.end_phase:
                     self.reset_blocks()
                     self.first_gaming()
                     self.teacher.next_message()
+            else:
+                self.memory.get_fact('timer_challenge').resume()
 
             if self.end_phase and not self.show_teacher:
                 self.exit_state()
@@ -236,24 +253,27 @@ class Phase03(State):
                 "neutral1"
         )
         if self.step == 1:
-            self.tutor_starting = bool(random.getrandbits(1))
+            self.memory.add_fact('tutor_starting', bool(random.getrandbits(1)))
         else:
-            self.tutor_starting = not self.tutor_starting
+            tutor_starting = self.memory.get_fact('tutor_starting')
+            self.memory.add_fact('tutor_starting', not tutor_starting)
 
-        if self.tutor_starting:
+        if self.memory.get_fact('tutor_starting'):
+            n = self.next_tutor_number()
+            
             self.teacher.set_message(
-                "Nesta rodada, eu irei começar jogando. "+
-                "Observe que já selecionei um número. "+
+                "Nesta rodada, eu começo jogando. "+
+                f"Observe que já selecionei o número {n}. "+
                 "Agora, é sua vez\n."+
                 "\n"+
                 "Pressione o botão VERMELHO para continuar",
-                "neutral2"
+                "neutral2",
+                modal=False
             )
-            self.next_tutor_number()
         else:
             self.teacher.set_message(
                 "Atenção!\n"+
-                "Nesta rodada, você começa jogando "+
+                "Nesta rodada, você começa jogando. "+
                 "Prepare-se para começar.\n"+
                 "\n"+
                 "Pressione o botão VERMELHO para continuar",
@@ -267,6 +287,11 @@ class Phase03(State):
         pass
 
     def reset_blocks(self):
+        self.memory.add_fact('blocks_available', [1, 2, 3, 4, 5, 6, 7, 8, 9])
+        self.memory.add_fact('blocks_student', {})
+        self.memory.add_fact('blocks_tutor', [])
+        self.memory.add_fact('sums_founds_student', [])
+        
         self.blocks_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
         self.blocks_student = {}
         self.blocks_tutor = []
@@ -275,12 +300,88 @@ class Phase03(State):
 
     def draw_lifes(self):
         display = self.game.game_canvas
-        for i in range(0, self.lives):
+        for i in range(0, self.memory.get_fact('lives')):
             heart = self.images['heart']
             heart_rect = heart.get_rect()
             heart_rect.x = 10 + 50 * i
             heart_rect.y = 5
             display.blit(heart, heart_rect)
+    
+    def draw_timer(self):
+        display = self.game.game_canvas
+        timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
+        screen_width = self.game.GAME_WIDTH
+        reset_timer = self.memory.get_fact('reset_timer')
+        if reset_timer and not self.show_teacher:
+            self.memory.add_fact('reset_timer', False)
+            self.start_time = pygame.time.get_ticks()
+            self.total_time = self.start_time + self.memory.get_fact('amount_time')*1000
+            
+        time_ms = self.total_time - pygame.time.get_ticks()
+
+        if time_ms >= 0:
+            self.time_hms = ((time_ms//(1000*60*60))%24, (time_ms//(1000*60))%60, (time_ms//1000)%60)
+        else:
+            self.end_timer()
+
+        timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
+        timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
+        display.blit(timer_text, timer_text_rect)
+        
+    def end_timer(self):
+        #@TODO: verificar se é melhor iniciar o Feedback
+        student: Student = self.memory.get_fact('student')
+        if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
+            self.memory.add_fact('reset_timer', True)
+            
+            self.memory.get_fact('timer_teacher').resume()
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_challenge').stop()
+            
+            self.memory.add_fact('is_correct', False)
+            
+            response = {}
+            response['number01'] = -1
+            #response['number02'] = -1
+            #response['number03'] = -1
+            response['is_correct'] = False
+            response['start_time'] = self.memory.get_fact('timer_response').get_time_started()
+            response['end_time'] = self.memory.get_fact('timer_response').get_time_finished()
+        
+            response['reaction_time'] = self.memory.get_fact('timer_response').total_time_seconds()
+            response['reaction_time_without_pauses'] = self.memory.get_fact('timer_response').total_time_without_paused_seconds()
+            response['paused_counter'] = self.memory.get_fact('timer_response').total_times_paused() - self.memory.get_fact('tips_times')
+            response['tips_counter'] = self.memory.get_fact('tips_times')
+            response['max_time'] = self.memory.get_fact('average_time')
+
+            response['affective_state'] = ''
+            response['affective_quad'] = ''
+            
+            response['type_error'] = TypeError.ERROR_TIMEOUT
+            response['subtype_error'] = TypeError.SUBTYPE_NONE
+            
+            self.memory.get_fact('responses').append(response)
+            
+            #self.save_challenge(response)
+            
+            history_errors = self.memory.get_fact('history_errors')
+            history_errors.append(Error(type=TypeError.ERROR_TIMEOUT, subtype=TypeError.SUBTYPE_NONE))
+            self.memory.add_fact('history_errors', history_errors)
+            
+            quantity_errors = self.memory.get_fact('quantity_errors')
+            quantity_errors += 1
+            self.memory.add_fact('quantity_errors', quantity_errors)
+            
+            self.teacher.set_message(
+                f"Preste atenção {student.nickname}!!! Tente resolver o \n"+
+                "exercício antes que o tempo acabe. Mantenha o foco \n"+
+                "na resolução dos exercícios.\n"+
+                "\n\nPressione o botão VERMELHO para continuar",  
+                "neutral1"
+            )
+            self.teacher.next_message()
+            self.show_teacher = True
+            self.lose_life()
 
     def draw_physical_buttons(self):
         display = self.game.game_canvas
@@ -296,7 +397,13 @@ class Phase03(State):
         display.blit(shape, rect)
         
         pygame.draw.circle(display,RED,(130,baseline_circle),10)
-        red_text = font.render("Dicas" if not self.show_teacher else "Fechar", True, (0,0,0))
+        text = "Dicas"
+        if self.show_teacher:
+            if self.teacher.has_next_message():
+                text = "Continuar"
+            else:
+                text = "Fechar"
+        red_text = font.render(text, True, (0,0,0))
         display.blit(red_text, (145, baseline_text))
 
         if not self.show_teacher:
@@ -309,29 +416,12 @@ class Phase03(State):
             display.blit(green_text, (235, baseline_text))
 
     def lose_life(self):
-        if self.lives > 0:
-            self.lives -= 1
+        lives = self.memory.get_fact('lives')
+        if lives > 0:
+            self.memory.add_fact('lives', lives - 1)
             self.start_time = pygame.time.get_ticks()
             self.total_time = self.start_time + self.total_seconds*1000
             #self.new_challenge = True
-
-    def draw_score(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
-        score_text = font.render(f'Pontos: {self.score:>4}', True, (0,0,0))
-        score_text_rect = score_text.get_rect(midright=(screen_width-5, 30))
-        display.blit(score_text, score_text_rect)
-
-    def draw_student_name(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        baseline_text = screen_height - 23
-
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        name_text = font.render(self.game.student.nickname, True, (0,0,0))
-        name_text_rect = name_text.get_rect(midright=(screen_width-5, baseline_text))
-        display.blit(name_text, name_text_rect)
 
     def draw_pause(self):
         display = self.game.game_canvas
@@ -353,21 +443,6 @@ class Phase03(State):
         pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
         white_text = font.render("Continuar", True, WHITE)
         display.blit(white_text, (35, baseline_text))
-
-    def draw_timer(self):
-        display = self.game.game_canvas
-        timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
-        screen_width = self.game.GAME_WIDTH
-        time_ms = self.total_time - pygame.time.get_ticks()
-
-        if time_ms >= 0:
-            self.time_hms = ((time_ms//(1000*60*60))%24, (time_ms//(1000*60))%60, (time_ms//1000)%60)
-        else:
-            self.lose_life()
-
-        timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
-        timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
-        display.blit(timer_text, timer_text_rect)
 
     def draw_board(self):
         display = self.game.game_canvas
@@ -422,7 +497,8 @@ class Phase03(State):
         pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
         display.blit(shape, rect_shape)
 
-        text = font.render(f'Blocos disponíveis: {len(self.blocks_available)}', True, (255,255,255))
+        blocks_available = self.memory.get_fact('blocks_available')
+        text = font.render(f'Blocos disponíveis: {len(blocks_available)}', True, (255,255,255))
         text_rect = text.get_rect(topleft=(pos_x_rect+self.offset, pos_y+height_rect+self.offset+self.offset*8))
         display.blit(text, text_rect)
 
@@ -469,15 +545,19 @@ class Phase03(State):
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
         font = pygame.font.SysFont(FONT_NAME, 30, False, False)
 
+        blocks_tutor = self.memory.get_fact('blocks_tutor')
+        blocks_student = self.memory.get_fact('blocks_student')
+        blocks_available = self.memory.get_fact('blocks_available')
+
         #if not self.show_teacher and not self.is_paused:
         x = 690
         y = 420
-        for i in range(len(self.blocks_tutor)):
+        for i in range(len(blocks_tutor)):
             rect = (x,y,self.box_width,self.box_height)
             shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
             pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
             display.blit(shape, rect)
-            text = font.render(str(self.blocks_tutor[i]), True, (255,255,255))
+            text = font.render(str(blocks_tutor[i]), True, (255,255,255))
             text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
             display.blit(text, text_rect)
             if (i+1) % 5 == 0:
@@ -489,12 +569,12 @@ class Phase03(State):
         x = 400
         y = 420
         
-        for i in range(len(self.blocks_available)):
+        for i in range(len(blocks_available)):
             rect = (x,y,self.box_width,self.box_height)
             shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
             pygame.draw.rect(shape, (220, 3, 3), shape.get_rect())
             display.blit(shape, rect)
-            text = font.render(str(self.blocks_available[i]), True, (255,255,255))
+            text = font.render(str(blocks_available[i]), True, (255,255,255))
             text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
             display.blit(text, text_rect)
             if (i+1) % 5 == 0:
@@ -503,8 +583,8 @@ class Phase03(State):
             else:
                 x += self.box_width + self.offset
         
-        for key in self.blocks_student.keys():
-            pos = self.blocks_student[key]
+        for key in blocks_student.keys():
+            pos = blocks_student[key]
             x = self.offset + self.offset * pos[1] + self.box_width * (pos[1] - 1)
             y = 100 + self.offset * pos[0] + self.box_height * (pos[0] - 1)
             rect = (x,y,self.box_width,self.box_height)
@@ -518,14 +598,15 @@ class Phase03(State):
     def draw_possible_sums_student(self):
         display = self.game.game_canvas
         font = pygame.font.SysFont(FONT_NAME, 16, False, False)
+        blocks_student = self.memory.get_fact('blocks_student')
 
         possibile_sums = []
-        if len(self.blocks_student) == 0:
+        if len(blocks_student) == 0:
             return
         
-        numbers = list(self.blocks_student.keys())
+        numbers = list(blocks_student.keys())
 
-        if len(self.blocks_student) == 1:
+        if len(blocks_student) == 1:
             s = {
                 'sum': f'{numbers[0]}+?+? = ?', 
                 'result': 0, 
@@ -533,7 +614,7 @@ class Phase03(State):
             }
             possibile_sums.append(s)
 
-        elif len(self.blocks_student) == 2:
+        elif len(blocks_student) == 2:
             s = {
                 'sum': f'{numbers[0]}+{numbers[1]}+? = ?', 
                 'result': 0, 
@@ -541,7 +622,7 @@ class Phase03(State):
             }
             possibile_sums.append(s)
 
-        elif len(self.blocks_student) == 3:
+        elif len(blocks_student) == 3:
             result = sum(numbers)
             s = {
                 'sum': f'{numbers[0]}+{numbers[1]}+{numbers[2]} = {result}', 
@@ -576,8 +657,10 @@ class Phase03(State):
                 x += width + self.offset
     
     def verify_sums_student(self):
-        numbers = list(self.blocks_student.keys())
-        if len(self.blocks_student) >= 3:
+        blocks_student = self.memory.get_fact('blocks_student')
+        
+        numbers = list(blocks_student.keys())
+        if len(blocks_student) >= 3:
             combs = combinations(numbers, 3)
             for c in combs:
                 l = list(c)
@@ -585,8 +668,8 @@ class Phase03(State):
                 result = sum(l)
                 if result == 15:
                     key = "".join(map(str, l))
-                    if not key in self.sums_founds_student:
-                        self.sums_founds_student.append(key)
+                    if not key in self.memory.get_fact('sums_founds_student'):
+                        self.memory.get_fact('sums_founds_student').append(key)
                         self.frame_confetti = 1
                         self.confetti.visible = True
                         return True
@@ -596,14 +679,15 @@ class Phase03(State):
     def draw_possible_sums_tutor(self):
         display = self.game.game_canvas
         font = pygame.font.SysFont(FONT_NAME, 16, False, False)
+        blocks_tutor = self.memory.get_fact('blocks_tutor')
 
         possibile_sums = []
-        if len(self.blocks_tutor) == 0:
+        if len(blocks_tutor) == 0:
             return
         
-        numbers = self.blocks_tutor
+        numbers = blocks_tutor
 
-        if len(self.blocks_tutor) == 1:
+        if len(blocks_tutor) == 1:
             s = {
                 'sum': f'{numbers[0]}+?+? = ?', 
                 'result': 0, 
@@ -611,7 +695,7 @@ class Phase03(State):
             }
             possibile_sums.append(s)
 
-        elif len(self.blocks_tutor) == 2:
+        elif len(blocks_tutor) == 2:
             s = {
                 'sum': f'{numbers[0]}+{numbers[1]}+? = ?', 
                 'result': 0, 
@@ -619,7 +703,7 @@ class Phase03(State):
             }
             possibile_sums.append(s)
 
-        elif len(self.blocks_tutor) == 3:
+        elif len(blocks_tutor) == 3:
             result = sum(numbers)
             s = {
                 'sum': f'{numbers[0]}+{numbers[1]}+{numbers[2]} = {result}', 
@@ -654,14 +738,26 @@ class Phase03(State):
                 x += width + self.offset
 
     def next_tutor_number(self):
-        if len(self.blocks_available) > 0:
-            index = random.randrange(0, len(self.blocks_available))
-            removed = self.blocks_available.pop(index)
-            self.blocks_tutor.append(removed)
+        if len(self.memory.get_fact('blocks_available')) > 0:
+            index = random.randrange(0, len(self.memory.get_fact('blocks_available')))
+            removed = self.memory.get_fact('blocks_available').pop(index)
+            self.memory.get_fact('blocks_tutor').append(removed)
             return removed
         return False
 
     def check_challenge(self):
+        numbers_student = self.board.values_positions()
+        self.memory.add_fact('numbers_student', numbers_student)
+        
+        self.rules.execute_rules()
+        
+        feedback = Phase03Feedback(self.game, self.memory)
+        feedback.enter_state()
+        
+        self.teacher.clear_messages()
+        self.show_teacher = False
+        
+    def check_challenge_old(self):
         numbers_students = self.board.values_positions()
 
         if len(numbers_students) == 0:
@@ -791,26 +887,14 @@ class Phase03(State):
         #verificar se tem algum numeros que o tutor selecionou
         #verificar se já realizou a soma 15
 
-    def draw_confetti(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        frame = self.confetti.get_image(self.frame_confetti)
-        frame_rect = frame.get_rect(center=(screen_width/2, screen_height/2 - 80))
-        display.blit(frame, frame_rect)
-        self.frame_confetti += 1
-        if self.frame_confetti > self.confetti.total_frames:
-            self.confetti.visible = False
+    
 
     def exit_state(self):
         super().exit_state()
-        #self.timer_challenge.stop()
-        #self.timer_teacher.stop()
+        self.memory.get_fact('timer_challenge').stop()
+        self.memory.get_fact('timer_teacher').stop()
 
     def render(self, display):
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        offset_height = 0
-
         display.fill((255,255,255))
         
         self.draw_board()
@@ -819,20 +903,20 @@ class Phase03(State):
         self.draw_student_name()
         self.draw_physical_buttons()
 
-        if self.show_teacher:
-            self.teacher.draw()
-
         if self.is_paused:
             self.draw_pause()
-
-        if self.confetti.visible:
-            self.draw_confetti()
-        
+            
         if (not self.show_teacher and not self.is_paused) or (self.show_teacher and not self.teacher.modal):
             self.draw_challenge()
             self.draw_possible_sums_student()
             self.draw_possible_sums_tutor()
 
+        if self.show_teacher:
+            self.teacher.draw()
+            
+        if self.confetti.visible:
+            self.draw_confetti()
+        
         if self.lives > 0 and self.step <= self.max_steps:
             if self.enable_timer:
                 self.draw_timer()

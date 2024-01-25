@@ -40,6 +40,9 @@ class Phase03Checks:
         
         diff = [x for x in numbers_student if x not in blocks_student]
         
+        if len(diff) != 1:
+            return False
+        
         return diff[0] in blocks_tutor
     
     def do_not_select_number_five_first(self, wm: Memory) -> bool:

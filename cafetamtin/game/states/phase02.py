@@ -53,8 +53,6 @@ class Phase02(State):
         self.rules = Phase02Rules(self.memory)
         self.init_working_memory()
         
-        #@TODO: implementar o reconhecimento do estado afetivo
-        
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -314,7 +312,13 @@ class Phase02(State):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
         
         pygame.draw.circle(display,RED,(130,baseline_circle),10)
-        red_text = font.render("Dicas" if not self.show_teacher else "Fechar", True, (0,0,0))
+        text = "Dicas"
+        if self.show_teacher:
+            if self.teacher.has_next_message():
+                text = "Continuar"
+            else:
+                text = "Fechar"
+        red_text = font.render(text, True, (0,0,0))
         display.blit(red_text, (145, baseline_text))
 
         if not self.show_teacher:
@@ -413,8 +417,9 @@ class Phase02(State):
             self.lose_life()
             
     def lose_life(self):
-        if self.memory.get_fact('lives') > 0:
-            self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
+        lives = self.memory.get_fact('lives')
+        if lives > 0:
+            self.memory.add_fact('lives', lives - 1)
             self.start_time = pygame.time.get_ticks()
             self.total_time = self.start_time + self.total_seconds*1000
     
@@ -531,16 +536,6 @@ class Phase02(State):
             self.end_phase = True
             self.teacher.next_message()
             self.show_teacher = True
-
-    def draw_confetti(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        frame = self.confetti.get_image(self.frame_confetti)
-        frame_rect = frame.get_rect(center=(screen_width/2, screen_height/2 - 80))
-        display.blit(frame, frame_rect)
-        self.frame_confetti += 1
-        if self.frame_confetti > self.confetti.total_frames:
-            self.confetti.visible = False
     
     @db_session
     def save_challenge(self, response) -> None:
