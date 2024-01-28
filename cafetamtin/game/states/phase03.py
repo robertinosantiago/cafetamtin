@@ -94,6 +94,7 @@ class Phase03(State):
         self.timer_response = Timer()
 
         self.tips_times = 0
+        self.adjust_game_levels()
         self.first_gaming()
         self.teacher.next_message()
 
@@ -228,6 +229,11 @@ class Phase03(State):
 
         else:
             self.show_teacher = False
+            
+            if not self.started:
+                self.memory.get_fact('timer_challenge').start()
+                self.memory.get_fact('timer_response').start()
+                self.started = True
 
             if self.reload:
                 self.memory.get_fact('timer_challenge').start()
@@ -239,6 +245,7 @@ class Phase03(State):
                     self.teacher.next_message()
             else:
                 self.memory.get_fact('timer_challenge').resume()
+                self.memory.get_fact('timer_response').resume()
 
             if self.end_phase and not self.show_teacher:
                 self.exit_state()
@@ -893,6 +900,23 @@ class Phase03(State):
         super().exit_state()
         self.memory.get_fact('timer_challenge').stop()
         self.memory.get_fact('timer_teacher').stop()
+        
+    def adjust_game_levels(self):
+        student: Student = self.memory.get_fact('student')
+        
+        average_time = self.memory.get_fact('average_time')
+        
+        if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', False)
+        elif student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_MEDIUM:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', True)
+        else:
+            self.memory.add_fact('amount_time', math.ceil(average_time * 0.5))
+            self.memory.add_fact('enable_timer', True)
+            
+        self.enable_timer = self.memory.get_fact('enable_timer')
 
     def render(self, display):
         display.fill((255,255,255))
@@ -918,6 +942,6 @@ class Phase03(State):
             self.draw_confetti()
         
         if self.lives > 0 and self.step <= self.max_steps:
-            if self.enable_timer:
+            if self.memory.get_fact('enable_timer') and not self.show_teacher:
                 self.draw_timer()
     

@@ -148,7 +148,7 @@ class Phase01Checks:
         max_time = wm.get_fact('average_time')
         is_correct = wm.get_fact('is_correct')
         
-        if is_correct:
+        if self.is_correct(wm):
             return False
         
         return time > max_time

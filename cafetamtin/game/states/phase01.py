@@ -23,7 +23,7 @@ import pygame
 import logging
 from pygame.locals import *
 from pony.orm import *
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -130,10 +130,7 @@ class Phase01(State):
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
         
-        self.memory.add_fact('timer_challenge', Timer())
         self.memory.add_fact('timer_response', Timer())
-        self.memory.add_fact('timer_teacher', Timer())
-        self.memory.get_fact('timer_teacher').start()
         
     def load_images(self):
         return {
@@ -176,11 +173,11 @@ class Phase01(State):
             return
         
         if self.is_paused:
-            self.memory.get_fact('timer_challenge').resume()
             self.memory.get_fact('timer_response').resume()
+            interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+            self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             self.is_paused = False
         else:
-            self.memory.get_fact('timer_challenge').pause()
             self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
@@ -194,11 +191,7 @@ class Phase01(State):
         if self.is_paused:
             return
         
-        self.memory.get_fact('timer_teacher').resume()
         self.memory.get_fact('timer_response').stop()
-        self.memory.get_fact('timer_challenge').stop()
-        print("TIMER: stoped - green")
-        #irá contar o tempo enquanto verifica a resposta?
         
         if self.teacher.has_next_message():
             self.teacher.clear_messages()
@@ -225,10 +218,7 @@ class Phase01(State):
             return
 
         if not self.show_teacher:
-            self.memory.get_fact('timer_challenge').pause()
             self.memory.get_fact('timer_response').pause()
-            self.memory.get_fact('timer_teacher').resume()
-            print("TIMER: paused - red")
             
             tips_times = self.memory.get_fact('tips_times')
             self.memory.add_fact('tips_times', tips_times + 1)
@@ -261,24 +251,22 @@ class Phase01(State):
                 self.save_steps(1, 'completed')
                 self.save_steps(2, 'not-started')
             if self.end_phase and self.memory.get_fact('lives') == 0:
-                #self.lives -= 1
                 self.memory.get_fact('lives', -1)
                 self.save_steps(1, 'not-completed')
             
             if self.new_challenge:
                 #@TODO: verificar o motivo de estar startando quando pausado
-                self.memory.get_fact('timer_challenge').start()
+                print('\n\nnew challenge!!\n\n')
                 self.memory.get_fact('timer_response').start()
-                print("TIMER: started - red")
                 now = datetime.now()
                 self.memory.add_fact('start_time', now)
+                self.total_time = self.memory.get_fact('amount_time')
+                self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
                 self.new_challenge = False
             else:
-                self.memory.get_fact('timer_challenge').resume()
                 self.memory.get_fact('timer_response').resume()
-                print("TIMER: resumed - red")
-            
-            self.memory.get_fact('timer_teacher').pause()    
+                interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+                self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             
             if self.end_phase and not self.show_teacher:
                 self.exit_state()
@@ -293,6 +281,9 @@ class Phase01(State):
     def turn_on_led(self):
         pass
         #self.leds.central_led()
+        
+    def control_timer(self):
+        pass
 
     def starting_game(self):
         if not self.started:
@@ -328,12 +319,12 @@ class Phase01(State):
         self.generate_new_challenge()
                 
         if self.memory.get_fact('lives') == 0:
+            #@colocar a mensagem 'tente novamente' caso haja mais rodadas
             self.teacher.set_message(
-                "Infelizmente, você não conseguiu\n"+
-                "realizar todas as operações corretamente.\n"+
-                "Tente novamente!\n"
-                "\n"+
-                "Pressione o botão VERMELHO para continuar",
+                "Infelizmente, você não conseguiu "+
+                "realizar todas as operações corretamente. "+
+                "Tente novamente!"
+                "\n\nPressione o botão VERMELHO para continuar",
                 "neutral1"
             )
             self.end_phase = True
@@ -342,9 +333,8 @@ class Phase01(State):
             self.teacher.set_message(
                 "Parabéns!!! Você conseguiu realizar "+
                 "as operações corretamente. Nos vemos na "+
-                "próxima fase.\n"+
-                "\n"+
-                "Pressione o botão VERMELHO para continuar",
+                "próxima fase."+
+                "\n\nPressione o botão VERMELHO para continuar",
                 "heart0"
             )
             self.end_phase = True
@@ -395,30 +385,33 @@ class Phase01(State):
         timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
         screen_width = self.game.GAME_WIDTH
         reset_timer = self.memory.get_fact('reset_timer')
+        end_time = self.memory.get_fact('end_time')
+                
         if reset_timer and not self.show_teacher:
             self.memory.add_fact('reset_timer', False)
-            self.start_time = pygame.time.get_ticks()
-            self.total_time = self.start_time + self.memory.get_fact('amount_time')*1000
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
+        
+        if not self.memory.get_fact('timer_response').is_paused():
+            time_left = max(end_time - datetime.now(), timedelta(0))
+
+            if time_left.seconds > 0:
+                self.time_hms = self.convert_time(time_left.seconds)
+            else:
+                self.end_timer()
+
+            timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
+            timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
+            display.blit(timer_text, timer_text_rect)
             
-        time_ms = self.total_time - pygame.time.get_ticks()
-
-        if time_ms >= 0:
-            self.time_hms = ((time_ms//(1000*60*60))%24, (time_ms//(1000*60))%60, (time_ms//1000)%60)
-        else:
-            self.end_timer()
-
-        timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
-        timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
-        display.blit(timer_text, timer_text_rect)
 
     def end_timer(self):
         student: Student = self.memory.get_fact('student')
         if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
             self.memory.add_fact('reset_timer', True)
             
-            self.memory.get_fact('timer_teacher').resume()
             self.memory.get_fact('timer_response').stop()
-            self.memory.get_fact('timer_challenge').stop()
             
             #@TODO: verificar como baixar o ICC
             
@@ -477,9 +470,9 @@ class Phase01(State):
             self.memory.add_fact('quantity_errors', quantity_errors)
             
             self.teacher.set_message(
-                f"Preste atenção {student.nickname}!!! Tente resolver o \n"+
-                "exercício antes que o tempo acabe. Mantenha o foco \n"+
-                "na resolução dos exercícios.\n"+
+                f"Preste atenção {student.nickname}!!! Tente resolver o "+
+                "exercício antes que o tempo acabe. Mantenha o foco "+
+                "na resolução dos exercícios."+
                 "\n\nPressione o botão VERMELHO para continuar",  
                 "neutral1"
             )
@@ -636,8 +629,7 @@ class Phase01(State):
     def exit_state(self):
         super().exit_state()
         #self.leds.turnOff()
-        self.memory.get_fact('timer_challenge').stop()
-        self.memory.get_fact('timer_teacher').stop()
+        self.memory.get_fact('timer_response').stop()
     
     @db_session
     def save_steps(self, phase, status):
@@ -735,5 +727,6 @@ class Phase01(State):
 
             self.draw_challenge()
 
+        #self.draw_timer()
             if self.memory.get_fact('enable_timer') and not self.show_teacher:
                 self.draw_timer()

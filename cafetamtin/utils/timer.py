@@ -90,5 +90,14 @@ class Timer:
     def get_time_started(self):
         return self.__timer['time_started']
     
+    def get_time_paused(self):
+        return self.__timer['time_paused']
+    
+    def get_time_resumed(self):
+        return self.__timer['time_resumed']
+    
     def get_time_finished(self):
         return self.__timer['time_finished']
+    
+    def is_paused(self):
+        return self.__timer['paused']

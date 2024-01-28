@@ -112,3 +112,10 @@ class State():
         name_text = font.render(self.game.student.nickname, True, (0,0,0))
         name_text_rect = name_text.get_rect(midright=(screen_width-5, baseline_text))
         display.blit(name_text, name_text_rect)
+        
+    def convert_time(self, seconds: int):
+        hours = seconds // 3600
+        seconds %= 3600
+        minutes = seconds // 60
+        seconds %= 60
+        return int(hours), int(minutes), int(seconds)

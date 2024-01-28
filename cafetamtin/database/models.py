@@ -31,6 +31,7 @@ class DBUser(db.Entity):
     steps = Set('DBSteps')
     challenges_p1 = Set('DBChallengeP1')
     challenges_p2 = Set('DBChallengeP2')
+    challenges_p3 = Set('DBChallengeP3')
 
 
 class DBBoard(db.Entity):
@@ -67,6 +68,7 @@ class DBSession(db.Entity):
     start_time = Optional(datetime)
     challenges_p1 = Set('DBChallengeP1')
     challenges_p2 = Set('DBChallengeP2')
+    challenges_p3 = Set('DBChallengeP3')
 
 
 class DBChallengeP1(db.Entity):
@@ -111,6 +113,26 @@ class DBChallengeP2(db.Entity):
     affective_state = Optional(str)
     affective_quad = Optional(str)
     type_external_repesentations = Optional(str)
+    type_error = Optional(str)
+    subtype_error = Optional(str)
+    user = Required(DBUser)
+    session = Required(DBSession)
+    
+class DBChallengeP3(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    number = Optional(int)
+    other_numbers = Optional(str)
+    is_correct = Optional(bool)
+    start_time = Optional(datetime)
+    end_time = Optional(datetime)
+    reaction_time = Optional(float)
+    reaction_time_without_pauses = Optional(float)
+    pauses_counter = Optional(int)
+    tips_counter = Optional(int)
+    distractors = Optional(int)
+    affective_state = Optional(str)
+    affective_quad = Optional(str)
+    type_external_representations = Optional(str)
     type_error = Optional(str)
     subtype_error = Optional(str)
     user = Required(DBUser)

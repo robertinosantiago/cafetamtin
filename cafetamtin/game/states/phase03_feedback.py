@@ -34,8 +34,9 @@ from game.states.state import State
 from game.actors.teacher import Teacher
 from game.actors.student import Student
 from production.type_error import TypeError
+from production.phase03_checks import Phase03Checks
 from production.level_rules import LevelRules
-from database.models import DBSession, DBSteps, DBUser #,DBChallengeP2
+from database.models import DBSession, DBSteps, DBUser ,DBChallengeP3
 
 class Phase03Feedback(State):
     def __init__(self, game, working_memory):
@@ -148,7 +149,7 @@ class Phase03Feedback(State):
         pass
     
     def draw_error_rule_deficiency(self):
-        self.blit_box('oi', (550,100), (220, 3, 3), 40)
+        pass
     
     def draw_error_operator_use(self):
         pass
@@ -163,31 +164,35 @@ class Phase03Feedback(State):
         logging.info(f'Executando função: message_teacher_misinterpretation_language')
         blocks_tutor = self.memory.get_fact('blocks_tutor')
         blocks_available = self.memory.get_fact('blocks_available')
+        numbers_student = self.memory.get_fact('numbers_student')
         
         number_informed = self.number_informed()
         
         emotions = ['neutral0', 'neutral1', 'neutral2']
         text_err = ['Ops', 'Opa', 'Ah', 'Puxa']
 
-        blocks_tutor.remove(number_informed)
+        numbers_student.pop(number_informed)
+        
         message = f'{text_err[random.randrange(0,len(text_err))]} {self.game.student.nickname}. '
         message += f'Você colocou sobre a plataforma o número {number_informed}. '
         message += 'Eu já selecionei este número'
-        if len(blocks_tutor) == 0:
+        temp_numbers_tutor = [x for x in blocks_tutor if x != number_informed]
+        if len(temp_numbers_tutor) == 0:
             message += '. '
         else:
             message += ', assim como '
-            message += 'o número ' if len(blocks_tutor) == 1 else 'os números '
-            text_count_tutor = ', '.join([f'{str(x)}' for x in blocks_tutor[:-1]])
-            if len(blocks_tutor) > 1:
+            message += 'o número ' if len(temp_numbers_tutor) == 1 else 'os números '
+            text_count_tutor = ', '.join([f'{str(x)}' for x in temp_numbers_tutor[:-1]])
+            if len(temp_numbers_tutor) > 1:
                 text_count_tutor += ' e '
-            text_count_tutor += f'{blocks_tutor[-1]}. '
+            text_count_tutor += f'{temp_numbers_tutor[-1]}. '
             message += text_count_tutor
+        message += f'Por gentileza, retire o número {number_informed} do tabuleiro. '
         message += '\n\nPressione o botão VERMELHO para continuar'
         
         self.teacher.set_message(
             message,
-            'neutral1'
+            emotions[random.randrange(0,len(emotions))]
         )
         
         message = 'Você ainda pode escolher '
@@ -201,17 +206,59 @@ class Phase03Feedback(State):
         
         self.teacher.set_message(
             message,
-            'neutral1'
+            emotions[random.randrange(0,len(emotions))]
         )
         
         
     def message_teacher_domain_deficiency(self):
         logging.info(f'Executando função: message_teacher_domain_deficiency')
+        numbers_student = self.memory.get_fact('numbers_student')
+        
+        number_informed = self.number_informed()
+        
+        text_err = ['Legal', 'Interessante', 'Muito bom', 'Bacana']
+        
+        emotions = ['neutral0', 'neutral1', 'neutral2']
+        checks = Phase03Checks()
+        
+        message = f'{text_err[random.randrange(0,len(text_err))]} {self.game.student.nickname}. '
+        message += f'Você colocou sobre a plataforma o número {number_informed}. '
+        
+        if checks.do_not_make_sum_fifteen(self.memory):
+            message += 'Nesta jogada, você deixou de realizar uma soma 15. '
+            message += 'Observe os números que você já possui e os números que estão disponíveis.'
+        else:
+            message += 'Uma das estratégias deste jogo é evitar que seu oponente '
+            message += 'consiga fazer uma soma 15. Pense nisso na próxima rodada.'
+        
+        message += '\n\nPressione o botão VERMELHO para continuar'
+        
+        self.teacher.set_message(
+            message, 
+            emotions[random.randrange(0,len(emotions))]
+        )
+        
+        self.update_blocks_student(numbers_student)
+        
+        number_tutor = self.next_tutor_number()
+        
+        message = ''
+        if number_tutor:
+            message += f'Nesta rodada, eu vou escolher o número {number_tutor}.'
+        else:
+            message += f'Este foi o último número disponível.'
+        message += '\n\nPressione o botão VERMELHO para continuar'
+        
+        emotions = ['happy0', 'happy1', 'happy2', 'happy3', 'happy4', 'heart0']
+        self.teacher.set_message(
+            message, 
+            emotions[random.randrange(0,len(emotions))]
+        )
+        
+        self.show_error_domain_deficiency = True
         
     def message_teacher_rule_deficiency(self):
         logging.info(f'Executando função: message_teacher_rule_deficiency')
-        
-        #self.show_error_rule_deficiency = True
     
     def message_teacher_operator_use(self):
         logging.info(f'Executando função: message_teacher_operator_use')
@@ -252,6 +299,28 @@ class Phase03Feedback(State):
     
     def message_teacher_uncategorized_solution(self):
         logging.info(f'Executando função: message_teacher_uncategorized_solution')
+        numbers_student = self.memory.get_fact('numbers_student')
+        number_informed = self.number_informed()
+        
+        message = f'Atenção {self.game.student.nickname}! '
+        if len(numbers_student) == 0:
+            message += 'Você deve escolher um bloco numerado e '
+            message += 'colocá-lo sobre a plataforma, '
+        else:
+            message += 'Você precisa escolher um número que esteja contido '
+            message += 'quadro "Blocos disponíveis", pegar o bloco numerado '
+            message += 'correspondente e colocá-lo sobre a plataforma, '
+        
+        message += 'só então você deve apertar o botão VERDE.'
+        message += '\n\nPressione o botão VERMELHO para continuar'
+        
+        emotions = ['neutral0', 'neutral1', 'neutral2']
+        self.teacher.set_message(
+            message, 
+            emotions[random.randrange(0,len(emotions))]
+        )
+        
+        self.show_error_uncategorized_solution = True
     
     def feedback(self):
         errors = self.memory.get_fact('errors')
@@ -278,13 +347,16 @@ class Phase03Feedback(State):
         response['type_error'] = ''
         response['subtype_error'] = ''
         
-        number_informed = -1
+        response['other_numbers'] = ','.join([f'{str(x)}' for x in blocks_student.keys()])
         
         if len(errors) == 0:
             response['is_correct'] = True
             self.memory.add_fact('is_correct', True)
             
             number_informed = self.number_informed()
+            response['number'] = number_informed
+            
+            
             self.update_blocks_student(numbers_student)
             
             
@@ -327,20 +399,21 @@ class Phase03Feedback(State):
             response['subtype_error'] = error.subtype
             
             if error.type == TypeError.TYPE_MISINTERPRETATION_LANGUAGE:
+                response['number'] = -1
                 self.message_teacher_misinterpretation_language()
             elif error.type == TypeError.TYPE_DIRECTLY_IDENTIFIABLE:
+                response['number'] = self.number_informed()
                 if error.subtype == TypeError.SUBTYPE_DOMAIN_DEFICIENCY:
                     self.message_teacher_domain_deficiency()
-                    #number_informed = self.number_informed()
-                    #self.update_blocks_student(numbers_student)
-                    #self.new_tutor_number(number_informed)
                 elif error.subtype == TypeError.SUBTYPE_RULE_DEFICIECY:
                     self.message_teacher_rule_deficiency()
                 elif error.subtype == TypeError.SUBTYPE_OPERATOR_USAGE:
                     self.message_teacher_operator_use()
             elif error.type == TypeError.TYPE_INDIRECTLY_IDENTIFIABLE:
+                response['number'] = self.number_informed()
                 self.message_teacher_indirectly_identifiable()
             elif error.type == TypeError.TYPE_UNCATEGORIZED_SOLUTION:
+                response['number'] = -2
                 self.message_teacher_uncategorized_solution()
                 
             self.memory.reset()
@@ -348,8 +421,11 @@ class Phase03Feedback(State):
         
             
         self.memory.get_fact('responses').append(response)
-        #self.save_challenge(response)
+        self.save_challenge(response)
         self.memory.add_fact('quantity_corrects', quantity_corrects)
+        
+        self.rules.execute_rules()
+        self.adjust_game_levels()
         
         self.teacher.next_message()
         self.show_teacher = True
@@ -378,6 +454,10 @@ class Phase03Feedback(State):
         blocks_student = self.memory.get_fact('blocks_student')
 
         diff = [x for x in numbers_student if x not in blocks_student]
+        
+        if len(diff) == 0:
+            return False
+        
         return diff[0]
     
     def new_tutor_number(self, number_informed):
@@ -452,14 +532,72 @@ class Phase03Feedback(State):
     
     @db_session
     def save_challenge(self, response) -> None:
-        pass
+        user = DBUser[self.game.student.id]
+        session = DBSession[int(self.memory.get_fact('session_id'))]
+        challenge = DBChallengeP3(
+            number = response['number'],
+            other_numbers = response['other_numbers'],
+            is_correct = response['is_correct'],
+            start_time = response['start_time'],
+            end_time = response['end_time'],
+            reaction_time = response['reaction_time'],
+            reaction_time_without_pauses = response['reaction_time_without_pauses'],
+            pauses_counter = response['paused_counter'],
+            tips_counter = response['tips_counter'],
+            affective_state = response['affective_state'],
+            affective_quad = response['affective_quad'],
+            type_error = response['type_error'],
+            subtype_error = response['subtype_error'],
+            user = user,
+            session = session
+        )
+        challenge.flush()
+        #facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
+        #facialThread.start()
     
     @db_session
     def update_challenge(self, id, expression, quad):
         pass
     
     def adjust_game_levels(self):
-        pass
+        student: Student = self.memory.get_fact('student')
+        average_time = self.memory.get_fact('average_time')
+        amount_time = self.memory.get_fact('amount_time')
+        is_correct = self.memory.get_fact('is_correct')
+        response = self.memory.get_fact('responses')[-1]
+        
+        if is_correct:
+            self.add_points_score()
+        else:
+            self.remove_lives()
+        
+        bonus = False
+        if is_correct and response['reaction_time'] < (amount_time / 2):
+            bonus = True
+        
+        if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', False)
+            if bonus:
+                self.add_lives()
+                self.add_bonus_points()
+                
+        elif student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_MEDIUM:
+            self.memory.add_fact('amount_time', average_time)
+            self.memory.add_fact('enable_timer', True)
+            if bonus:
+                self.add_bonus_points()
+                
+        else:
+            self.memory.add_fact('amount_time', math.ceil(average_time * 0.5))
+            self.memory.add_fact('enable_timer', True)
+            if bonus:
+                self.add_bonus_points()
+            
+            if not is_correct:
+                self.remove_points_score()
+            
+        self.memory.add_fact('reset_timer', True)
     
     def draw_board(self):
         display = self.game.game_canvas
@@ -560,8 +698,6 @@ class Phase03Feedback(State):
     def render(self, display):        
         display.fill((255,255,255))
         
-        #background = self.images['background']
-        #display.blit(background, (0,0))
         self.draw_board()
         
         self.draw_physical_buttons()

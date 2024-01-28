@@ -90,6 +90,9 @@ class LevelChecks():
         for response in responses:
             if not response['is_correct']:
                 count += 1
+        
+        if count == 0:
+            return False
                 
         return count % 5 == 0
     

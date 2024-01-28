@@ -89,7 +89,7 @@ class Phase03Checks:
 
         if len(diff) != 1:
             return False
-
+        
         number = diff[0]
 
         if len(blocks_student) == 2:
@@ -98,10 +98,8 @@ class Phase03Checks:
             if number + _sum == 15:
                 return False
             
-            blocks_available.remove(number)
-            
             for n in blocks_available:
-                if n + _sum == 15:
+                if n != number and  n + _sum == 15:
                     return True
                             
             return False
@@ -111,13 +109,11 @@ class Phase03Checks:
             for c in combs:
                 if sum(c) + number == 15:
                     return False
-            
-            blocks_available.remove(number)
-            
+
             combs = combinations(blocks_student, 2)
             for c in combs:
                 for n in blocks_available:
-                    if sum(c) + n == 15:
+                    if n != number and sum(c) + n == 15:
                         return True 
         
         return False
@@ -137,14 +133,44 @@ class Phase03Checks:
         if len(diff) != 1:
             return False
 
+        if self.is_sum_fifteen(wm):
+            return False
+
         number = diff[0]
         
-        blocks_available.remove(number)
-            
         combs = combinations(blocks_tutor, 2)
         for c in combs:
                 for n in blocks_available:
-                    if sum(c) + n == 15:
+                    if n != number and sum(c) + n == 15:
                         return True
+        
+        return False
+    
+    def is_sum_fifteen(self, wm: Memory) -> bool:
+        logging.info(f'Executando função: is_correct')
+        numbers_student = wm.get_fact('numbers_student')
+        blocks_student = wm.get_fact('blocks_student')
+                
+        if len(numbers_student) < 3:
+            return False
+
+        diff = [x for x in numbers_student if x not in blocks_student]
+
+        if len(diff) != 1:
+            return False
+
+        number = diff[0]
+        
+        if len(blocks_student) == 2:
+            _sum = sum(blocks_student)
+
+            if number + _sum == 15:
+                return True
+        
+        if len(blocks_student) >= 3:
+            combs = combinations(blocks_student, 2)
+            for c in combs:
+                if sum(c) + number == 15:
+                    return True
         
         return False
