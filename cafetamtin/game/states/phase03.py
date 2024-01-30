@@ -15,21 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-import pygame
 import os
+import math
+import pygame
 import random
 import logging
 from pony.orm import *
-from datetime import datetime
 from itertools import combinations
+from datetime import datetime, timedelta
 
-from game.states.state import State
 from base.board import Board
-from game.actors.teacher import Teacher
-from game.actors.student import Student
 from utils.timer import Timer
 from utils.confetti import Confetti
-from database.models import DBSession, DBUser, DBSteps#, DBChallengeP2
+from game.states.state import State
+from base.facial import FacialThread
+from game.actors.teacher import Teacher
+from game.actors.student import Student
+from database.models import DBSession, DBUser, DBSteps, DBChallengeP3
 
 from production.error import Error
 from production.memory import Memory
@@ -64,10 +66,7 @@ class Phase03(State):
         self.step = 1
         self.incremental_points = 5
 
-        self.start_time = pygame.time.get_ticks()
-        self.total_seconds = 10
         self.time_hms = 0, 0, 0
-        self.total_time = self.start_time + self.total_seconds*1000
 
         self.enable_timer = False
         self.is_paused = False
@@ -87,11 +86,6 @@ class Phase03(State):
 
         self.offset = 10
         self.box_width, self.box_height = 40, 40
-
-        self.timer_challenge = Timer()
-        self.timer_teacher = Timer()
-        self.timer_teacher.start()
-        self.timer_response = Timer()
 
         self.tips_times = 0
         self.adjust_game_levels()
@@ -126,6 +120,7 @@ class Phase03(State):
         self.memory.add_fact('history_errors', [])
         self.memory.add_fact('tips_times', 0)
         self.memory.add_fact('step', 1)
+        self.memory.add_fact('max_steps', 2)
         self.memory.add_fact('average_time', 60)
         self.memory.add_fact('minimum_time', 5)
         self.memory.add_fact('time_per_step', [])
@@ -133,6 +128,7 @@ class Phase03(State):
         self.memory.add_fact('errors', [])
         self.memory.add_fact('responses', [])
         self.memory.add_fact('reset_timer', True)
+        self.memory.add_fact('reload', False)
         self.memory.add_fact('max_lives', 5)
         self.memory.add_fact('lives', 5)
         self.memory.add_fact('score', 0)
@@ -140,10 +136,7 @@ class Phase03(State):
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
         
-        self.memory.add_fact('timer_challenge', Timer())
         self.memory.add_fact('timer_response', Timer())
-        self.memory.add_fact('timer_teacher', Timer())
-        self.memory.get_fact('timer_teacher').start()
 
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
@@ -167,11 +160,11 @@ class Phase03(State):
             return
         
         if self.is_paused:
-            self.memory.get_fact('timer_challenge').resume()
             self.memory.get_fact('timer_response').resume()
+            interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+            self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             self.is_paused = False
         else:
-            self.memory.get_fact('timer_challenge').pause()
             self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
@@ -185,10 +178,7 @@ class Phase03(State):
         if self.is_paused:
             return
         
-        self.memory.get_fact('timer_teacher').resume()
         self.memory.get_fact('timer_response').stop()
-        self.memory.get_fact('timer_challenge').stop()
-        #irá contar o tempo enquanto verifica a resposta?
 
         if self.teacher.has_next_message():
             self.teacher.clear_messages()
@@ -211,9 +201,7 @@ class Phase03(State):
             return
         
         if not self.show_teacher:
-            self.memory.get_fact('timer_challenge').pause()
             self.memory.get_fact('timer_response').pause()
-            self.memory.get_fact('timer_teacher').resume()
             
             tips_times = self.memory.get_fact('tips_times')
             self.memory.add_fact('tips_times', tips_times + 1)
@@ -231,21 +219,13 @@ class Phase03(State):
             self.show_teacher = False
             
             if not self.started:
-                self.memory.get_fact('timer_challenge').start()
                 self.memory.get_fact('timer_response').start()
+                self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
                 self.started = True
-
-            if self.reload:
-                self.memory.get_fact('timer_challenge').start()
-                self.memory.get_fact('timer_response').start()
-                self.reload = False
-                if not self.end_phase:
-                    self.reset_blocks()
-                    self.first_gaming()
-                    self.teacher.next_message()
             else:
-                self.memory.get_fact('timer_challenge').resume()
                 self.memory.get_fact('timer_response').resume()
+                interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+                self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
 
             if self.end_phase and not self.show_teacher:
                 self.exit_state()
@@ -259,7 +239,7 @@ class Phase03(State):
                 "Pressione o botão VERMELHO para continuar",  
                 "neutral1"
         )
-        if self.step == 1:
+        if self.memory.get_fact('step') == 1:
             self.memory.add_fact('tutor_starting', bool(random.getrandbits(1)))
         else:
             tutor_starting = self.memory.get_fact('tutor_starting')
@@ -286,12 +266,20 @@ class Phase03(State):
                 "Pressione o botão VERMELHO para continuar",
                 "neutral2"
             )
-        
+        self.started = False
         self.show_teacher = True
         
 
     def update(self, delta_time):
-        pass
+        if self.memory.get_fact('reload'):
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
+            self.memory.add_fact('reload', False)
+
+            if not self.end_phase:
+                self.reset_blocks()
+                self.first_gaming()
+                self.teacher.next_message()
 
     def reset_blocks(self):
         self.memory.add_fact('blocks_available', [1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -319,38 +307,42 @@ class Phase03(State):
         timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
         screen_width = self.game.GAME_WIDTH
         reset_timer = self.memory.get_fact('reset_timer')
+        end_time = self.memory.get_fact('end_time')
+                
+        
+        if not self.memory.get_fact('timer_response').is_paused() and self.memory.get_fact('timer_response').is_started():
+            time_left = max(end_time - datetime.now(), timedelta(0))
+
+            if time_left.seconds > 0:
+                self.time_hms = self.convert_time(time_left.seconds)
+            else:
+                self.end_timer()
+
+            timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
+            timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
+            display.blit(timer_text, timer_text_rect)
+        
         if reset_timer and not self.show_teacher:
             self.memory.add_fact('reset_timer', False)
-            self.start_time = pygame.time.get_ticks()
-            self.total_time = self.start_time + self.memory.get_fact('amount_time')*1000
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
+
             
-        time_ms = self.total_time - pygame.time.get_ticks()
-
-        if time_ms >= 0:
-            self.time_hms = ((time_ms//(1000*60*60))%24, (time_ms//(1000*60))%60, (time_ms//1000)%60)
-        else:
-            self.end_timer()
-
-        timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
-        timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
-        display.blit(timer_text, timer_text_rect)
-        
     def end_timer(self):
         #@TODO: verificar se é melhor iniciar o Feedback
         student: Student = self.memory.get_fact('student')
         if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
             self.memory.add_fact('reset_timer', True)
+            blocks_student = self.memory.get_fact('blocks_student')
             
-            self.memory.get_fact('timer_teacher').resume()
             self.memory.get_fact('timer_response').stop()
-            self.memory.get_fact('timer_challenge').stop()
             
             self.memory.add_fact('is_correct', False)
             
             response = {}
-            response['number01'] = -1
-            #response['number02'] = -1
-            #response['number03'] = -1
+            response['number'] = -3
+            response['other_numbers'] = ','.join([f'{str(x)}' for x in blocks_student.keys()])
             response['is_correct'] = False
             response['start_time'] = self.memory.get_fact('timer_response').get_time_started()
             response['end_time'] = self.memory.get_fact('timer_response').get_time_finished()
@@ -369,7 +361,7 @@ class Phase03(State):
             
             self.memory.get_fact('responses').append(response)
             
-            #self.save_challenge(response)
+            self.save_challenge(response)
             
             history_errors = self.memory.get_fact('history_errors')
             history_errors.append(Error(type=TypeError.ERROR_TIMEOUT, subtype=TypeError.SUBTYPE_NONE))
@@ -426,8 +418,8 @@ class Phase03(State):
         lives = self.memory.get_fact('lives')
         if lives > 0:
             self.memory.add_fact('lives', lives - 1)
-            self.start_time = pygame.time.get_ticks()
-            self.total_time = self.start_time + self.total_seconds*1000
+            #self.start_time = pygame.time.get_ticks()
+            #self.total_time = self.start_time + self.total_seconds*1000
             #self.new_challenge = True
 
     def draw_pause(self):
@@ -764,142 +756,67 @@ class Phase03(State):
         self.teacher.clear_messages()
         self.show_teacher = False
         
-    def check_challenge_old(self):
-        numbers_students = self.board.values_positions()
-
-        if len(numbers_students) == 0:
+        if self.memory.get_fact('lives') == 0:
             self.teacher.set_message(
-                "Atenção. Você deve colocar\n"+
-                "um bloco numérico sobre o \n"+
-                "tabuleiro para iniciar.", 
-                "neutral0"
-            )
-            self.lives -= 1
-
-        elif len(numbers_students) == len(self.blocks_student):
-            #verificar troca de mais de uma peça
-            diff = [x for x in numbers_students if x not in self.blocks_student]
-            if (len(diff)) == 0:
-                self.teacher.set_message(
-                    "Atenção. Você deve colocar\n"+
-                    "um novo bloco numérico sobre\n"+
-                    "o tabuleiro a cada tentativa.", 
-                    "neutral0"
-                )
-            else:
-                diff2 = [x for x in self.blocks_student if x not in numbers_students]
-                self.teacher.set_message(
-                    f"Atenção. Você trocou o número {diff2[0]}\n"+
-                    f"pelo número {diff[0]}. Você não deve\n"+
-                    "substitituir nenhum bloco. Desfaça\n"+
-                    "a alteração e adicionar um novo bloco.", 
-                    "neutral0"
-                )
-            
-            self.lives -= 1
-        
-        elif abs(len(numbers_students) - len(self.blocks_student)) > 1:
-            self.teacher.set_message(
-                "Atenção. Você deve adicionar apenas\n"+
-                "um bloco numérico por vez sobre o\n"+
-                "tabuleiro. Escolha apenas um.", 
-                "neutral0"
-            )
-            self.lives -= 1
-
-        elif len(self.blocks_student) > len(numbers_students):
-            self.teacher.set_message(
-                "Atenção. Você retirou um bloco numérico\n"+
-                "ao invés de adicionar um novo. Por favor,\n"+
-                "recoloque o bloco retirado e adicione um novo.", 
-                "neutral0"
-            )
-            self.lives -= 1
-
-        else:
-            diff = [x for x in numbers_students if x not in self.blocks_student]
-            
-            if diff[0] in self.blocks_tutor:
-                self.teacher.set_message(
-                    f"Você tentou colocar o número {diff}.\n"+
-                    "Esse bloco já foi selecionado\n"+
-                    "pelo tutor. Por favor, tente outro.", 
-                    "happy0"
-                )
-                self.lives -= 1
-            else:
-                self.blocks_student.update(numbers_students)
-                for key in self.blocks_student.keys():
-                    if key in self.blocks_available:
-                        self.blocks_available.remove(key)
-
-                ntutor = self.next_tutor_number()
-
-                if ntutor:
-                    self.teacher.set_message(
-                        "Muito bem! Você adicionou o\n"+
-                        f"número {diff[0]}. O tutor escolheu\n"+
-                        f"o número {ntutor}.", 
-                        "happy0"
-                    )
-                else:
-                    self.teacher.set_message(
-                        "Muito bem! Você adicionou o\n"+
-                        f"número {diff[0]}. Esse foi o último\n"+
-                        "número disponível.", 
-                        "happy0"
-                    )
-                
-                if self.verify_sums_student():
-                    self.teacher.set_message(
-                        "Ual!!! Com esse bloco, você conseguiu\n"+
-                        "realizar a soma 15. Parabéns!", 
-                        "heart0"
-                    )
-
-        if len(self.blocks_available) == 0 and not self.end_phase:
-            self.teacher.set_message(
-                "Terminou essa rodada", 
-                "neutral0",
-                modal=False,
-                position=(500, 400)
-            )
-            self.step += 1
-            if self.lives > 0 and self.step <= self.max_steps:
-                self.reload = True
-        
-        if self.lives == 0:
-            self.teacher.set_message(
-                "Infelizmente, você não conseguiu\n"+
-                "realizar todas as operações corretamente.\n"+
-                "Tente novamente!", 
+                "Puxa, você não conseguiu "+
+                "encontrar as melhores estratégias para jogar comigo.\n\n"+
+                "Tente novamente!"
+                "\n\nPressione o botão VERMELHO para continuar", 
                 "neutral1"
             )
             self.end_phase = True
-
-        if self.step > self.max_steps and not self.end_phase:
-            self.teacher.set_message(
-                "Parabéns!!! Você conseguiu realizar\n"+
-                "as operações corretamente. Nos vemos na\n"+
-                "próxima fase.", 
-                "heart0"
-            )
-            self.end_phase = True
+            self.teacher.next_message()
+            self.show_teacher = True
             
 
-        self.teacher.next_message()
-        self.show_teacher = True
-
-        #verificar o numero que foi colocado
-        #verificar se tem algum numeros que o tutor selecionou
-        #verificar se já realizou a soma 15
-
-    
+        if self.memory.get_fact('step') > self.memory.get_fact('max_steps') and not self.end_phase:
+            self.teacher.set_message(
+                "Ual, parabéns!!! Você conseguiu avançar para a "+
+                "próxima fase. Nos vemos lá! "+
+                "\n\nPressione o botão VERMELHO para continuar",
+                "heart0"
+            )
+            self.started = False
+            self.end_phase = True
+            self.teacher.next_message()
+            self.show_teacher = True
 
     def exit_state(self):
         super().exit_state()
-        self.memory.get_fact('timer_challenge').stop()
-        self.memory.get_fact('timer_teacher').stop()
+        self.memory.get_fact('timer_response').stop()
+        
+    @db_session
+    def save_challenge(self, response) -> None:
+        user = DBUser[self.game.student.id]
+        session = DBSession[int(self.memory.get_fact('session_id'))]
+        challenge = DBChallengeP3(
+            number = response['number'],
+            other_numbers = response['other_numbers'],
+            is_correct = response['is_correct'],
+            start_time = response['start_time'],
+            end_time = response['end_time'],
+            reaction_time = response['reaction_time'],
+            reaction_time_without_pauses = response['reaction_time_without_pauses'],
+            pauses_counter = response['paused_counter'],
+            tips_counter = response['tips_counter'],
+            affective_state = response['affective_state'],
+            affective_quad = response['affective_quad'],
+            type_error = response['type_error'],
+            subtype_error = response['subtype_error'],
+            user = user,
+            session = session
+        )
+        challenge.flush()
+        facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
+        facialThread.start()
+    
+    @db_session
+    def update_challenge(self, id, expression, quad):
+        logging.info(f'Atualizando challenge')
+        challenge = DBChallengeP3[id]
+        challenge.set(affective_state = expression, affective_quad = quad)
+        challenge.flush()
+        logging.info(f'Atualizado')
         
     def adjust_game_levels(self):
         student: Student = self.memory.get_fact('student')
@@ -941,7 +858,7 @@ class Phase03(State):
         if self.confetti.visible:
             self.draw_confetti()
         
-        if self.lives > 0 and self.step <= self.max_steps:
+        if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') <= self.memory.get_fact('max_steps'):
             if self.memory.get_fact('enable_timer') and not self.show_teacher:
                 self.draw_timer()
     

@@ -65,7 +65,7 @@ class Phase01(State):
 
         self.lives = 5
         self.score = 0
-        self.max_steps = 10
+        self.max_steps = 20
         self.num_terms = 2
         self.incremental_points = 5
 
@@ -74,10 +74,10 @@ class Phase01(State):
 
         self.images = self.load_images()
         
-        self.start_time = pygame.time.get_ticks()
-        self.total_seconds = 10
+        #self.start_time = pygame.time.get_ticks()
+        #self.total_seconds = 10
         self.time_hms = 0, 0, 0
-        self.total_time = self.start_time + self.total_seconds*1000
+        #self.total_time = self.start_time + self.total_seconds*1000
 
         self.enable_timer = False
         self.is_paused = False
@@ -243,24 +243,23 @@ class Phase01(State):
                 
             #self.leds.central_led()
 
-
             if self.memory.get_fact('step') == self.max_steps:
                 step = self.memory.get_fact('step')
                 step += 1
                 step = self.memory.add_fact('step', step)
                 self.save_steps(1, 'completed')
                 self.save_steps(2, 'not-started')
+                
             if self.end_phase and self.memory.get_fact('lives') == 0:
                 self.memory.get_fact('lives', -1)
                 self.save_steps(1, 'not-completed')
             
             if self.new_challenge:
                 #@TODO: verificar o motivo de estar startando quando pausado
-                print('\n\nnew challenge!!\n\n')
                 self.memory.get_fact('timer_response').start()
-                now = datetime.now()
-                self.memory.add_fact('start_time', now)
-                self.total_time = self.memory.get_fact('amount_time')
+                #now = datetime.now()
+                #self.memory.add_fact('start_time', now)
+                #self.total_time = self.memory.get_fact('amount_time')
                 self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
                 self.new_challenge = False
             else:
@@ -386,14 +385,8 @@ class Phase01(State):
         screen_width = self.game.GAME_WIDTH
         reset_timer = self.memory.get_fact('reset_timer')
         end_time = self.memory.get_fact('end_time')
-                
-        if reset_timer and not self.show_teacher:
-            self.memory.add_fact('reset_timer', False)
-            self.memory.get_fact('timer_response').stop()
-            self.memory.get_fact('timer_response').start()
-            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
         
-        if not self.memory.get_fact('timer_response').is_paused():
+        if not self.memory.get_fact('timer_response').is_paused() and not self.show_teacher:
             time_left = max(end_time - datetime.now(), timedelta(0))
 
             if time_left.seconds > 0:
@@ -405,6 +398,11 @@ class Phase01(State):
             timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
             display.blit(timer_text, timer_text_rect)
             
+        if reset_timer and not self.show_teacher:
+            self.memory.add_fact('reset_timer', False)
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
 
     def end_timer(self):
         student: Student = self.memory.get_fact('student')
@@ -478,9 +476,10 @@ class Phase01(State):
             )
             self.teacher.next_message()
             self.show_teacher = True
-            self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
+            #self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
+            self.lose_life()
             
-            #@TODO: salvar os dados da tentativa finalizada por falta de tempo
+            #@TODO: ajustar o game level
             self.generate_new_challenge()
     
     
@@ -488,8 +487,8 @@ class Phase01(State):
         if self.memory.get_fact('lives') > 0:
             #self.lives -= 1
             self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
-            self.start_time = pygame.time.get_ticks()
-            self.total_time = self.start_time + self.total_seconds*1000
+            #self.start_time = pygame.time.get_ticks()
+            #self.total_time = self.start_time + self.total_seconds*1000
             #self.new_challenge = True
 
     def draw_challenge(self):

@@ -101,3 +101,6 @@ class Timer:
     
     def is_paused(self):
         return self.__timer['paused']
+    
+    def is_started(self):
+        return self.__timer['started']

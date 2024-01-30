@@ -26,7 +26,7 @@ from datetime import datetime
 from itertools import combinations
 
 from game import FONT_NAME
-from game import WHITE, BLACK, RED, GREEN, YELLOW
+from game import WHITE, BLACK, RED, GREEN, DARKGREEN
 
 from base.board import Board
 from base.facial import FacialThread
@@ -58,6 +58,8 @@ class Phase03Feedback(State):
         self.show_error_operator_use = False
         self.show_error_indirectly_identifiable = False
         self.show_error_uncategorized_solution = False
+        
+        self.show_possible_sums = False
         
         self.images = self.load_images()
         self.feedback()
@@ -116,11 +118,11 @@ class Phase03Feedback(State):
             self.exit_state()
     
     def exit_state(self):
-        self.memory.get_fact('timer_response').start()
+        #self.memory.get_fact('timer_response').start()
         self.memory.add_fact('tips_times', 0)
-        step = self.memory.get_fact('step')
-        step += 1
-        step = self.memory.add_fact('step', step)
+        #step = self.memory.get_fact('step')
+        #step += 1
+        #step = self.memory.add_fact('step', step)
         self.memory.add_fact('reset_timer', True)
     
         super().exit_state()
@@ -417,18 +419,217 @@ class Phase03Feedback(State):
                 self.message_teacher_uncategorized_solution()
                 
             self.memory.reset()
-        
-        
             
         self.memory.get_fact('responses').append(response)
         self.save_challenge(response)
         self.memory.add_fact('quantity_corrects', quantity_corrects)
+        
+        if len(blocks_available) == 0 and not self.memory.get_fact('end_phase'):
+            message = f'Muito bom {self.game.student.nickname}! \n\n'
+            message += 'Acabaram os blocos disponíveis para esta rodada. '
+            
+            count_sums_student = self.count_possible_sums_student()
+            count_sums_tutor = self.count_possible_sums_tutor()
+            
+            if count_sums_student != 0:
+                message += f'Você conseguiu realizar {count_sums_student} soma(s) 15. '
+            else:
+                message += 'Você não realizou nenhuma soma 15 nesta rodada. '
+            
+            if count_sums_tutor != 0:
+                message += f'Enquanto isso, eu consegui realizar {count_sums_tutor} soma(s) 15.'
+            else:
+                message += 'Eu não consegui realizar nenhuma soma 15 .'
+                
+            if self.memory.get_fact('step') < self.memory.get_fact('max_steps'):
+                message += '\nVamos jogar mais uma rodada.'
+            
+            emotions = ['happy0', 'neutral1', 'neutral2']
+            self.teacher.set_message(
+                message, 
+                emotions[random.randrange(0,len(emotions))],
+                modal=False,
+                position=(500, 400)
+            )
+            self.show_possible_sums = True
+            
+            if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') <= self.memory.get_fact('max_steps'):
+                step = self.memory.get_fact('step')
+                step += 1
+                self.memory.add_fact('step', step)
+                
+                self.memory.add_fact('reload', True)
+                
         
         self.rules.execute_rules()
         self.adjust_game_levels()
         
         self.teacher.next_message()
         self.show_teacher = True
+        
+    def count_possible_sums_student(self):
+        blocks_student = self.memory.get_fact('blocks_student')
+        numbers = list(blocks_student.keys())
+        combs = combinations(numbers, 3)
+        count = 0
+        for c in combs:
+            result = sum(c)
+            if result == 15:
+                count += 1
+        return count
+        
+    
+    def count_possible_sums_tutor(self):
+        numbers = self.memory.get_fact('blocks_tutor')
+        combs = combinations(numbers, 3)
+        count = 0
+        for c in combs:
+            result = sum(c)
+            if result == 15:
+                count += 1
+        return count
+    
+    def draw_possible_sums_student(self):
+        display = self.game.game_canvas
+        font = pygame.font.SysFont(FONT_NAME, 16, False, False)
+        blocks_student = self.memory.get_fact('blocks_student')
+
+        possibile_sums = []
+        if len(blocks_student) == 0:
+            return
+        
+        numbers = list(blocks_student.keys())
+
+        if len(blocks_student) == 1:
+            s = {
+                'sum': f'{numbers[0]}+?+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(blocks_student) == 2:
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(blocks_student) == 3:
+            result = sum(numbers)
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+{numbers[2]} = {result}', 
+                'result': result, 
+                'color': DARKGREEN if result == 15 else RED
+            }
+            possibile_sums.append(s)
+        
+        else:
+            combs = combinations(numbers, 3)
+            for c in combs:
+                result = sum(c)
+                s = {
+                    'sum': f'{c[0]}+{c[1]}+{c[2]} = {result}', 
+                    'result': result, 
+                    'color': DARKGREEN if result == 15 else RED
+                }
+                possibile_sums.append(s)
+
+        x = 395
+        y = 160
+        width = 130
+        height = 25
+        for i in range(len(possibile_sums)):
+            text = font.render(possibile_sums[i]['sum'], True, possibile_sums[i]['color'])
+            text_rect = text.get_rect(topleft=(x, y))
+            display.blit(text, text_rect)
+            if (i+1) % 2 == 0:
+                x = 395
+                y += height + self.offset
+            else:
+                x += width + self.offset
+    
+    def verify_sums_student(self):
+        blocks_student = self.memory.get_fact('blocks_student')
+        
+        numbers = list(blocks_student.keys())
+        if len(blocks_student) >= 3:
+            combs = combinations(numbers, 3)
+            for c in combs:
+                l = list(c)
+                l.sort()
+                result = sum(l)
+                if result == 15:
+                    key = "".join(map(str, l))
+                    if not key in self.memory.get_fact('sums_founds_student'):
+                        self.memory.get_fact('sums_founds_student').append(key)
+                        self.frame_confetti = 1
+                        self.confetti.visible = True
+                        return True
+        return False
+
+
+    def draw_possible_sums_tutor(self):
+        display = self.game.game_canvas
+        font = pygame.font.SysFont(FONT_NAME, 16, False, False)
+        blocks_tutor = self.memory.get_fact('blocks_tutor')
+
+        possibile_sums = []
+        if len(blocks_tutor) == 0:
+            return
+        
+        numbers = blocks_tutor
+
+        if len(blocks_tutor) == 1:
+            s = {
+                'sum': f'{numbers[0]}+?+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(blocks_tutor) == 2:
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+? = ?', 
+                'result': 0, 
+                'color': (0,0,0)
+            }
+            possibile_sums.append(s)
+
+        elif len(blocks_tutor) == 3:
+            result = sum(numbers)
+            s = {
+                'sum': f'{numbers[0]}+{numbers[1]}+{numbers[2]} = {result}', 
+                'result': result, 
+                'color': DARKGREEN if result == 15 else RED
+            }
+            possibile_sums.append(s)
+        
+        else:
+            combs = combinations(numbers, 3)
+            for c in combs:
+                result = sum(c)
+                s = {
+                    'sum': f'{c[0]}+{c[1]}+{c[2]} = {result}', 
+                    'result': result, 
+                    'color': DARKGREEN if result == 15 else RED
+                }
+                possibile_sums.append(s)
+
+        x = 685
+        y = 160
+        width = 130
+        height = 25
+        for i in range(len(possibile_sums)):
+            text = font.render(possibile_sums[i]['sum'], True, possibile_sums[i]['color'])
+            text_rect = text.get_rect(topleft=(x, y))
+            display.blit(text, text_rect)
+            if (i+1) % 2 == 0:
+                x = 685
+                y += height + self.offset
+            else:
+                x += width + self.offset
     
     def verify_sums_student(self):
         blocks_student = self.memory.get_fact('blocks_student')
@@ -552,12 +753,16 @@ class Phase03Feedback(State):
             session = session
         )
         challenge.flush()
-        #facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
-        #facialThread.start()
+        facialThread = FacialThread(self.game.app, challenge.id, self.update_challenge)
+        facialThread.start()
     
     @db_session
     def update_challenge(self, id, expression, quad):
-        pass
+        logging.info(f'Atualizando challenge')
+        challenge = DBChallengeP3[id]
+        challenge.set(affective_state = expression, affective_quad = quad)
+        challenge.flush()
+        logging.info(f'Atualizado')
     
     def adjust_game_levels(self):
         student: Student = self.memory.get_fact('student')
@@ -719,6 +924,10 @@ class Phase03Feedback(State):
             
         if self.show_error_uncategorized_solution:
             self.draw_error_uncategorized_solution()
+            
+        if self.show_possible_sums:
+            self.draw_possible_sums_student()
+            self.draw_possible_sums_tutor()
         
         if self.show_teacher:
             self.teacher.draw()

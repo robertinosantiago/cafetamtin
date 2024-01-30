@@ -27,6 +27,7 @@ from game.states.phase04 import Phase04
 from game.states.phase01_tutorial import Phase01Tutorial
 from game.states.phase02_tutorial import Phase02Tutorial
 from game.states.phase03_tutorial import Phase03Tutorial
+from game.states.phase04_tutorial import Phase04Tutorial
 from database.models import DBUser, DBSteps
 
 from game import BACKGROUND_COLOR
@@ -129,6 +130,8 @@ class Phases(State):
             new_state = Phase03Tutorial(self.game)
         elif self.current_phase == 4:
             new_state = Phase04(self.game)
+            new_state.enter_state()    
+            new_state = Phase04Tutorial(self.game)
         
         self.reload = True
         new_state.enter_state()

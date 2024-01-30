@@ -724,7 +724,7 @@ class Phase04(State):
         display.blit(shape, rect_shape)
 
         font = pygame.font.SysFont(FONT_NAME, 18, False, False)
-        text = font.render('Possíveis somas estudante', True, (0,0,0))
+        text = font.render('Possíveis somas do estudante', True, (0,0,0))
         text_rect = text.get_rect(topleft=(pos_x_rect+self.offset, pos_y+self.offset))
         display.blit(text, text_rect)
 
