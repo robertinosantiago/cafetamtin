@@ -18,7 +18,9 @@
 import pygame
 import os
 import random
+from pony.orm import *
 from itertools import combinations
+from datetime import datetime, timedelta
 
 from game.states.state import State
 from base.board import Board
@@ -26,6 +28,14 @@ from game.actors.teacher import Teacher
 from utils.timer import Timer
 from utils.confetti import Confetti
 from base.leds import Leds, RainbowThread
+from database.models import DBSession, DBUser, DBSteps
+
+from production.error import Error
+from production.memory import Memory
+from production.type_error import TypeError
+from production.phase04_rules import Phase04Rules
+#from game.states.phase03_feedback import Phase03Feedback
+
 
 from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
@@ -37,6 +47,11 @@ class Phase04(State):
 
     def __init__(self, game):
         super().__init__(game)
+        
+        self.memory = Memory()
+        self.rules = Phase04Rules(self.memory)
+        self.init_working_memory()
+        
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -76,12 +91,6 @@ class Phase04(State):
         self.challenges_found = []
         self.generate_blocks()
 
-        self.timer_challenge = Timer()
-        self.timer_teacher = Timer()
-        self.timer_teacher.start()
-        self.timer_response = Timer()
-        
-
         self.first_gaming()
         self.teacher.next_message()
 
@@ -89,6 +98,49 @@ class Phase04(State):
         return {
             'heart': pygame.image.load(os.path.join("images", "heart.png")),
         }
+        
+    @db_session
+    def init_working_memory(self):
+        session = DBSession(
+            start_time = datetime.now()
+        )
+        session.flush()
+        self.memory.add_fact('student', self.game.student)
+        self.memory.add_fact('session_id', session.id)
+        self.memory.add_fact('game', self.game)
+        
+        self.memory.add_fact('initial_blocks', [])
+        self.memory.add_fact('student_blocks', {})
+        self.memory.add_fact('challenge_blocks', [])
+        self.memory.add_fact('matrix', [])
+        self.memory.add_fact('challenges_found', [])
+        self.memory.add_fact('challenges', self.load_challenges())
+        
+        self.memory.add_fact('tutor_starting', False)
+        self.memory.add_fact('quantity_corrects', 0)
+        self.memory.add_fact('quantity_errors', 0)
+        self.memory.add_fact('quantity_same_error', 0)
+        self.memory.add_fact('limit_errors', 2)
+        self.memory.add_fact('history_errors', [])
+        self.memory.add_fact('tips_times', 0)
+        self.memory.add_fact('step', 1)
+        self.memory.add_fact('max_steps', 2)
+        self.memory.add_fact('average_time', 60)
+        self.memory.add_fact('minimum_time', 5)
+        self.memory.add_fact('time_per_step', [])
+        self.memory.add_fact('accumulated_time', 0)
+        self.memory.add_fact('errors', [])
+        self.memory.add_fact('responses', [])
+        self.memory.add_fact('reset_timer', True)
+        self.memory.add_fact('reload', False)
+        self.memory.add_fact('max_lives', 5)
+        self.memory.add_fact('lives', 5)
+        self.memory.add_fact('score', 0)
+        self.memory.add_fact('correct_points', 10)
+        self.memory.add_fact('incorrect_points', 5)
+        self.memory.add_fact('bonus_points', 5)
+        
+        self.memory.add_fact('timer_response', Timer())
     
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
@@ -107,7 +159,17 @@ class Phase04(State):
                 if event.key == pygame.K_RETURN or event.key == 1073741912:
                     pass
     def button_white_changed(self, data):
-        pass
+        if self.show_teacher:
+            return
+        
+        if self.is_paused:
+            #self.memory.get_fact('timer_response').resume()
+            #interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+            #self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+            self.is_paused = False
+        else:
+            #self.memory.get_fact('timer_response').pause()
+            self.is_paused = True
 
     def button_black_changed(self, data):
         pass
@@ -181,17 +243,19 @@ class Phase04(State):
 
     def first_gaming(self):
         self.teacher.set_message(
-                "Atenção!\n"+
-                "Prepare-se para começar.\n"+
-                "Remova todos os blocos que\n"+
-                "possam estar sobre o tabuleiro.", 
-                "neutral1"
+                'Prepare-se para começar!\n\n '+
+                'Remova todos os blocos que '+
+                'possam estar sobre o tabuleiro.'+
+                '\n\nPressione o botão VERMELHO para continuar',
+                'neutral1'
         )
 
         self.teacher.set_message(
-                "Organize os blocos no tabuleiro\n"+
-                "conforme apresentado pelo tutor.", 
-                "neutral1",
+                'Organize os blocos no tabuleiro conforme apresentado.'+
+                '\n\n'+
+                'Lembre-se de utilizar a região central do tabuleiro.'+
+                '\n\nPressione o botão VERMELHO para continuar',
+                'neutral2',
                 modal=False,
                 position=self.position_no_modal
         )
@@ -199,8 +263,8 @@ class Phase04(State):
 
     def generate_blocks(self):
         self.reset_blocks()
-        if self.step == 1:
-            self.initial_blocks = [
+        if self.memory.get_fact('step') == 1:
+            self.memory.add_fact('initial_blocks' , [
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 2, 0, 4, 0, 0],
@@ -208,10 +272,10 @@ class Phase04(State):
                 [0, 0, 6, 0, 8, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
-            ]            
+            ])
         
-        elif self.step == 2:
-            self.initial_blocks = [
+        elif self.memory.get_fact('step') == 2:
+            self.memory.add_fact('initial_blocks' , [
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 4, 0, 2, 0, 0],
@@ -219,10 +283,10 @@ class Phase04(State):
                 [0, 0, 8, 0, 6, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
-            ]
+            ])
         
-        elif self.step == 3:
-            self.initial_blocks = [
+        elif self.memory.get_fact('step') == 3:
+            self.memory.add_fact('initial_blocks' , [
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 7, 0, 0, 0],
@@ -230,10 +294,10 @@ class Phase04(State):
                 [0, 0, 0, 3, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
-            ]
+            ])
 
-        elif self.step == 4:
-            self.initial_blocks = [
+        elif self.memory.get_fact('step') == 4:
+            self.memory.add_fact('initial_blocks' , [
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
@@ -241,10 +305,10 @@ class Phase04(State):
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
-            ]
+            ])
 
         else:
-            self.initial_blocks = [
+            self.memory.add_fact('initial_blocks' , [
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
@@ -252,7 +316,7 @@ class Phase04(State):
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0]
-            ]
+            ])
         
         #self.leds_initial_blocks()    
         
@@ -268,13 +332,21 @@ class Phase04(State):
         self.leds.turnOn(RED, leds)
 
     def reset_blocks(self):
-        self.initial_blocks = []
-        self.student_blocks = {}
-        self.challenge_blocks = []
-        self.matrix = []
-        self.challenges = self.load_challenges()
+        #self.initial_blocks = []
+        #self.student_blocks = {}
+        #self.challenge_blocks = []
+        #self.matrix = []
+        #self.challenges = self.load_challenges()
+        
+        self.memory.add_fact('initial_blocks', [])
+        self.memory.add_fact('student_blocks', {})
+        self.memory.add_fact('challenge_blocks', [])
+        self.memory.add_fact('matrix', [])
+        self.memory.add_fact('challenges', self.load_challenges())
 
     def calculate_challenge_blocks(self, numbers):
+        initial_blocks = self.memory.get_fact('initial_blocks')
+        
         matrix = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
@@ -282,9 +354,9 @@ class Phase04(State):
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ]
-        for l in range(2, len(self.initial_blocks) - 2):
-            for c in range(2, len(self.initial_blocks[l]) - 2):
-                matrix[l-1][c-1] = self.initial_blocks[c][l]
+        for l in range(2, len(initial_blocks) - 2):
+            for c in range(2, len(initial_blocks[l]) - 2):
+                matrix[l-1][c-1] = initial_blocks[c][l]
         
         for key in numbers.keys():
             l,c = numbers[key]
@@ -334,66 +406,38 @@ class Phase04(State):
         matrix[0][len(matrix) -1] = total - 15
         self.verify_key_in_challenges(numbers_found)
 
-        self.matrix = matrix
-        print(self.challenges)
+        #self.matrix = matrix
+        self.memory.add_fact('matrix', matrix)
+        
 
     def verify_key_in_challenges(self, numbers):
         if len(numbers) > 0:
             numbers.sort()
             key = "".join(map(str, numbers))
-            if self.challenges.get(key) is not None:
-                self.challenges[key]['found'] = True
+            if self.memory.get_fact('challenges').get(key) is not None:
+                self.memory.get_fact('challenges')[key]['found'] = True
 
     def count_challenges_found(self):
         total = 0
-        for key in self.challenges.keys():
-            if self.challenges[key]['found']:
+        for key in self.memory.get_fact('challenges').keys():
+            if self.memory.get_fact('challenges')[key]['found']:
                 total += 1
         return total
-    
-    def draw_challenges_found(self):
-        display = self.game.game_canvas
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        
-        if not self.show_teacher and not self.is_paused:
-            
-            i = 1
-            width = 140
-            height = 60
-            offset = 20
-            x = 160
-            y = 150
-            color = (0,0,0)
-            for key in self.challenges.keys():
-                rect = (x,y,width,height)
-                shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
-                pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
-                display.blit(shape, rect)
-                inner_text = '? + ? + ?' if not self.challenges[key]['visible'] else self.challenges[key]['equations'][self.challenges[key]['index']]
-                text = font.render(inner_text, True, BLACK if not self.challenges[key]['visible'] else GREEN)
-                text_rect = text.get_rect(center=(x + width/2, y + height/2))
-                display.blit(text, text_rect)
-                if i % 4 == 0:
-                    x = 160
-                    y += height + offset
-                else:
-                    x += width + offset
-                i += 1
 
     def blocks_in_board(self):
         total = 0
         for l in range(0, self.board.lines):
             for c in range(0, self.board.columns):
-                if self.initial_blocks[l][c] != 0:
+                if self.memory.get_fact('initial_blocks')[l][c] != 0:
                     total += 1
         return total
 
     def check_initial_blocks(self, numbers):
-        for c in range(0, len(self.initial_blocks)):
-            for l in range(0, len(self.initial_blocks[c])):
-                if self.initial_blocks[l][c] != 0:
-                    n = numbers.get(self.initial_blocks[l][c])
-                    print("n: ", n, l, c)
+        initial_blocks = self.memory.get_fact('initial_blocks')
+        for c in range(0, len(initial_blocks)):
+            for l in range(0, len(initial_blocks[c])):
+                if initial_blocks[l][c] != 0:
+                    n = numbers.get(initial_blocks[l][c])
                     if n is not None:
                         if n[1] != l+1 or n[0] != c+1:
                             return False
@@ -502,20 +546,10 @@ class Phase04(State):
 
         self.teacher.next_message()
         self.show_teacher = True
-
-    def draw_confetti(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        frame = self.confetti.get_image(self.frame_confetti)
-        frame_rect = frame.get_rect(center=(screen_width/2, screen_height/2 - 80))
-        display.blit(frame, frame_rect)
-        self.frame_confetti += 1
-        if self.frame_confetti > self.confetti.total_frames:
-            self.confetti.visible = False
     
     def draw_lifes(self):
         display = self.game.game_canvas
-        for i in range(0, self.lives):
+        for i in range(0, self.memory.get_fact('lives')):
             heart = self.images['heart']
             heart_rect = heart.get_rect()
             heart_rect.x = 10 + 50 * i
@@ -536,7 +570,13 @@ class Phase04(State):
         display.blit(shape, rect)
         
         pygame.draw.circle(display,RED,(130,baseline_circle),10)
-        red_text = font.render("Dicas" if not self.show_teacher else "Fechar", True, (0,0,0))
+        text = "Dicas"
+        if self.show_teacher:
+            if self.teacher.has_next_message():
+                text = "Continuar"
+            else:
+                text = "Fechar"
+        red_text = font.render(text, True, (0,0,0))
         display.blit(red_text, (145, baseline_text))
 
         if not self.show_teacher:
@@ -558,6 +598,10 @@ class Phase04(State):
     
     
     def draw_challenge(self):
+        initial_blocks = self.memory.get_fact('initial_blocks')
+        student_blocks = self.memory.get_fact('student_blocks')
+        matrix = self.memory.get_fact('matrix')
+        
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
         font = pygame.font.SysFont(FONT_NAME, 30, False, False)
@@ -575,14 +619,14 @@ class Phase04(State):
         for col in range(0, self.board.columns):
             y = pos_y
             for lin in range(0, self.board.lines):
-                if self.initial_blocks[col][lin] != 0:
+                if initial_blocks[col][lin] != 0:
                     color = (220, 3, 3)
                     rect = (x,y,self.box_width,self.box_height)
                     shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
                     pygame.draw.rect(shape, color, shape.get_rect())
                     display.blit(shape, rect)
                     color = (255,255,255,255)
-                    text = font.render(str(self.initial_blocks[col][lin]), True, color)
+                    text = font.render(str(initial_blocks[col][lin]), True, color)
                     text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
                     display.blit(text, text_rect)
                 y += self.box_height + self.offset
@@ -591,8 +635,8 @@ class Phase04(State):
         pos_x = self.offset * 2
         pos_y = screen_height/2 - total_shape_y / 2
 
-        for key in self.student_blocks.keys():
-            pos = self.student_blocks[key]
+        for key in student_blocks.keys():
+            pos = student_blocks[key]
             x = pos_x + self.offset * pos[1] + self.box_width * (pos[1] - 1)
             y = pos_y + self.offset * pos[0] + self.box_height * (pos[0] - 1)
             rect = (x,y,self.box_width,self.box_height)
@@ -607,20 +651,20 @@ class Phase04(State):
         box_width = 30
         box_height = 30
         offset = 10
-        pos_x = (total_shape_x + self.offset * 3) + ((screen_width - (total_shape_x + self.offset * 3))/2) - (box_width*len(self.matrix))/2 - (offset * (len(self.matrix)-1))/2
+        pos_x = (total_shape_x + self.offset * 3) + ((screen_width - (total_shape_x + self.offset * 3))/2) - (box_width*len(matrix))/2 - (offset * (len(matrix)-1))/2
         pos_y = 100
         x = pos_x
         
-        for c in range(0, len(self.matrix)):
+        for c in range(0, len(matrix)):
             y = pos_y
-            for l in range(0, len(self.matrix[c])):
+            for l in range(0, len(matrix[c])):
                 if self.is_calculate_value(l, c):
                     color = DARKGREEN
-                    if self.matrix[l][c] > 0:
+                    if matrix[l][c] > 0:
                         color = RED
-                    elif self.matrix[l][c] < 0:
+                    elif matrix[l][c] < 0:
                         color = BLACK
-                    text = font.render(str(self.matrix[l][c]), True, color)
+                    text = font.render(str(matrix[l][c]), True, color)
                     text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
                     display.blit(text, text_rect)
                 else:
@@ -630,56 +674,19 @@ class Phase04(State):
                     pygame.draw.rect(shape, color, shape.get_rect())
                     display.blit(shape, rect)
                     color = (255,255,255,255)
-                    text = font.render(str(self.matrix[l][c]), True, color)
+                    text = font.render(str(matrix[l][c]), True, color)
                     text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
-                    if self.matrix[l][c] != 0:
+                    if matrix[l][c] != 0:
                         display.blit(text, text_rect)
                 y += box_height + offset
             x += box_width + offset
 
     def is_calculate_value(self, l, c):
-        if (l > 0 and l < len(self.matrix) - 1) and (c > 0 and c < len(self.matrix[0]) - 1):
+        matrix = self.memory.get_fact('matrix')
+        if (l > 0 and l < len(matrix) - 1) and (c > 0 and c < len(matrix[0]) - 1):
             return False
         return True
 
-    def draw_score(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        font = pygame.font.SysFont(FONT_NAME, 30, False, False)
-        score_text = font.render(f'Pontos: {self.score:>4}', True, (0,0,0))
-        score_text_rect = score_text.get_rect(midright=(screen_width-5, 30))
-        display.blit(score_text, score_text_rect)
-
-    def draw_student_name(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        baseline_text = screen_height - 23
-
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        name_text = font.render(self.game.student.nickname, True, (0,0,0))
-        name_text_rect = name_text.get_rect(midright=(screen_width-5, baseline_text))
-        display.blit(name_text, name_text_rect)
-
-    def draw_pause(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        baseline_text = screen_height - 35
-        baseline_circle = screen_height - 23
-                
-        rect_background = (0,0,screen_width,screen_height)
-        shape_surf = pygame.Surface(pygame.Rect(rect_background).size, pygame.SRCALPHA)
-        pygame.draw.rect(shape_surf, (0,0,0,230), shape_surf.get_rect())
-        display.blit(shape_surf, rect_background)
-
-        font = pygame.font.SysFont(FONT_NAME, 72, False, False)
-        instruction_text = font.render('Pause', True, (220,220,220))
-        instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
-        display.blit(instruction_text, instruction_text_rect)
-
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
-        white_text = font.render("Continuar", True, WHITE)
-        display.blit(white_text, (35, baseline_text))
 
     def draw_timer(self):
         display = self.game.game_canvas
@@ -743,6 +750,8 @@ class Phase04(State):
             y = pos_y
             for lin in range(0, self.board.lines):
                 color = (255,255,255,255)
+                if col >= 2 and col <= 4 and lin >= 2 and lin <= 4:
+                    color = (180,180,180,255)
                 rect = (x,y,self.box_width,self.box_height)
                 shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
                 pygame.draw.rect(shape, color, shape.get_rect())
@@ -757,8 +766,8 @@ class Phase04(State):
         self.draw_board()
         self.draw_lifes()
         self.draw_score()
-        self.draw_student_name()
         self.draw_physical_buttons()
+        self.draw_student_name()
 
         if self.show_teacher:
             self.teacher.draw()

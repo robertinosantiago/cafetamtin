@@ -68,6 +68,9 @@ class Phase04Tutorial(State):
             'Depois de posicionar os blocos solicitados, \n'+
             'você deve pressionar o botão VERDE para \n'+
             'validar a configuração inicial. '+
+            '\n\n'+
+            'É importante que você use a região central da \n'+
+            'plataforma para posicionar os blocos.'
             '\n\nPressione o botão VERMELHO para continuar',
             emotions[random.randrange(0,len(emotions))],
             modal=False,
@@ -78,9 +81,12 @@ class Phase04Tutorial(State):
         self.teacher.set_message(
             'No quadro "Possíveis somas do estudante", será \n'+
             'exibido o "quadrado mágico" com indicação das \n'+
-            'somas de 15 realizadas. Neste quadro, ainda é possível \n'+
+            'somas de 15 realizadas. '+
+            '\n\n'+
+            'Neste quadro, ainda é possível \n'+
             'visualizar a diferença existente entre cada eixo \n'+
-            '(horizontal, vertical e diagonal) e o valor 15. \n'+
+            '(horizontal, vertical e diagonal) e o valor 15. '+
+            '\n\n'+
             'Use esses valores para planejar suas jogadas.'
             '\n\nPressione o botão VERMELHO para continuar',
             emotions[random.randrange(0,len(emotions))],
@@ -201,6 +207,8 @@ class Phase04Tutorial(State):
             y = pos_y
             for lin in range(0, self.board.lines):
                 color = (255,255,255,255)
+                if col >= 2 and col <= 4 and lin >= 2 and lin <= 4:
+                    color = (180,180,180,255)
                 rect = (x,y,self.box_width,self.box_height)
                 shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
                 pygame.draw.rect(shape, color, shape.get_rect())
