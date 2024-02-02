@@ -34,7 +34,8 @@ class Phase04Rules:
             Rule(
                 name= 'Não resolver soma 15 após determinado tempo',
                 condition= lambda wm: self.checks.long_time(self.wm),
-                action= self.type_error.error_misinterpretation_language
+                action= self.type_error.error_misinterpretation_language,
+                weight= 1
             )
         )
         
@@ -42,7 +43,8 @@ class Phase04Rules:
             Rule(
                 name= 'três números ímpares que não somam 15',
                 condition= lambda wm: self.checks.three_odd_numbers(self.wm),
-                action= self.type_error.error_domain_deficiency
+                action= self.type_error.error_domain_deficiency,
+                weight= 3
             )
         )
         
@@ -50,7 +52,8 @@ class Phase04Rules:
             Rule(
                 name= 'dois números pares e um ímpar que não somam 15',
                 condition= lambda wm: self.checks.two_even_and_one_odd_numbers(self.wm),
-                action= self.type_error.error_domain_deficiency
+                action= self.type_error.error_domain_deficiency,
+                weight= 3
             )
         )
         
@@ -58,7 +61,8 @@ class Phase04Rules:
             Rule(
                 name= 'três números pares',
                 condition= lambda wm: self.checks.three_even_numbers(self.wm),
-                action= self.type_error.error_rule_deficiency
+                action= self.type_error.error_rule_deficiency,
+                weight= 2
             )
         )
         
@@ -66,7 +70,8 @@ class Phase04Rules:
             Rule(
                 name= 'dois números ímpares e um número par',
                 condition= lambda wm: self.checks.two_odd_and_one_even_numbers(self.wm),
-                action= self.type_error.error_rule_deficiency
+                action= self.type_error.error_rule_deficiency,
+                weight= 2
             )
         )
         
@@ -74,7 +79,8 @@ class Phase04Rules:
             Rule(
                 name= 'Não colocar o 5 no centro',
                 condition= lambda wm: self.checks.not_five_in_center(self.wm),
-                action= self.type_error.error_indirectly_identifiable
+                action= self.type_error.error_indirectly_identifiable,
+                weight= 4
             )
         )
         
@@ -82,7 +88,8 @@ class Phase04Rules:
             Rule(
                 name= 'Não colocar os pares nos cantos',
                 condition= lambda wm: self.checks.not_even_number_in_corners(self.wm),
-                action= self.type_error.error_indirectly_identifiable
+                action= self.type_error.error_indirectly_identifiable,
+                weight= 4
             )
         )
         
@@ -90,7 +97,8 @@ class Phase04Rules:
             Rule(
                 name= 'Não produzir soma 15',
                 condition= lambda wm: self.checks.no_sum_fifteen(self.wm),
-                action= self.type_error.error_uncategorized_solution
+                action= self.type_error.error_uncategorized_solution,
+                weight= 0
             )
         )
         

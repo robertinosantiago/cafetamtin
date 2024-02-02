@@ -55,7 +55,7 @@ class Phase04Checks:
         numbers = self.__student_numbers__(wm)
         
         for n in numbers:
-            if self.__count_odd_numbers__(n) == 2 and self.__count_even_numbers__(numbers) == 1:
+            if self.__count_odd_numbers__(n) == 2 and self.__count_even_numbers__(n) == 1:
                 if sum(n) != 15:
                     return True
             
@@ -67,7 +67,8 @@ class Phase04Checks:
                 
         for n in numbers:
             if self.__count_even_numbers__(n) == 3:
-                    return True
+                    if sum(n) != 15:
+                        return True
         
         return False
     
@@ -76,8 +77,9 @@ class Phase04Checks:
         numbers = self.__student_numbers__(wm)
         
         for n in numbers:
-            if self.__count_even_numbers__(n) == 2 and self.__count_odd_numbers__(numbers) == 1:
-                    return True
+            if self.__count_even_numbers__(n) == 2 and self.__count_odd_numbers__(n) == 1:
+                    if sum(n) != 15:
+                        return True
             
         return False
     
@@ -115,10 +117,10 @@ class Phase04Checks:
     
     def no_sum_fifteen(self, wm: Memory) -> bool:
         logging.info(f'Executando função: no_sum_fifteen')
-        initial_sums = self.__initial_sums__(wm)        
+        #initial_sums = self.__initial_sums__(wm)        
         student_sums = self.__student_sums__(wm)
         
-        return len(initial_sums) >= len(student_sums)
+        return len(student_sums) == 0
     
     def __position_is_corner__(self, position : list) -> bool:
         return (position[0] == 3 or position[0] == 5) and (position[1] == 3 or position[1] == 5)
@@ -149,7 +151,7 @@ class Phase04Checks:
         return keys
     
     def __initial_numbers__(self, wm: Memory) -> list[str]:
-        initial_blocks = wm.get('initial_blocks')
+        initial_blocks = wm.get_fact('initial_blocks')
         elements = []
         keys = []
 
@@ -185,8 +187,7 @@ class Phase04Checks:
             
         for n in elements:
             n.sort()
-            key = "".join(map(str, n))
-            keys.append(key)
+            keys.append(n)
                 
         return keys
     
@@ -250,7 +251,6 @@ class Phase04Checks:
         
         for n in elements:
             n.sort()
-            key = "".join(map(str, n))
-            keys.append(key)
-                
+            keys.append(n)
+        
         return keys

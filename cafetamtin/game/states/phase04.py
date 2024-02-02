@@ -34,7 +34,7 @@ from production.error import Error
 from production.memory import Memory
 from production.type_error import TypeError
 from production.phase04_rules import Phase04Rules
-#from game.states.phase03_feedback import Phase03Feedback
+from game.states.phase04_feedback import Phase04Feedback
 
 
 from game import BACKGROUND_COLOR
@@ -124,7 +124,7 @@ class Phase04(State):
         self.memory.add_fact('history_errors', [])
         self.memory.add_fact('tips_times', 0)
         self.memory.add_fact('step', 1)
-        self.memory.add_fact('max_steps', 2)
+        self.memory.add_fact('max_steps', 5)
         self.memory.add_fact('average_time', 60)
         self.memory.add_fact('minimum_time', 5)
         self.memory.add_fact('time_per_step', [])
@@ -139,6 +139,11 @@ class Phase04(State):
         self.memory.add_fact('correct_points', 10)
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
+        self.memory.add_fact('valid_initial', False)
+        self.memory.add_fact('reset_blocks', False)
+        #TODO: REMOVER DAQUI
+        self.memory.add_fact('enable_timer', True)
+        self.memory.add_fact('amount_time', 60)
         
         self.memory.add_fact('timer_response', Timer())
     
@@ -163,12 +168,14 @@ class Phase04(State):
             return
         
         if self.is_paused:
-            #self.memory.get_fact('timer_response').resume()
-            #interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
-            #self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+            if self.memory.get_fact('valid_initial'):
+                self.memory.get_fact('timer_response').resume()
+                interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+                self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             self.is_paused = False
         else:
-            #self.memory.get_fact('timer_response').pause()
+            if self.memory.get_fact('valid_initial'):
+                self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
     def button_black_changed(self, data):
@@ -181,26 +188,62 @@ class Phase04(State):
         if self.is_paused:
             return
         
-        self.timer_teacher.resume()
-        self.timer_response.stop()
-        self.timer_challenge.pause()
-        #irá contar o tempo enquanto verifica a resposta?
+        if self.memory.get_fact('valid_initial'):
+            self.memory.get_fact('timer_response').stop()
 
-        if self.teacher.has_next_message():
-            self.teacher.clear_messages()
+            if self.teacher.has_next_message():
+                self.teacher.clear_messages()
 
+            self.teacher.set_message(
+                'Verificando...\n'+
+                'Aguarde.', 
+                'neutral0'
+            )
+            self.teacher.next_message()
+            self.show_teacher = True
 
-        self.teacher.set_message(
-            "Verificando...\n"+
-            "Aguarde.", 
-            "neutral0"
-        )
-        self.teacher.next_message()
-        self.show_teacher = True
-
-        self.board.avaliable_board()
-        self.board.draw_matrix_board()
-        self.check_challenge()
+            self.board.avaliable_board()
+            self.board.draw_matrix_board()
+            self.check_challenge()
+        else:
+            self.teacher.set_message(
+                'Verificando...\n'+
+                'Aguarde.', 
+                'neutral0'
+            )
+            self.teacher.next_message()
+            self.show_teacher = True
+            
+            self.board.avaliable_board()
+            self.board.draw_matrix_board()
+            
+            numbers_student = self.board.values_positions()
+            self.memory.add_fact('numbers_student', numbers_student)
+            
+            if self.check_initial_blocks(numbers_student):
+                self.teacher.set_message(
+                    'Muito bem. Você organizou os blocos conforme foi exibido. '+
+                    'Agora, tente resolver o quadrado mágico. '+
+                    '\n\nPressione o botão VERMELHO para continuar',
+                    'neutral1'
+                )
+                
+                self.calculate_challenge_blocks(numbers_student)
+                self.memory.add_fact('valid_initial', True)
+                self.memory.add_fact('reset_timer', True)
+                
+            else:
+                self.teacher.set_message(
+                    f'Atenção {self.game.student.nickname}!.\n'+
+                    'Você deve organizar os blocos numerados no tabuleiro '+
+                    'conforme estão exibidos aqui. Observe, inclusive, a '+
+                    'posição de cada bloco. '+
+                    '\n\nPressione o botão VERMELHO para continuar',
+                    'neutral1'
+                )
+            
+            self.teacher.next_message()
+            self.show_teacher = True
 
     def button_red_changed(self, data):
         if self.is_paused:
@@ -222,7 +265,9 @@ class Phase04(State):
 
 
     def update(self, delta_time):
-        pass
+        if self.memory.get_fact('reset_blocks'):
+            self.generate_blocks()
+            self.memory.add_fact('reset_blocks', False)
 
     def exit_state(self):
         super().exit_state()
@@ -253,11 +298,13 @@ class Phase04(State):
         self.teacher.set_message(
                 'Organize os blocos no tabuleiro conforme apresentado.'+
                 '\n\n'+
-                'Lembre-se de utilizar a região central do tabuleiro.'+
+                'Lembre-se de utilizar a região central do tabuleiro.\n' +
+                'Após organizar, pressione o botão VERDE para \n'+
+                'confirmar o posicionamento.'+
                 '\n\nPressione o botão VERMELHO para continuar',
                 'neutral2',
                 modal=False,
-                position=self.position_no_modal
+                position=(730, 300)
         )
         self.show_teacher = True
 
@@ -434,6 +481,16 @@ class Phase04(State):
 
     def check_initial_blocks(self, numbers):
         initial_blocks = self.memory.get_fact('initial_blocks')
+        
+        initial_numbers = self.__initial_numbers__()
+        student_numbers = self.__student_numbers__()
+        
+        print('initial: ', initial_numbers)
+        print('student: ', student_numbers)
+        
+        if len(initial_numbers) != len(student_numbers):
+            return False
+        
         for c in range(0, len(initial_blocks)):
             for l in range(0, len(initial_blocks[c])):
                 if initial_blocks[l][c] != 0:
@@ -446,6 +503,46 @@ class Phase04(State):
         return True
 
     def check_challenge(self):
+        numbers_student = self.board.values_positions()
+        self.memory.add_fact('numbers_student', numbers_student)
+        
+        self.rules.execute_rules()
+        
+        feedback = Phase04Feedback(self.game, self.memory)
+        feedback.enter_state()
+        
+        self.calculate_challenge_blocks(numbers_student)
+        
+        self.teacher.clear_messages()
+        self.show_teacher = False
+        
+        if self.memory.get_fact('lives') == 0:
+            self.teacher.set_message(
+                "Puxa, você não conseguiu "+
+                "encontrar as melhores estratégias para jogar comigo.\n\n"+
+                "Tente novamente!"
+                "\n\nPressione o botão VERMELHO para continuar", 
+                "neutral1"
+            )
+            self.end_phase = True
+            self.teacher.next_message()
+            self.show_teacher = True
+            
+
+        if self.memory.get_fact('step') > self.memory.get_fact('max_steps') and not self.end_phase:
+            self.teacher.set_message(
+                'Ual, parabéns!!! Você conseguiu resolver todos os ' +
+                'os desafios e completar todas as fases do jogo. \n\n'+
+                'Obrigado por jogar :D '+
+                '\n\nPressione o botão VERMELHO para continuar',
+                'heart0'
+            )
+            self.started = False
+            self.end_phase = True
+            self.teacher.next_message()
+            self.show_teacher = True
+    
+    def check_challenge_old(self):
         numbers_students = self.board.values_positions()
 
         if not self.check_initial_blocks(numbers_students):
@@ -647,39 +744,40 @@ class Phase04(State):
             text_rect = text.get_rect(center=(x+self.box_width/2, y+self.box_height/2))
             display.blit(text, text_rect)
 
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        box_width = 30
-        box_height = 30
-        offset = 10
-        pos_x = (total_shape_x + self.offset * 3) + ((screen_width - (total_shape_x + self.offset * 3))/2) - (box_width*len(matrix))/2 - (offset * (len(matrix)-1))/2
-        pos_y = 100
-        x = pos_x
-        
-        for c in range(0, len(matrix)):
-            y = pos_y
-            for l in range(0, len(matrix[c])):
-                if self.is_calculate_value(l, c):
-                    color = DARKGREEN
-                    if matrix[l][c] > 0:
-                        color = RED
-                    elif matrix[l][c] < 0:
-                        color = BLACK
-                    text = font.render(str(matrix[l][c]), True, color)
-                    text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
-                    display.blit(text, text_rect)
-                else:
-                    color = (220, 3, 3)
-                    rect = (x,y,box_width,box_height)
-                    shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
-                    pygame.draw.rect(shape, color, shape.get_rect())
-                    display.blit(shape, rect)
-                    color = (255,255,255,255)
-                    text = font.render(str(matrix[l][c]), True, color)
-                    text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
-                    if matrix[l][c] != 0:
+        if self.memory.get_fact('valid_initial'):
+            font = pygame.font.SysFont(FONT_NAME, 20, False, False)
+            box_width = 30
+            box_height = 30
+            offset = 10
+            pos_x = (total_shape_x + self.offset * 3) + ((screen_width - (total_shape_x + self.offset * 3))/2) - (box_width*len(matrix))/2 - (offset * (len(matrix)-1))/2
+            pos_y = 100
+            x = pos_x
+            
+            for c in range(0, len(matrix)):
+                y = pos_y
+                for l in range(0, len(matrix[c])):
+                    if self.is_calculate_value(l, c):
+                        color = DARKGREEN
+                        if matrix[l][c] > 0:
+                            color = RED
+                        elif matrix[l][c] < 0:
+                            color = BLACK
+                        text = font.render(str(matrix[l][c]), True, color)
+                        text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
                         display.blit(text, text_rect)
-                y += box_height + offset
-            x += box_width + offset
+                    else:
+                        color = (220, 3, 3)
+                        rect = (x,y,box_width,box_height)
+                        shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+                        pygame.draw.rect(shape, color, shape.get_rect())
+                        display.blit(shape, rect)
+                        color = (255,255,255,255)
+                        text = font.render(str(matrix[l][c]), True, color)
+                        text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
+                        if matrix[l][c] != 0:
+                            display.blit(text, text_rect)
+                    y += box_height + offset
+                x += box_width + offset
 
     def is_calculate_value(self, l, c):
         matrix = self.memory.get_fact('matrix')
@@ -692,16 +790,28 @@ class Phase04(State):
         display = self.game.game_canvas
         timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
         screen_width = self.game.GAME_WIDTH
-        time_ms = self.total_time - pygame.time.get_ticks()
+        reset_timer = self.memory.get_fact('reset_timer')
+        end_time = self.memory.get_fact('end_time')
+                
+        
+        if not self.memory.get_fact('timer_response').is_paused() and self.memory.get_fact('timer_response').is_started() and self.memory.get_fact('valid_initial'):
+            time_left = max(end_time - datetime.now(), timedelta(0))
 
-        if time_ms >= 0:
-            self.time_hms = ((time_ms//(1000*60*60))%24, (time_ms//(1000*60))%60, (time_ms//1000)%60)
-        else:
-            self.lose_life()
+            if time_left.seconds > 0:
+                self.time_hms = self.convert_time(time_left.seconds)
+            else:
+                pass
+                #self.end_timer()
 
-        timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
-        timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
-        display.blit(timer_text, timer_text_rect)
+            timer_text = timer_font.render(f'{self.time_hms[1]:02d}:{self.time_hms[2]:02d}', True, (255, 0, 0))
+            timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
+            display.blit(timer_text, timer_text_rect)
+        
+        if reset_timer and not self.show_teacher:
+            self.memory.add_fact('reset_timer', False)
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
     
     def draw_board(self):
         display = self.game.game_canvas
@@ -759,6 +869,122 @@ class Phase04(State):
 
                 y += self.box_height + self.offset
             x += self.box_width + self.offset
+    
+    def __initial_sums__(self) -> list[str]:
+        challenges = self.memory.get_fact('challenges')
+        numbers = self.__initial_numbers__()
+        
+        keys = []
+        for n in numbers:
+            key = "".join(map(str, n))
+            if challenges.get(key) is not None:
+                keys.append(key)
+        return keys
+    
+    def __initial_numbers__(self) -> list[int]:
+        initial_blocks = self.memory.get_fact('initial_blocks')
+        elements = []
+        keys = []
+
+        for l in range(2, len(initial_blocks) - 2):
+            t = []
+            for c in range(2, len(initial_blocks[l]) - 2):
+                if initial_blocks[c][l] != 0:
+                    t.append(initial_blocks[c][l])
+            if len(t) > 0 and elements.count(t) == 0:
+                elements.append(t)
+            
+        for c in range(2, len(initial_blocks) - 2):
+            t = []
+            for l in range(2, len(initial_blocks[l]) - 2):
+                if initial_blocks[c][l] != 0:
+                    t.append(initial_blocks[c][l])
+            if len(t) > 0 and elements.count(t) == 0:
+                elements.append(t)
+
+        t = []
+        for c in range(2, len(initial_blocks) - 2):
+            if initial_blocks[c][c] != 0:
+                t.append(initial_blocks[c][c])
+        if len(t) > 0 and elements.count(t) == 0:
+            elements.append(t)
+
+        t = []
+        for c in range(2, len(initial_blocks) - 2):
+            if initial_blocks[c][len(initial_blocks) - 1 - c] != 0:
+                t.append(initial_blocks[c][len(initial_blocks) - 1 - c])
+        if len(t) > 0 and elements.count(t) == 0:
+            elements.append(t)
+            
+        for n in elements:
+            n.sort()
+            keys.append(n)
+                
+        return keys
+    
+    def __student_sums__(self) -> list[str]:
+        challenges = self.memory.get_fact('challenges')
+        numbers = self.__student_numbers__()
+        
+        keys = []
+        for n in numbers:
+            key = "".join(map(str, n))
+            if challenges.get(key) is not None:
+                keys.append(key)
+        return keys
+    
+    def __student_numbers__(self) -> list[int]:
+        numbers_student = self.memory.get_fact('numbers_student')
+        elements = []
+        keys = []
+        
+        matrix = [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ]
+        
+        for key in numbers_student.keys():
+            l,c = numbers_student[key]
+            matrix[l-2][c-2] = key
+            
+        for l in range(1, len(matrix)-1):
+            t = []
+            for c in range(1, len(matrix[l]) - 1):
+                if matrix[l][c] != 0:
+                    t.append(matrix[l][c])
+            if len(t) > 0 and elements.count(t) == 0:
+                elements.append(t)
+                
+        for c in range(1, len(matrix) -1):
+            t = []
+            for l in range(1, len(matrix[c]) -1):
+                if matrix[l][c] != 0:
+                    t.append(matrix[l][c])
+            if len(t) > 0 and elements.count(t) == 0:
+                elements.append(t)
+        
+        t = []
+        for l in range(1, len(matrix) - 1):
+            if matrix[l][l] != 0:
+                t.append(matrix[l][l])
+        if len(t) > 0 and elements.count(t) == 0:
+                elements.append(t)
+                
+        t = []
+        for l in range(len(matrix)-2, 0, -1):
+            if matrix[l][len(matrix) - 1 - l] != 0:
+                t.append(matrix[l][len(matrix) - 1 - l])
+        if len(t) > 0 and elements.count(t) == 0:
+                elements.append(t)
+        
+        for n in elements:
+            n.sort()
+            keys.append(n)
+        
+        return keys
 
     def render(self, display):
         display.fill((255,255,255))
@@ -780,3 +1006,7 @@ class Phase04(State):
         
         if (not self.show_teacher and not self.is_paused) or (self.show_teacher and not self.teacher.modal):
             self.draw_challenge()
+            
+        if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') <= self.memory.get_fact('max_steps'):
+            if self.memory.get_fact('enable_timer') and not self.show_teacher:
+                self.draw_timer()
