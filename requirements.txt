@@ -24,3 +24,7 @@ pygame==2.1.3
 PyMySQL==1.0.2
 python-dotenv==0.21.1
 RPi.GPIO==0.7.1
+dlib==19.24.2
+torch==2.2.0
+torchvision=0.17.0
+telemetrix==1.36

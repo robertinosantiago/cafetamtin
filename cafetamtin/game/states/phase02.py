@@ -122,6 +122,8 @@ class Phase02(State):
         self.memory.add_fact('correct_points', 10)
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
+        self.memory.add_fact('new_challenge', True)
+        self.memory.add_fact('started', False)
         
         self.memory.add_fact('timer_response', Timer())
 
@@ -201,11 +203,12 @@ class Phase02(State):
         self.board.avaliable_board()
         self.board.draw_matrix_board()
         self.check_challenge()
+        #self.memory.add_fact('started', False)
     
     def button_red_changed(self, data):
         if self.is_paused:
             return
-
+        
         if not self.show_teacher:
             self.memory.get_fact('timer_response').pause()
             
@@ -213,50 +216,41 @@ class Phase02(State):
             self.memory.add_fact('tips_times', tips_times + 1)
             
             self.teacher.set_message(
-                "Dicas", 
-                "neutral0"
+                'Dicas',
+                'neutral1'
             )
-
+            
         if self.teacher.has_next_message():
             self.teacher.next_message()
             self.show_teacher = True
-
-            if not self.started:
-                self.memory.add_fact('reset_timer', True)
-                self.enable_timer = self.memory.get_fact('enable_timer')
-                self.started = True
         else:
             self.show_teacher = False
-
-            if self.memory.get_fact('step') == self.max_steps:
+            
+            if not self.memory.get_fact('started'):
+                self.memory.add_fact('started', True)
+                self.memory.add_fact('reset_timer', True)
+                self.memory.add_fact('tips_times', 0)
+                self.tips_times = 0
+            else:
+                if self.memory.get_fact('timer_response').is_paused():
+                    self.memory.get_fact('timer_response').resume()
+                    interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+                    self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+                    
+        if self.memory.get_fact('step') == self.max_steps:
                 step = self.memory.get_fact('step')
                 step += 1
                 step = self.memory.add_fact('step', step)
                 self.save_steps(2, 'completed')
                 self.save_steps(3, 'not-started')
-            if self.memory.get_fact('lives') == 0 and self.end_phase:
-                self.memory.add_fact('lives', -1)
-                #self.save_challenge()
-                self.save_steps(2, 'not-completed')
-            
-            if self.new_challenge:
-                self.memory.get_fact('timer_response').start()
-                self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
-                self.new_challenge = False
-                self.tips_times = 0
-            else:
-                #if self.new_response:
-                #    self.memory.get_fact('timer_response').start()
-                #    self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
-                #    self.new_response = False
-                #else:
-                self.memory.get_fact('timer_response').resume()
-                interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
-                self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
-            
-
-            if self.end_phase and not self.show_teacher:
-                self.exit_state()
+                
+        if self.memory.get_fact('lives') == 0 and self.end_phase:
+            self.memory.add_fact('lives', -1)
+            #self.save_challenge()
+            self.save_steps(2, 'not-completed')
+        
+        if self.end_phase and not self.show_teacher:
+            self.exit_state()
 
 
     def load_challenges(self):
@@ -337,11 +331,15 @@ class Phase02(State):
         timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
         screen_width = self.game.GAME_WIDTH
         reset_timer = self.memory.get_fact('reset_timer')
-        end_time = self.memory.get_fact('end_time')
                 
+        if reset_timer and not self.show_teacher:
+            self.memory.add_fact('reset_timer', False)
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
         
-        if not self.memory.get_fact('timer_response').is_paused():
-            time_left = max(end_time - datetime.now(), timedelta(0))
+        if not self.memory.get_fact('timer_response').is_paused() and self.memory.get_fact('timer_response').is_started() and not self.show_teacher:
+            time_left = max(self.memory.get_fact('end_time') - datetime.now(), timedelta(0))
 
             if time_left.seconds > 0:
                 self.time_hms = self.convert_time(time_left.seconds)
@@ -352,11 +350,6 @@ class Phase02(State):
             timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
             display.blit(timer_text, timer_text_rect)
         
-        if reset_timer and not self.show_teacher:
-            self.memory.add_fact('reset_timer', False)
-            self.memory.get_fact('timer_response').stop()
-            self.memory.get_fact('timer_response').start()
-            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
             
     def end_timer(self):
         #@TODO: verificar se é melhor iniciar o Feedback

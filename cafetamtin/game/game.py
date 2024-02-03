@@ -37,7 +37,10 @@ class Game():
         self.GAME_WIDTH, self.GAME_HEIGHT = 960, 586
         self.SCREEN_WIDTH, self.SCREEN_HEIGHT = 960, 586
         self.game_canvas = pygame.Surface((self.GAME_WIDTH, self.GAME_HEIGHT), pygame.SRCALPHA)
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT), flags)
+        size = (self.GAME_WIDTH, self.GAME_HEIGHT)
+        if fullscreen:
+            size = (0,0)
+        self.screen = pygame.display.set_mode(size, flags)
         self.running, self.playning = True, True
         self.dt, self.previous_time = 0, 0
         self.state_stack = []

@@ -96,7 +96,7 @@ class Phase04(State):
 
     def load_images(self):
         return {
-            'heart': pygame.image.load(os.path.join("images", "heart.png")),
+            'heart': pygame.image.load(os.path.join('images', 'heart.png')),
         }
         
     @db_session
@@ -460,7 +460,7 @@ class Phase04(State):
     def verify_key_in_challenges(self, numbers):
         if len(numbers) > 0:
             numbers.sort()
-            key = "".join(map(str, numbers))
+            key = ''.join(map(str, numbers))
             if self.memory.get_fact('challenges').get(key) is not None:
                 self.memory.get_fact('challenges')[key]['found'] = True
 
@@ -518,11 +518,11 @@ class Phase04(State):
         
         if self.memory.get_fact('lives') == 0:
             self.teacher.set_message(
-                "Puxa, você não conseguiu "+
-                "encontrar as melhores estratégias para jogar comigo.\n\n"+
-                "Tente novamente!"
-                "\n\nPressione o botão VERMELHO para continuar", 
-                "neutral1"
+                'Puxa, você não conseguiu '+
+                'encontrar as melhores estratégias para jogar comigo.\n\n'+
+                'Tente novamente!'
+                '\n\nPressione o botão VERMELHO para continuar', 
+                'neutral1'
             )
             self.end_phase = True
             self.teacher.next_message()
@@ -548,20 +548,20 @@ class Phase04(State):
         if not self.check_initial_blocks(numbers_students):
             if self.new_challenge:
                 self.teacher.set_message(
-                        "Atenção. Você deve colocar\n"+
-                        "sobre o tabuleiro os blocos\n"+
-                        "na ordem e posição solicitado\n"+
-                        "pelo tutor.", 
-                        "neutral0"
+                        'Atenção. Você deve colocar\n'+
+                        'sobre o tabuleiro os blocos\n'+
+                        'na ordem e posição solicitado\n'+
+                        'pelo tutor.', 
+                        'neutral0'
                     )
                 self.new_challenge = False
             else:
                 self.teacher.set_message(
-                    "Atenção. Você não deve alterar\n"+
-                    "a ordem inicial dos blocos que\n"+
-                    "estavam dispostos sobre o tabuleiro.\n"+
-                    "Por gentileza, organize-os novamente.", 
-                    "neutral0"
+                    'Atenção. Você não deve alterar\n'+
+                    'a ordem inicial dos blocos que\n'+
+                    'estavam dispostos sobre o tabuleiro.\n'+
+                    'Por gentileza, organize-os novamente.', 
+                    'neutral0'
                 )
             self.lives -= 1
         else:
@@ -571,20 +571,20 @@ class Phase04(State):
             if self.new_challenge:
                 if (self.blocks_in_board() != len(numbers_students)):
                     self.teacher.set_message(
-                        "Atenção. Você deve colocar\n"+
-                        "sobre o tabuleiro os blocos\n"+
-                        "solicitados pelo tutor.", 
-                        "neutral0"
+                        'Atenção. Você deve colocar\n'+
+                        'sobre o tabuleiro os blocos\n'+
+                        'solicitados pelo tutor.', 
+                        'neutral0'
                     )
                     self.lives -= 1
                 
                 else:
                     self.teacher.set_message(
-                        "Muito bom!\n"+
-                        "Você deve completar o quadrado\n"+
-                        "mágico colocando sobre o tabuleiro\n"+
-                        "os blocos restantes.", 
-                        "happy0",
+                        'Muito bom!\n'+
+                        'Você deve completar o quadrado\n'+
+                        'mágico colocando sobre o tabuleiro\n'+
+                        'os blocos restantes.', 
+                        'happy0',
                         modal=False,
                         position=self.position_no_modal
                     )
@@ -595,29 +595,29 @@ class Phase04(State):
                 if len(numbers_students) < 9:
                     if found == 0:
                         self.teacher.set_message(
-                            "Atenção. Você deve colocar\n"+
-                            "sobre o tabuleiro os blocos\n"+
-                            "que faltam para completar o\n"+
-                            "quadrado mágico 3x3.", 
-                            "neutral0"
+                            'Atenção. Você deve colocar\n'+
+                            'sobre o tabuleiro os blocos\n'+
+                            'que faltam para completar o\n'+
+                            'quadrado mágico 3x3.', 
+                            'neutral0'
                         )
                         self.lives -= 1
                     else:
                         self.teacher.set_message(
-                            "Parabéns! Você conseguir encontrar\n"+
-                            f"{found} soma(s) que resultam 15 no\n"+ 
-                            "quadrado mágico. Tente encontrar as\n"+
-                            "demais somas.", 
-                            "happy1"
+                            'Parabéns! Você conseguir encontrar\n'+
+                            f'{found} soma(s) que resultam 15 no\n'+ 
+                            'quadrado mágico. Tente encontrar as\n'+
+                            'demais somas.', 
+                            'happy1'
                         )
                 else:
                     self.student_blocks.update(numbers_students)
                     if found == len(self.challenges):
                         self.teacher.set_message(
-                            "Muito bem! Você conseguiu encontrar\n"+
-                            "todas as somas possíveis que resultam\n"+
-                            "15 neste quadrado mágico.", 
-                            "heart0"
+                            'Muito bem! Você conseguiu encontrar\n'+
+                            'todas as somas possíveis que resultam\n'+
+                            '15 neste quadrado mágico.', 
+                            'heart0'
                         )
                         self.frame_confetti = 1
                         self.confetti.visible = True
@@ -625,19 +625,19 @@ class Phase04(State):
 
                         if self.step < self.max_steps:
                             self.teacher.set_message(
-                                "Tente resolver o próximo desafio!\n", 
-                                "happy0"
+                                'Tente resolver o próximo desafio!\n', 
+                                'happy0'
                             )
                             self.step += 1
                             self.new_challenge = True
 
                     else:
                         self.teacher.set_message(
-                            "Parabéns! Você conseguir encontrar\n"+
-                            f"{found} soma(s) que resultam 15 no\n"+ 
-                            "quadrado mágico. Tente encontrar as\n"+
-                            "demais somas.", 
-                            "happy1"
+                            'Parabéns! Você conseguir encontrar\n'+
+                            f'{found} soma(s) que resultam 15 no\n'+ 
+                            'quadrado mágico. Tente encontrar as\n'+
+                            'demais somas.', 
+                            'happy1'
                         )
 
 
@@ -667,22 +667,22 @@ class Phase04(State):
         display.blit(shape, rect)
         
         pygame.draw.circle(display,RED,(130,baseline_circle),10)
-        text = "Dicas"
+        text = 'Dicas'
         if self.show_teacher:
             if self.teacher.has_next_message():
-                text = "Continuar"
+                text = 'Continuar'
             else:
-                text = "Fechar"
+                text = 'Fechar'
         red_text = font.render(text, True, (0,0,0))
         display.blit(red_text, (145, baseline_text))
 
         if not self.show_teacher:
             pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
-            white_text = font.render("Pausar" if not self.is_paused else "Continuar", True, (0,0,0))
+            white_text = font.render('Pausar' if not self.is_paused else 'Continuar', True, (0,0,0))
             display.blit(white_text, (35, baseline_text))
 
             pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
-            green_text = font.render("Responder", True, (0,0,0))
+            green_text = font.render('Responder', True, (0,0,0))
             display.blit(green_text, (235, baseline_text))
 
     def lose_life(self):
@@ -788,7 +788,7 @@ class Phase04(State):
 
     def draw_timer(self):
         display = self.game.game_canvas
-        timer_font = pygame.font.Font(os.path.join("fonts", "digital-7.ttf"), 40)
+        timer_font = pygame.font.Font(os.path.join('fonts', 'digital-7.ttf'), 40)
         screen_width = self.game.GAME_WIDTH
         reset_timer = self.memory.get_fact('reset_timer')
         end_time = self.memory.get_fact('end_time')
@@ -876,7 +876,7 @@ class Phase04(State):
         
         keys = []
         for n in numbers:
-            key = "".join(map(str, n))
+            key = ''.join(map(str, n))
             if challenges.get(key) is not None:
                 keys.append(key)
         return keys
@@ -928,7 +928,7 @@ class Phase04(State):
         
         keys = []
         for n in numbers:
-            key = "".join(map(str, n))
+            key = ''.join(map(str, n))
             if challenges.get(key) is not None:
                 keys.append(key)
         return keys

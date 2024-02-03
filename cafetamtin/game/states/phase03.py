@@ -513,7 +513,7 @@ class Phase03(State):
 
 
         font = pygame.font.SysFont(FONT_NAME, 24, False, False)
-        text = font.render(self.game.student.name, True, (255,255,255))
+        text = font.render(self.game.student.nickname, True, (255,255,255))
         text_rect = text.get_rect(bottomleft=(pos_x, pos_y))
         display.blit(text, text_rect)
 

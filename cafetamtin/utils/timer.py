@@ -58,6 +58,7 @@ class Timer:
             self.__timer['time_finished'] = t
             self.__timer['total_time'] += s.total_seconds()
             self.__timer['started'] = False
+            self.__timer['paused'] = False
 
     def pause(self):
         if not self.__timer['paused'] and self.__timer['started']:

@@ -410,7 +410,7 @@ class Phase04Feedback(State):
         )
         
         self.teacher.set_message(
-            'Você deve colocar os blocos numerados "\n'+
+            'Você deve colocar os blocos numerados \n'+
             'no centro do tabuleiro, organizados em \n'+
             '3 linhas e 3 colunas, formando um "quadrado". \n'+
             '\n\nPressione o botão VERMELHO para continuar',
@@ -420,9 +420,9 @@ class Phase04Feedback(State):
         )
         
         self.teacher.set_message(
-            'Os blocos numerados devem ser colocados "\n'+
+            'Os blocos numerados devem ser colocados \n'+
             'de forma que a soma de cada linha horizontal \n'+
-            'deve produzir o resultado 15". \n'+
+            'deve produzir o resultado 15. \n'+
             '\n\nPressione o botão VERMELHO para continuar',
             emotions[random.randrange(0,len(emotions))],
             #position=(screen_width/2, 400),
@@ -430,7 +430,7 @@ class Phase04Feedback(State):
         )
         
         self.teacher.set_message(
-            'Assim como a soma de cada linha vertical "\n'+
+            'Assim como a soma de cada linha vertical \n'+
             'também deve produzir o resultado 15. \n'+
             '\n\nPressione o botão VERMELHO para continuar',
             emotions[random.randrange(0,len(emotions))],
@@ -439,7 +439,7 @@ class Phase04Feedback(State):
         )
         
         self.teacher.set_message(
-            'Além disso, a soma das linhas diagonais "\n'+
+            'Além disso, a soma das linhas diagonais \n'+
             'devem produzir o resultado 15. \n'+
             '\n\nPressione o botão VERMELHO para continuar',
             emotions[random.randrange(0,len(emotions))],
@@ -448,7 +448,7 @@ class Phase04Feedback(State):
         )
         
         self.teacher.set_message(
-            'Lembre-se das propriedades dos números "\n'+
+            'Lembre-se das propriedades dos números \n'+
             'ímpares e pares e tente organizar os \n'+
             'blocos numerados de forma a resolver o \n'+
             '"quadrado mágico".'

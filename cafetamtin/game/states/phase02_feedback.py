@@ -88,7 +88,6 @@ class Phase02Feedback(State):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    print("escape")
                     self.exit_state()
                     
     def update(self, delta_time):
@@ -487,6 +486,8 @@ class Phase02Feedback(State):
         quantity_corrects = self.memory.get_fact('quantity_corrects')
         num_terms = self.memory.get_fact('num_terms')
         
+        self.memory.add_fact('new_challenge', True)
+        
         response = {}
         
         response['reaction_time'] = self.memory.get_fact('timer_response').total_time_seconds()
@@ -539,9 +540,6 @@ class Phase02Feedback(State):
                         '\n\nPressione o botão VERMELHO para continuar', 
                         'happy0'
                     )
-                    lives = self.memory.get_fact('lives')
-                    lives -= 1
-                    self.memory.add_fact('lives', lives)
                 else:
                     response['is_correct'] = True
                     self.memory.add_fact('is_correct', True)
@@ -567,9 +565,9 @@ class Phase02Feedback(State):
             response['is_correct'] = False
             self.memory.add_fact('is_correct', False)
             quantity_corrects = 0
-            print(errors)
+            
             errors = sorted(errors, key=lambda error: error.weight, reverse=True)
-            print(errors)
+            
             error = errors[0]
             history_errors = self.memory.get_fact('history_errors')
             history_errors.append(error)
@@ -635,6 +633,7 @@ class Phase02Feedback(State):
         lives = self.memory.get_fact('lives')
         lives -= 1
         self.memory.add_fact('lives', lives)
+        
     
     @db_session
     def save_challenge(self, response) -> None:
