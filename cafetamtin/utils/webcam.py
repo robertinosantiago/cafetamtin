@@ -52,7 +52,7 @@ class Webcam:
         success, image = self.camera.read()
         image = imutils.rotate(image, self.angle_rotation)
         image = imutils.resize(image, width=width)
-        cv2.imwrite(f'color-cam-{self.cam_number}.jpg', image)
+        cv2.imwrite(f'temp/color-cam-{self.cam_number}.jpg', image)
         
         if not process:
             self.release()
@@ -65,7 +65,7 @@ class Webcam:
         erode = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, np.array((3, 3)))
 
         self.release()
-        cv2.imwrite('black.jpg', erode)
+        cv2.imwrite('temp/black.jpg', erode)
         return erode
     
     def release(self):

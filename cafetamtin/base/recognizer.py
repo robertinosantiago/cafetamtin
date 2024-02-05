@@ -105,7 +105,7 @@ class Recognizer:
 
                         print('center: x:{}, y:{} = Number: {}, confidence: {}'.format(center_x, center_y, self.classes[class_id], confidence))
                         self.draw_prediction(image, class_id, confidence, round(x), round(y), round(x+w), round(y+h))
-                        cv2.imwrite("object-detection.jpg", image)
+                        #cv2.imwrite("temp/object-detection.jpg", image)
 
         #print(boxes)
         indices = cv2.dnn.NMSBoxes(boxes, confidences, conf_threshold, nms_threshold)
@@ -134,6 +134,6 @@ class Recognizer:
             if draw_box:
                 if (self.classes[class_ids[i]] != 'board'):
                     self.draw_prediction(image, class_ids[i], confidences[i], round(x), round(y), round(x+w), round(y+h))
-                    cv2.imwrite("object-detection.jpg", image)
+                    cv2.imwrite("temp/object-detection.jpg", image)
 
         return positions
