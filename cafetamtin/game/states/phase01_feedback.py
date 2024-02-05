@@ -76,7 +76,6 @@ class Phase01Feedback(State):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    print("escape")
                     self.exit_state()
                     
     def update(self, delta_time):
@@ -115,7 +114,6 @@ class Phase01Feedback(State):
     
     def exit_state(self):
         self.memory.get_fact('timer_response').start()
-        print("TIMER: started - feedback")
         self.memory.add_fact('tips_times', 0)
         step = self.memory.get_fact('step')
         step += 1
@@ -486,6 +484,7 @@ class Phase01Feedback(State):
         correct = self.memory.get_fact('correct')
         valid = self.memory.get_fact('valid')
         quantity_corrects = self.memory.get_fact('quantity_corrects')
+        quantity_errors = self.memory.get_fact('quantity_errors')
         num_terms = self.memory.get_fact('num_terms')
         
         response = {}
@@ -540,30 +539,30 @@ class Phase01Feedback(State):
             self.frame_confetti = 1
             self.confetti.visible = True
             quantity_corrects += 1
-            
+            self.memory.add_fact('quantity_corrects', quantity_corrects)
             
             if quantity_corrects >= 5 and num_terms == 2:
                 num_terms = 3
                 self.memory.add_fact('num_terms', num_terms)
             
         else:
-            print("Result: ", result)
+            
             if not valid and result == 0:
-                print("sem numeros")
+                pass
+                #@TODO: IMPLEMENTAR
             else:
             
                 response['is_correct'] = False
                 self.memory.add_fact('is_correct', False)
-                #self.remove_points_score()
                 
-                quantity_corrects = 0
+                #quantity_corrects = 0
                 errors = sorted(errors, key=lambda error: error.weight, reverse=True)
                 error = errors[0]
                 history_errors = self.memory.get_fact('history_errors')
                 history_errors.append(error)
                 self.memory.add_fact('history_errors', history_errors)
                 
-                quantity_errors = self.memory.get_fact('quantity_errors')
+                
                 quantity_errors += 1
                 self.memory.add_fact('quantity_errors', quantity_errors)
                 
@@ -588,15 +587,59 @@ class Phase01Feedback(State):
                 
         self.memory.get_fact('responses').append(response)
         self.save_challenge(response)
-        self.memory.add_fact('quantity_corrects', quantity_corrects)
+        
         
         self.rules.execute_rules()
         self.adjust_game_levels()
         self.teacher.next_message()
         self.show_teacher = True
+        
+        if self.memory.get_fact('lives') <= 0:
+            #@colocar a mensagem 'tente novamente' caso haja mais rodadas
+            self.teacher.set_message(
+                "Infelizmente, você não conseguiu "+
+                "realizar todas as operações corretamente. "+
+                "Tente novamente!"
+                "\n\nPressione o botão VERMELHO para continuar",
+                "neutral1"
+            )
+            self.memory.add_fact('lives', -1)
+            self.save_steps(1, 'not-completed')
+            #self.end_phase = True
+            self.exit_state()
+        
+        if self.memory.get_fact('step') >= self.memory.get_fact('max_steps'):
+            
+            message = 'Parabéns ' if quantity_corrects > quantity_errors else 'Muito bom '
+            message += f'{self.game.student.nickname}! Chegamos ao final da fase 1. \n\n'
+            if quantity_corrects > 0:
+                message += 'Nesta fase, você acertou '
+                message += f'{quantity_corrects} '
+                message += 'vez. ' if quantity_corrects == 1 else 'vezes. '
+            if quantity_errors > 0:
+                message += 'Você cometeu '
+                message += f'{quantity_errors} '
+                message += 'erro ' if quantity_errors == 1 else 'erros '
+                message += 'durante essa fase.'
+            
+            message += 'Se prepare para a próxima fase.'
+            message += '\n\nPressione o botão VERMELHO para continuar'
+            emotion = 'heart0' if quantity_corrects > quantity_errors else 'neutral1'
+            
+            self.teacher.set_message(
+                message,
+                emotion
+            )
+            step = self.memory.get_fact('step')
+            step += 1
+            step = self.memory.add_fact('step', step)
+            self.save_steps(1, 'completed')
+            self.save_steps(2, 'not-started')
+            self.exit_state()
+            #self.teacher.next_message()
+            #self.show_teacher = True
     
     def adjust_game_levels(self):
-        print("\n\nAdjust\n\n")
         student: Student = self.memory.get_fact('student')
         average_time = self.memory.get_fact('average_time')
         amount_time = self.memory.get_fact('amount_time')
@@ -633,7 +676,8 @@ class Phase01Feedback(State):
             
             if not is_correct:
                 self.remove_points_score()
-            
+        
+        self.memory.add_fact('new_challenge', True)
         self.memory.add_fact('reset_timer', True)
     
     def add_points_score(self):
@@ -703,6 +747,18 @@ class Phase01Feedback(State):
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
         logging.info(f'Atualizado')
+        
+    @db_session
+    def save_steps(self, phase, status):
+        user = DBUser[self.game.student.id]
+        step = DBSteps(
+            phase = phase,
+            score = self.memory.get_fact('score'),
+            lifes = self.memory.get_fact('lives'),
+            status = status,
+            user = user
+        )
+        commit()
         
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)

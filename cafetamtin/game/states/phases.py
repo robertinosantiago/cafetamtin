@@ -119,7 +119,6 @@ class Phases(State):
             new_state = Phase01(self.game)
             new_state.enter_state()    
             new_state = Phase01Tutorial(self.game)
-            #new_state = Phase01(self.game)
         elif self.current_phase == 2:
             new_state = Phase02(self.game)
             new_state.enter_state()    

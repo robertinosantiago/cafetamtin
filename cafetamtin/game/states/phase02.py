@@ -94,6 +94,11 @@ class Phase02(State):
         
     @db_session
     def init_working_memory(self):
+        score = 0
+        user  = DBUser[self.game.student.id]
+        if len(user.steps) > 0:
+            score = max(s.score for s in user.steps if s.status == 'completed')
+            
         session = DBSession(
             start_time = datetime.now()
         )
@@ -118,7 +123,7 @@ class Phase02(State):
         self.memory.add_fact('reset_timer', True)
         self.memory.add_fact('max_lives', 5)
         self.memory.add_fact('lives', 5)
-        self.memory.add_fact('score', 0)
+        self.memory.add_fact('score', score)
         self.memory.add_fact('correct_points', 10)
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
@@ -237,12 +242,12 @@ class Phase02(State):
                     interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
                     self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
                     
-        if self.memory.get_fact('step') == self.max_steps:
-                step = self.memory.get_fact('step')
-                step += 1
-                step = self.memory.add_fact('step', step)
-                self.save_steps(2, 'completed')
-                self.save_steps(3, 'not-started')
+        if self.memory.get_fact('step') >= self.max_steps:
+            step = self.memory.get_fact('step')
+            step += 1
+            step = self.memory.add_fact('step', step)
+            self.save_steps(2, 'completed')
+            self.save_steps(3, 'not-started')
                 
         if self.memory.get_fact('lives') == 0 and self.end_phase:
             self.memory.add_fact('lives', -1)

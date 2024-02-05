@@ -63,9 +63,9 @@ class Phase01(State):
         self.menu_items = ['Voltar']
         self.menu_selection = 0
 
-        self.lives = 5
+        self.lives = 2
         self.score = 0
-        self.max_steps = 20
+        self.max_steps = 5
         self.num_terms = 2
         self.incremental_points = 5
 
@@ -74,12 +74,9 @@ class Phase01(State):
 
         self.images = self.load_images()
         
-        #self.start_time = pygame.time.get_ticks()
-        #self.total_seconds = 10
         self.time_hms = 0, 0, 0
-        #self.total_time = self.start_time + self.total_seconds*1000
 
-        self.enable_timer = False
+        
         self.is_paused = False
         self.started = False
         self.end_phase = False
@@ -116,6 +113,7 @@ class Phase01(State):
         self.memory.add_fact('history_errors', [])
         self.memory.add_fact('tips_times', 0)
         self.memory.add_fact('step', 1)
+        self.memory.add_fact('max_steps', 5)
         self.memory.add_fact('average_time', 60)
         self.memory.add_fact('minimum_time', 5)
         self.memory.add_fact('time_per_step', [])
@@ -123,12 +121,13 @@ class Phase01(State):
         self.memory.add_fact('errors', [])
         self.memory.add_fact('responses', [])
         self.memory.add_fact('reset_timer', True)
-        self.memory.add_fact('max_lives', 5)
-        self.memory.add_fact('lives', 5)
+        self.memory.add_fact('max_lives', 2)
+        self.memory.add_fact('lives', 2)
         self.memory.add_fact('score', 0)
         self.memory.add_fact('correct_points', 10)
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
+        self.memory.add_fact('new_challenge', True)
         
         self.memory.add_fact('timer_response', Timer())
         
@@ -216,7 +215,7 @@ class Phase01(State):
         """
         if self.is_paused:
             return
-
+        
         if not self.show_teacher:
             self.memory.get_fact('timer_response').pause()
             
@@ -231,41 +230,30 @@ class Phase01(State):
         if self.teacher.has_next_message():
             self.teacher.next_message()
             self.show_teacher = True
-            #self.leds.turnOff()
-
         else:
             self.show_teacher = False
             
-            if not self.started:
+            if self.memory.get_fact('new_challenge'):
                 self.memory.add_fact('reset_timer', True)
-                self.enable_timer = self.memory.get_fact('enable_timer')
-                self.started = True
+                self.memory.add_fact('new_challenge', False)
+                self.memory.add_fact('tips_times', 0)
+                self.tips_times = 0
+            else:
+                if self.memory.get_fact('timer_response').is_paused():
+                    self.memory.get_fact('timer_response').resume()
+                    interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+                    self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+            
+            if self.end_phase and self.memory.get_fact('lives') <= 0:
+                self.memory.add_fact('lives', -1)
+                self.save_steps(1, 'not-completed')
                 
-            #self.leds.central_led()
-
-            if self.memory.get_fact('step') == self.max_steps:
+            elif self.end_phase and self.memory.get_fact('step') >= self.memory.get_fact('max_steps'):
                 step = self.memory.get_fact('step')
                 step += 1
                 step = self.memory.add_fact('step', step)
                 self.save_steps(1, 'completed')
                 self.save_steps(2, 'not-started')
-                
-            if self.end_phase and self.memory.get_fact('lives') == 0:
-                self.memory.get_fact('lives', -1)
-                self.save_steps(1, 'not-completed')
-            
-            if self.new_challenge:
-                #@TODO: verificar o motivo de estar startando quando pausado
-                self.memory.get_fact('timer_response').start()
-                #now = datetime.now()
-                #self.memory.add_fact('start_time', now)
-                #self.total_time = self.memory.get_fact('amount_time')
-                self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
-                self.new_challenge = False
-            else:
-                self.memory.get_fact('timer_response').resume()
-                interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
-                self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             
             if self.end_phase and not self.show_teacher:
                 self.exit_state()
@@ -317,7 +305,7 @@ class Phase01(State):
         self.num_terms = self.memory.get_fact('num_terms')
         self.generate_new_challenge()
                 
-        if self.memory.get_fact('lives') == 0:
+        if self.memory.get_fact('lives') <= 0:
             #@colocar a mensagem 'tente novamente' caso haja mais rodadas
             self.teacher.set_message(
                 "Infelizmente, você não conseguiu "+
@@ -328,7 +316,7 @@ class Phase01(State):
             )
             self.end_phase = True
         
-        if self.memory.get_fact('step') >= self.max_steps and not self.end_phase:
+        if self.memory.get_fact('step') >= self.memory.get_fact('max_steps') and not self.end_phase:
             self.teacher.set_message(
                 "Parabéns!!! Você conseguiu realizar "+
                 "as operações corretamente. Nos vemos na "+
@@ -386,8 +374,14 @@ class Phase01(State):
         reset_timer = self.memory.get_fact('reset_timer')
         end_time = self.memory.get_fact('end_time')
         
-        if not self.memory.get_fact('timer_response').is_paused() and not self.show_teacher:
-            time_left = max(end_time - datetime.now(), timedelta(0))
+        if reset_timer and not self.show_teacher:
+            self.memory.add_fact('reset_timer', False)
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
+        
+        if not self.memory.get_fact('timer_response').is_paused() and self.memory.get_fact('timer_response').is_started() and not self.show_teacher:
+            time_left = max(self.memory.get_fact('end_time') - datetime.now(), timedelta(0))
 
             if time_left.seconds > 0:
                 self.time_hms = self.convert_time(time_left.seconds)
@@ -398,11 +392,6 @@ class Phase01(State):
             timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
             display.blit(timer_text, timer_text_rect)
             
-        if reset_timer and not self.show_teacher:
-            self.memory.add_fact('reset_timer', False)
-            self.memory.get_fact('timer_response').stop()
-            self.memory.get_fact('timer_response').start()
-            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
 
     def end_timer(self):
         student: Student = self.memory.get_fact('student')
@@ -467,17 +456,32 @@ class Phase01(State):
             quantity_errors += 1
             self.memory.add_fact('quantity_errors', quantity_errors)
             
-            self.teacher.set_message(
-                f"Preste atenção {student.nickname}!!! Tente resolver o "+
-                "exercício antes que o tempo acabe. Mantenha o foco "+
-                "na resolução dos exercícios."+
-                "\n\nPressione o botão VERMELHO para continuar",  
-                "neutral1"
-            )
+            
+            self.lose_life()
+            
+            if self.memory.get_fact('lives') == 0:
+                self.teacher.set_message(
+                    f"Puxa {student.nickname}!!! Infelizmente suas "+
+                    "vidas acabaram. Tente resolver novamente este desafio "+
+                    "para que você possa avançar de fase."+
+                    "\n\nPressione o botão VERMELHO para continuar",  
+                    "neutral1"
+                )
+            else:
+                self.teacher.set_message(
+                    f"Preste atenção {student.nickname}!!! Tente resolver o "+
+                    "exercício antes que o tempo acabe. Mantenha o foco "+
+                    "na resolução dos exercícios."+
+                    "\n\nPressione o botão VERMELHO para continuar",  
+                    "neutral1"
+                )
+            
             self.teacher.next_message()
             self.show_teacher = True
-            #self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
-            self.lose_life()
+            
+            step = self.memory.get_fact('step')
+            step += 1
+            step = self.memory.add_fact('step', step)
             
             #@TODO: ajustar o game level
             self.generate_new_challenge()
@@ -485,11 +489,10 @@ class Phase01(State):
     
     def lose_life(self):
         if self.memory.get_fact('lives') > 0:
-            #self.lives -= 1
             self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
-            #self.start_time = pygame.time.get_ticks()
-            #self.total_time = self.start_time + self.total_seconds*1000
-            #self.new_challenge = True
+        
+        if self.memory.get_fact('lives') == 0:
+            self.end_phase = True
 
     def draw_challenge(self):
         display = self.game.game_canvas
@@ -517,7 +520,7 @@ class Phase01(State):
         operators = ['+', '-']
         result = []
 
-        for i in range(0, self.max_steps):
+        for i in range(0, self.memory.get_fact('max_steps')):
             op = operators[random.randrange(0, len(operators))]
             
             if len(result) > 1:
@@ -601,7 +604,6 @@ class Phase01(State):
             display.blit(student_desk, student_desk_rect)
 
     def draw_pause(self):
-        #@TODO: pausar o timer
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
                 
@@ -696,8 +698,7 @@ class Phase01(State):
         else:
             self.memory.add_fact('amount_time', math.ceil(average_time * 0.5))
             self.memory.add_fact('enable_timer', True)
-            
-        self.enable_timer = self.memory.get_fact('enable_timer')
+        
 
     def render(self, display):
 
@@ -722,7 +723,7 @@ class Phase01(State):
         if self.confetti.visible:
             self.draw_confetti()
         
-        if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') <= self.max_steps:
+        if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') <= self.memory.get_fact('max_steps'):
 
             self.draw_challenge()
 
