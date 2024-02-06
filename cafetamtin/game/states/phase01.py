@@ -112,7 +112,7 @@ class Phase01(State):
         self.memory.add_fact('history_errors', [])
         self.memory.add_fact('tips_times', 0)
         self.memory.add_fact('step', 1)
-        self.memory.add_fact('max_steps', 5)
+        self.memory.add_fact('max_steps', 10)
         self.memory.add_fact('average_time', 60)
         self.memory.add_fact('minimum_time', 5)
         self.memory.add_fact('time_per_step', [])
@@ -316,7 +316,7 @@ class Phase01(State):
             )
             self.end_phase = True
         
-        if self.memory.get_fact('step') > self.memory.get_fact('max_steps') and not self.end_phase:
+        if self.memory.get_fact('step') >= self.memory.get_fact('max_steps') and not self.end_phase:
             self.teacher.set_message(
                 "Parabéns!!! Você conseguiu realizar "+
                 "as operações corretamente. Nos vemos na "+
