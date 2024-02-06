@@ -35,6 +35,7 @@ class Teacher:
         self.modal = True
         self.position = None
         self.image_explication = False
+        self.max_words = 10
         self.messages = queue.Queue()
 
 
@@ -51,13 +52,14 @@ class Teacher:
             'heart0': pygame.image.load(os.path.join("images", "teacher-heart0.png")),
         }
     
-    def set_message(self, message, image_key = 'happy0', image_explication = False, modal = True, position = None):
+    def set_message(self, message, image_key = 'happy0', image_explication = False, modal = True, position = None, max_words = 10):
         data = {
             'image_key': image_key,
             'message': message,
             'modal': modal,
             'position': position,
-            'image_explication': image_explication
+            'image_explication': image_explication,
+            'max_words': max_words
         }
         self.messages.put(data)
 
@@ -68,6 +70,7 @@ class Teacher:
         self.modal = data['modal']
         self.position = data['position']
         self.image_explication = data['image_explication']
+        self.max_words = data['max_words']
 
     def has_next_message(self):
         return not self.messages.empty()
@@ -92,22 +95,16 @@ class Teacher:
                     words_count = 0
                     lines.append(t)
                     t = ''
-
-        # for c in collection:
-        #     t = ''
-        #     for i in range(0, len(c)):
-        #         t += c[i]
-        #         if i < len(c)-1:
-        #             t += ' '
-        #     lines.append(t)
-
+        
         max_width = 0
         max_height = 0
+        max_word_height = 0
         for line in lines:
             word_surface = font.render(line, True, text_colour)
             word_width , word_height = word_surface.get_size()
+            max_word_height = max(word_height, max_word_height)
             max_width = max(word_width, max_width)
-            max_height += word_height
+        max_height = len(lines) * max_word_height
         
         
         bg_rect = pygame.Rect(pos[0]+pos[2]//2-max_width//2, pos[1]+pos[3], max_width, max_height)
@@ -122,8 +119,7 @@ class Teacher:
         for i in range(0, len(lines)):
             word_surface = font.render(lines[i], True, text_colour)
             word_width , word_height = word_surface.get_size()
-            
-            self.display.blit(word_surface, (pos[0]+pos[2]//2-word_width//2, pos[1] + pos[3] + i * word_height))
+            self.display.blit(word_surface, (pos[0]+pos[2]//2-word_width//2, pos[1] + pos[3] + i * max_word_height))
 
     def draw(self):
         screen_width, screen_height = self.display.get_size()
@@ -141,7 +137,14 @@ class Teacher:
             self.display.blit(shape_surf, rect_background)
 
         self.display.blit(self.images[self.image_key], self.rect)
-        self.draw_speech_bubble(self.message, (255, 255, 255), (0, 0, 0), self.rect, 16)
+        self.draw_speech_bubble(
+            text = self.message, 
+            text_colour = (255, 255, 255), 
+            bg_colour = (0, 0, 0), 
+            pos = self.rect, 
+            size = 16,
+            max_words=self.max_words
+            )
         
         if (self.image_explication != False):
             image_explication = pygame.image.load(os.path.join("images", self.image_explication))

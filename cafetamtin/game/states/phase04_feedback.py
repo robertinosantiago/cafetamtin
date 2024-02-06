@@ -29,14 +29,14 @@ from game import FONT_NAME
 from game import WHITE, BLACK, RED, GREEN, DARKGREEN
 
 from base.board import Board
-from base.facial import FacialThread
 from game.states.state import State
+from base.facial import FacialThread
 from game.actors.teacher import Teacher
 from game.actors.student import Student
 from production.type_error import TypeError
-from production.phase03_checks import Phase03Checks
 from production.level_rules import LevelRules
-from database.models import DBSession, DBSteps, DBUser #,DBChallengeP3
+from production.phase03_checks import Phase03Checks
+from database.models import DBSession, DBSteps, DBUser, DBChallengeP4
 
 class Phase04Feedback(State):
     def __init__(self, game, working_memory):
@@ -464,6 +464,9 @@ class Phase04Feedback(State):
         numbers_student = self.memory.get_fact('numbers_student')
         
         response = {}
+
+        response['numbers'] = self.memory.get_fact('numbers_student_response')
+        response['numbers_base'] = self.memory.get_fact('numbers_initial_response')
         
         response['reaction_time'] = self.memory.get_fact('timer_response').total_time_seconds()
         response['reaction_time_without_pauses'] = self.memory.get_fact('timer_response').total_time_without_paused_seconds()
@@ -574,11 +577,11 @@ class Phase04Feedback(State):
         self.memory.get_fact('responses').append(response)
         self.memory.add_fact('reset_timer', True)
         
-        #self.save_challenge(response)
+        self.save_challenge(response)
         #self.memory.add_fact('quantity_corrects', quantity_corrects)
         
-        #self.rules.execute_rules()
-        #self.adjust_game_levels()
+        self.rules.execute_rules()
+        self.adjust_game_levels()
         
         self.teacher.next_message()
         self.show_teacher = True
@@ -698,9 +701,9 @@ class Phase04Feedback(State):
     def save_challenge(self, response) -> None:
         user = DBUser[self.game.student.id]
         session = DBSession[int(self.memory.get_fact('session_id'))]
-        challenge = DBChallengeP3(
-            number = response['number'],
-            other_numbers = response['other_numbers'],
+        challenge = DBChallengeP4(
+            numbers = response['numbers'],
+            numbers_base = response['numbers_base'],
             is_correct = response['is_correct'],
             start_time = response['start_time'],
             end_time = response['end_time'],
@@ -722,10 +725,22 @@ class Phase04Feedback(State):
     @db_session
     def update_challenge(self, id, expression, quad):
         logging.info(f'Atualizando challenge')
-        challenge = DBChallengeP3[id]
+        challenge = DBChallengeP4[id]
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
         logging.info(f'Atualizado')
+
+    @db_session
+    def save_steps(self, phase, status):
+        user = DBUser[self.game.student.id]
+        step = DBSteps(
+            phase = phase,
+            score = self.memory.get_fact('score'),
+            lifes = self.memory.get_fact('lives'),
+            status = status,
+            user = user
+        )
+        commit()
     
     def adjust_game_levels(self):
         student: Student = self.memory.get_fact('student')

@@ -59,40 +59,42 @@ class Phase04Tutorial(State):
         )
         
         self.teacher.set_message(
-            'Serão exibidas aqui, na plataforma, combinações \n'+
-            'de blocos que serão usadas como base para \n'+
-            'a construção do quadrado mágico. Você deve \n'+
-            'colocar os blocos sobre a plataforma \n'+
+            'Serão exibidas aqui, na plataforma, combinações '+
+            'de blocos que serão usadas como base para '+
+            'a construção do quadrado mágico. Você deve '+
+            'colocar os blocos sobre a plataforma '+
             'conforme estarão dispostos aqui.'+
             '\n\n'+
-            'Depois de posicionar os blocos solicitados, \n'+
-            'você deve pressionar o botão VERDE para \n'+
+            'Depois de posicionar os blocos solicitados, '+
+            'você deve pressionar o botão VERDE para '+
             'validar a configuração inicial. '+
             '\n\n'+
-            'É importante que você use a região central da \n'+
+            'É importante que você use a região central da '+
             'plataforma para posicionar os blocos.'
             '\n\nPressione o botão VERMELHO para continuar',
             emotions[random.randrange(0,len(emotions))],
             modal=False,
             position=(730, 100),
-            image_explication='phase04-tutoring-arrow-red-left.png'
+            image_explication='phase04-tutoring-arrow-red-left.png',
+            max_words=7
         )
         
         self.teacher.set_message(
-            'No quadro "Possíveis somas do estudante", será \n'+
-            'exibido o "quadrado mágico" com indicação das \n'+
+            'No quadro "Possíveis somas do estudante", será '+
+            'exibido o "quadrado mágico" com indicação das '+
             'somas de 15 realizadas. '+
-            '\n\n'+
-            'Neste quadro, ainda é possível \n'+
-            'visualizar a diferença existente entre cada eixo \n'+
+            '   \n\n'+
+            'Neste quadro, ainda é possível '+
+            'visualizar a diferença existente entre cada eixo '+
             '(horizontal, vertical e diagonal) e o valor 15. '+
-            '\n\n'+
+            '  \n\n'+
             'Use esses valores para planejar suas jogadas.'
             '\n\nPressione o botão VERMELHO para continuar',
             emotions[random.randrange(0,len(emotions))],
             modal=False,
             position=(260, 100),
-            image_explication='phase04-tutoring-arrow-red-right.png'
+            image_explication='phase04-tutoring-arrow-red-right.png',
+            max_words=7
         )
         
         self.teacher.set_message(

@@ -457,7 +457,6 @@ class Phase03Feedback(State):
                 step = self.memory.get_fact('step')
                 step += 1
                 self.memory.add_fact('step', step)
-                
                 self.memory.add_fact('reload', True)
                 
         
@@ -466,6 +465,40 @@ class Phase03Feedback(State):
         
         self.teacher.next_message()
         self.show_teacher = True
+
+        if self.memory.get_fact('lives') <= 0:
+            #@colocar a mensagem 'tente novamente' caso haja mais rodadas
+            self.teacher.set_message(
+                "Infelizmente, você não conseguiu "+
+                "realizar todas as operações corretamente. "+
+                "Tente novamente!"
+                "\n\nPressione o botão VERMELHO para continuar",
+                "neutral1"
+            )
+            self.memory.add_fact('lives', -1)
+            self.save_steps(3, 'not-completed')
+            #self.end_phase = True
+            self.exit_state()
+        
+        if self.memory.get_fact('step') > self.memory.get_fact('max_steps'):
+            
+            message = f'Parabéns, {self.game.student.nickname}!\n\n'
+            message += 'Foi ótimo disputar essa fase com você. '
+            message += 'Você utilizou as estratégias do jogo de forma correta. '
+            message += 'Esta fase está encerrada e nos vemos na próxima. '
+            message += '\n\nPressione o botão VERMELHO para continuar'
+            emotion = 'heart0'
+            
+            self.teacher.set_message(
+                message,
+                emotion
+            )
+            step = self.memory.get_fact('step')
+            step += 1
+            step = self.memory.add_fact('step', step)
+            self.save_steps(3, 'completed')
+            self.save_steps(4, 'not-started')
+            self.exit_state()
         
     def count_possible_sums_student(self):
         blocks_student = self.memory.get_fact('blocks_student')
@@ -763,6 +796,18 @@ class Phase03Feedback(State):
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
         logging.info(f'Atualizado')
+
+    @db_session
+    def save_steps(self, phase, status):
+        user = DBUser[self.game.student.id]
+        step = DBSteps(
+            phase = phase,
+            score = self.memory.get_fact('score'),
+            lifes = self.memory.get_fact('lives'),
+            status = status,
+            user = user
+        )
+        commit()
     
     def adjust_game_levels(self):
         student: Student = self.memory.get_fact('student')

@@ -54,8 +54,7 @@ class Phase01(State):
         self.memory = Memory()
         self.rules = Phase01Rules(self.memory)
         self.init_working_memory()
-                
-        #self.facial = self.game.app.facial #FacialThread(self.game.app)
+        
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
         self.show_teacher = False
@@ -63,10 +62,6 @@ class Phase01(State):
         self.menu_items = ['Voltar']
         self.menu_selection = 0
 
-        self.lives = 2
-        self.score = 0
-        self.max_steps = 5
-        self.num_terms = 2
         self.incremental_points = 5
 
         self.min_number = 1
@@ -76,14 +71,13 @@ class Phase01(State):
         
         self.time_hms = 0, 0, 0
 
-        
         self.is_paused = False
         self.started = False
         self.end_phase = False
 
         self.new_challenge = True
         self.challenge = ()
-        self.responses = []
+        
         self.operators = self.generate_operators()
         self.generate_new_challenge()
         
@@ -98,6 +92,11 @@ class Phase01(State):
 
     @db_session
     def init_working_memory(self):
+        score = 0
+        user  = DBUser[self.game.student.id]
+        #if len(user.steps) > 0:
+        #    score = max(s.score for s in user.steps if s.phase == 1)
+
         session = DBSession(
             start_time = datetime.now()
         )
@@ -123,11 +122,12 @@ class Phase01(State):
         self.memory.add_fact('reset_timer', True)
         self.memory.add_fact('max_lives', 2)
         self.memory.add_fact('lives', 2)
-        self.memory.add_fact('score', 0)
+        self.memory.add_fact('score', score)
         self.memory.add_fact('correct_points', 10)
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
         self.memory.add_fact('new_challenge', True)
+        self.memory.add_fact('phase', 1)
         
         self.memory.add_fact('timer_response', Timer())
         
@@ -290,7 +290,7 @@ class Phase01(State):
         
         expression = ''
         numbers, operators, result = self.challenge
-        if self.num_terms == 2:
+        if self.memory.get_fact('num_terms') == 2:
             expression = f'{numbers[0]}{operators[0]}{numbers[1]}={result}'
         else:
             expression = f'{numbers[0]}{operators[0]}{numbers[1]}{operators[1]}{numbers[2]}={result}'
@@ -302,7 +302,7 @@ class Phase01(State):
         
         feedback = Phase01Feedback(self.game, self.memory)
         feedback.enter_state()
-        self.num_terms = self.memory.get_fact('num_terms')
+        #self.num_terms = self.memory.get_fact('num_terms')
         self.generate_new_challenge()
                 
         if self.memory.get_fact('lives') <= 0:
@@ -316,7 +316,7 @@ class Phase01(State):
             )
             self.end_phase = True
         
-        if self.memory.get_fact('step') >= self.memory.get_fact('max_steps') and not self.end_phase:
+        if self.memory.get_fact('step') > self.memory.get_fact('max_steps') and not self.end_phase:
             self.teacher.set_message(
                 "Parabéns!!! Você conseguiu realizar "+
                 "as operações corretamente. Nos vemos na "+
@@ -420,7 +420,7 @@ class Phase01(State):
             
             expression = ''
             numbers, operators, result = self.challenge
-            if self.num_terms == 2:
+            if self.memory.get_fact('num_terms') == 2:
                 expression = f'{numbers[0]}{operators[0]}{numbers[1]}={result}'
             else:
                 expression = f'{numbers[0]}{operators[0]}{numbers[1]}{operators[1]}{numbers[2]}={result}'
@@ -505,7 +505,7 @@ class Phase01(State):
         font = pygame.font.SysFont(FONT_NAME, 72, False, False)
         expression = ''
         numbers, operators, result = self.challenge
-        if self.num_terms == 2:
+        if self.memory.get_fact('num_terms') == 2:
             expression = f'{numbers[0]} {operators[0]} {numbers[1]}'
         else:
             expression = f'{numbers[0]} {operators[0]} {numbers[1]} {operators[1]} {numbers[2]}'
@@ -534,14 +534,13 @@ class Phase01(State):
     
     def generate_new_challenge(self):
         self.challenge = self.random_calc()
-        self.responses = []
         self.new_challenge = True
         self.memory.add_fact('tips_times', 0)
 
 
 
     def random_calc(self):
-        if self.num_terms == 2:
+        if self.memory.get_fact('num_terms') == 2:
             return self.random_calc_2_terms()
         else:
             return self.random_calc_3_terms()
@@ -724,8 +723,8 @@ class Phase01(State):
             self.draw_confetti()
         
         if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') <= self.memory.get_fact('max_steps'):
-
-            self.draw_challenge()
+            if not self.show_teacher:
+                self.draw_challenge()
 
         #self.draw_timer()
             if self.memory.get_fact('enable_timer') and not self.show_teacher:

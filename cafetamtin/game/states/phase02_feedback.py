@@ -43,6 +43,7 @@ class Phase02Feedback(State):
         self.rules = LevelRules(self.memory)
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)
+        self.enable_challenge = False
                                 
         self.box_width, self.box_height = 60, 60
         
@@ -127,9 +128,6 @@ class Phase02Feedback(State):
     def exit_state(self):
         self.memory.get_fact('timer_response').start()
         self.memory.add_fact('tips_times', 0)
-        step = self.memory.get_fact('step')
-        step += 1
-        step = self.memory.add_fact('step', step)
         self.memory.add_fact('reset_timer', True)
     
         super().exit_state()
@@ -310,7 +308,39 @@ class Phase02Feedback(State):
                 y += self.box_height + offset
             else:
                 x += self.box_width + offset
-        
+    
+    def draw_challenge(self):
+        display = self.game.game_canvas
+        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
+        color = (213, 255, 213)
+
+        font = pygame.font.SysFont(FONT_NAME, 22, False, False)
+        instruction_text = font.render('Somas com 3 números que resultam 15', True, (220,220,220))
+        instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, 90))
+        display.blit(instruction_text, instruction_text_rect)
+
+        i = 1
+        width = 140
+        height = 60
+        offset = 20
+        x = 160
+        y = 150
+        challenges = self.memory.get_fact('challenges')
+        for key in challenges.keys():
+            rect = (x,y,width,height)
+            shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape, color, shape.get_rect(), border_radius= 15)
+            display.blit(shape, rect)
+            inner_text = '? + ? + ?' if not challenges[key]['visible'] else challenges[key]['equations'][challenges[key]['index']]
+            text = font.render(inner_text, True, BLACK if not challenges[key]['visible'] else GREEN)
+            text_rect = text.get_rect(center=(x + width/2, y + height/2))
+            display.blit(text, text_rect)
+            if i % 4 == 0:
+                x = 160
+                y += height + offset
+            else:
+                x += width + offset
+            i += 1
     
     def message_teacher_misinterpretation_language(self):
         logging.info(f'Executando função: message_teacher_misinterpretation_language')
@@ -482,9 +512,9 @@ class Phase02Feedback(State):
         errors = self.memory.get_fact('errors')
         result = self.memory.get_fact('result')
         correct = self.memory.get_fact('correct')
-        valid = self.memory.get_fact('valid')
         quantity_corrects = self.memory.get_fact('quantity_corrects')
-        num_terms = self.memory.get_fact('num_terms')
+        quantity_errors = self.memory.get_fact('quantity_errors')
+        
         
         self.memory.add_fact('new_challenge', True)
         
@@ -559,6 +589,9 @@ class Phase02Feedback(State):
                     self.confetti.visible = True
                     quantity_corrects += 1
                     self.memory.add_fact('quantity_errors', 0)
+                    step = self.memory.get_fact('step')
+                    step += 1
+                    step = self.memory.add_fact('step', step)
                     
         
         else:
@@ -573,7 +606,7 @@ class Phase02Feedback(State):
             history_errors.append(error)
             self.memory.add_fact('history_errors', history_errors)
             
-            quantity_errors = self.memory.get_fact('quantity_errors')
+            
             quantity_errors += 1
             self.memory.add_fact('quantity_errors', quantity_errors)
             
@@ -604,6 +637,46 @@ class Phase02Feedback(State):
         self.adjust_game_levels()
         self.teacher.next_message()
         self.show_teacher = True
+
+        if self.memory.get_fact('lives') <= 0:
+            #@colocar a mensagem 'tente novamente' caso haja mais rodadas
+            self.teacher.set_message(
+                "Infelizmente, você não conseguiu "+
+                "realizar todas as operações corretamente. "+
+                "Tente novamente!"
+                "\n\nPressione o botão VERMELHO para continuar",
+                "neutral1"
+            )
+            self.memory.add_fact('lives', -1)
+            self.save_steps(2, 'not-completed')
+            #self.end_phase = True
+            self.exit_state()
+        
+        if self.memory.get_fact('step') > self.memory.get_fact('max_steps'):
+            
+            message = f'Parabéns, {self.game.student.nickname}!\n\n'
+            message += 'Você conseguiu encontrar todas as possíveis somas 15 '
+            message += 'usando apenas os números de 1 a 9. '
+            message += 'Com isso, chegamos ao final da fase 2. '
+            message += 'Se prepare para a próxima fase, onde iremos jogar um contra o outro.'
+            message += '\n\nPressione o botão VERMELHO para continuar'
+            emotion = 'heart0' if quantity_corrects > quantity_errors else 'neutral1'
+            
+            self.teacher.set_message(
+                message,
+                emotion,
+                modal= False,
+                position=(screen_width/2, screen_height/2+40)
+            )
+            self.enable_challenge = True
+            step = self.memory.get_fact('step')
+            step += 1
+            step = self.memory.add_fact('step', step)
+            self.save_steps(2, 'completed')
+            self.save_steps(3, 'not-started')
+            self.exit_state()
+            #self.teacher.next_message()
+            #self.show_teacher = True
     
     def add_points_score(self):
         score = self.memory.get_fact('score')
@@ -668,6 +741,18 @@ class Phase02Feedback(State):
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
         logging.info(f'Atualizado')
+
+    @db_session
+    def save_steps(self, phase, status):
+        user = DBUser[self.game.student.id]
+        step = DBSteps(
+            phase = phase,
+            score = self.memory.get_fact('score'),
+            lifes = self.memory.get_fact('lives'),
+            status = status,
+            user = user
+        )
+        commit()
     
     def __count_odd_numbers__(self, numbers) -> int:
         count = 0
@@ -762,6 +847,9 @@ class Phase02Feedback(State):
         if self.show_error_uncategorized_solution:
             self.draw_error_uncategorized_solution()
         
+        if self.enable_challenge:
+            self.draw_challenge()
+
         if self.show_teacher:
             self.teacher.draw()
             

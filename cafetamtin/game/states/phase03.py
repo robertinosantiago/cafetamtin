@@ -60,10 +60,6 @@ class Phase03(State):
         self.confetti = Confetti()
         self.frame_confetti = 1
 
-        self.lives = 3
-        self.score = 0
-        self.max_steps = 2
-        self.step = 1
         self.incremental_points = 5
 
         self.time_hms = 0, 0, 0
@@ -75,19 +71,11 @@ class Phase03(State):
         self.new_challenge = True
         self.reload = False
 
-        self.tips_times = 0
-
         self.images = self.load_images()
-
-        self.blocks_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        self.blocks_student = {}
-        self.blocks_tutor = []
-        self.sums_founds_student = []
 
         self.offset = 10
         self.box_width, self.box_height = 40, 40
 
-        self.tips_times = 0
         self.adjust_game_levels()
         self.first_gaming()
         self.teacher.next_message()
@@ -99,6 +87,12 @@ class Phase03(State):
 
     @db_session
     def init_working_memory(self):
+        score = 0
+        user  = DBUser[self.game.student.id]
+        if len(user.steps) > 0:
+            step = select(s for s in user.steps if s.phase == 3).order_by(desc(DBSteps.id)).first()
+            score = step.score
+
         session = DBSession(
             start_time = datetime.now()
         )
@@ -121,7 +115,7 @@ class Phase03(State):
         self.memory.add_fact('tips_times', 0)
         self.memory.add_fact('step', 1)
         self.memory.add_fact('max_steps', 2)
-        self.memory.add_fact('average_time', 60)
+        self.memory.add_fact('average_time', 120)
         self.memory.add_fact('minimum_time', 5)
         self.memory.add_fact('time_per_step', [])
         self.memory.add_fact('accumulated_time', 0)
@@ -131,10 +125,11 @@ class Phase03(State):
         self.memory.add_fact('reload', False)
         self.memory.add_fact('max_lives', 5)
         self.memory.add_fact('lives', 5)
-        self.memory.add_fact('score', 0)
+        self.memory.add_fact('score', score)
         self.memory.add_fact('correct_points', 10)
         self.memory.add_fact('incorrect_points', 5)
         self.memory.add_fact('bonus_points', 5)
+        self.memory.add_fact('phase', 3)
         
         self.memory.add_fact('timer_response', Timer())
 
@@ -223,9 +218,21 @@ class Phase03(State):
                 self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
                 self.started = True
             else:
-                self.memory.get_fact('timer_response').resume()
-                interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
-                self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+                if self.memory.get_fact('timer_response').is_paused():
+                    self.memory.get_fact('timer_response').resume()
+                    interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
+                    self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+
+            if self.memory.get_fact('step') > self.memory.get_fact('max_steps'):
+                step = self.memory.get_fact('step')
+                step += 1
+                step = self.memory.add_fact('step', step)
+                self.save_steps(3, 'completed')
+                self.save_steps(4, 'not-started')
+                    
+            if self.memory.get_fact('lives') <= 0:
+                self.memory.add_fact('lives', -1)
+                self.save_steps(3, 'not-completed')
 
             if self.end_phase and not self.show_teacher:
                 self.exit_state()
@@ -286,12 +293,6 @@ class Phase03(State):
         self.memory.add_fact('blocks_student', {})
         self.memory.add_fact('blocks_tutor', [])
         self.memory.add_fact('sums_founds_student', [])
-        
-        self.blocks_available = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-        self.blocks_student = {}
-        self.blocks_tutor = []
-        self.sums_founds_student = []
-
 
     def draw_lifes(self):
         display = self.game.game_canvas
@@ -371,16 +372,27 @@ class Phase03(State):
             quantity_errors += 1
             self.memory.add_fact('quantity_errors', quantity_errors)
             
-            self.teacher.set_message(
-                f"Preste atenção {student.nickname}!!! Tente resolver o \n"+
-                "exercício antes que o tempo acabe. Mantenha o foco \n"+
-                "na resolução dos exercícios.\n"+
-                "\n\nPressione o botão VERMELHO para continuar",  
-                "neutral1"
-            )
+            self.lose_life()
+            
+            if self.memory.get_fact('lives') == 0:
+                self.teacher.set_message(
+                    f"Puxa {student.nickname}!!! Infelizmente suas "+
+                    "vidas acabaram. Tente resolver novamente este desafio "+
+                    "para que você possa avançar de fase."+
+                    "\n\nPressione o botão VERMELHO para continuar",  
+                    "neutral1"
+                )
+            else:
+                self.teacher.set_message(
+                    f"Preste atenção {student.nickname}!!! Tente resolver o "+
+                    "exercício antes que o tempo acabe. Mantenha o foco "+
+                    "na resolução dos exercícios."+
+                    "\n\nPressione o botão VERMELHO para continuar",  
+                    "neutral1"
+                )
+
             self.teacher.next_message()
             self.show_teacher = True
-            self.lose_life()
 
     def draw_physical_buttons(self):
         display = self.game.game_canvas
@@ -415,12 +427,11 @@ class Phase03(State):
             display.blit(green_text, (235, baseline_text))
 
     def lose_life(self):
-        lives = self.memory.get_fact('lives')
-        if lives > 0:
-            self.memory.add_fact('lives', lives - 1)
-            #self.start_time = pygame.time.get_ticks()
-            #self.total_time = self.start_time + self.total_seconds*1000
-            #self.new_challenge = True
+        if self.memory.get_fact('lives') > 0:
+            self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
+        
+        if self.memory.get_fact('lives') == 0:
+            self.end_phase = True
 
     def draw_pause(self):
         display = self.game.game_canvas
@@ -817,6 +828,18 @@ class Phase03(State):
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
         logging.info(f'Atualizado')
+
+    @db_session
+    def save_steps(self, phase, status):
+        user = DBUser[self.game.student.id]
+        step = DBSteps(
+            phase = phase,
+            score = self.memory.get_fact('score'),
+            lifes = self.memory.get_fact('lives'),
+            status = status,
+            user = user
+        )
+        commit()
         
     def adjust_game_levels(self):
         student: Student = self.memory.get_fact('student')

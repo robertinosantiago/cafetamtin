@@ -608,7 +608,7 @@ class Phase01Feedback(State):
             #self.end_phase = True
             self.exit_state()
         
-        if self.memory.get_fact('step') >= self.memory.get_fact('max_steps'):
+        if self.memory.get_fact('step') > self.memory.get_fact('max_steps'):
             
             message = 'Parabéns ' if quantity_corrects > quantity_errors else 'Muito bom '
             message += f'{self.game.student.nickname}! Chegamos ao final da fase 1. \n\n'

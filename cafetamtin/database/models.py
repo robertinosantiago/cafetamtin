@@ -32,7 +32,7 @@ class DBUser(db.Entity):
     challenges_p1 = Set('DBChallengeP1')
     challenges_p2 = Set('DBChallengeP2')
     challenges_p3 = Set('DBChallengeP3')
-
+    challenges_p4 = Set('DBChallengeP4')
 
 class DBBoard(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -53,7 +53,6 @@ class DBBoard(db.Entity):
     span_cols = Optional(int)
     span_rows = Optional(int)
 
-
 class DBSteps(db.Entity):
     id = PrimaryKey(int, auto=True)
     phase = Required(int)
@@ -62,14 +61,13 @@ class DBSteps(db.Entity):
     status = Optional(str)
     user = Required(DBUser)
 
-
 class DBSession(db.Entity):
     id = PrimaryKey(int, auto=True)
     start_time = Optional(datetime)
     challenges_p1 = Set('DBChallengeP1')
     challenges_p2 = Set('DBChallengeP2')
     challenges_p3 = Set('DBChallengeP3')
-
+    challenges_p4 = Set('DBChallengeP4')
 
 class DBChallengeP1(db.Entity):
     id = PrimaryKey(int, auto=True)
@@ -96,7 +94,6 @@ class DBChallengeP1(db.Entity):
     user = Required(DBUser)
     session = Required(DBSession)
 
-
 class DBChallengeP2(db.Entity):
     id = PrimaryKey(int, auto=True)
     number01 = Optional(int)
@@ -117,11 +114,31 @@ class DBChallengeP2(db.Entity):
     subtype_error = Optional(str)
     user = Required(DBUser)
     session = Required(DBSession)
-    
+
 class DBChallengeP3(db.Entity):
     id = PrimaryKey(int, auto=True)
     number = Optional(int)
     other_numbers = Optional(str)
+    is_correct = Optional(bool)
+    start_time = Optional(datetime)
+    end_time = Optional(datetime)
+    reaction_time = Optional(float)
+    reaction_time_without_pauses = Optional(float)
+    pauses_counter = Optional(int)
+    tips_counter = Optional(int)
+    distractors = Optional(int)
+    affective_state = Optional(str)
+    affective_quad = Optional(str)
+    type_external_representations = Optional(str)
+    type_error = Optional(str)
+    subtype_error = Optional(str)
+    user = Required(DBUser)
+    session = Required(DBSession)
+
+class DBChallengeP4(db.Entity):
+    id = PrimaryKey(int, auto=True)
+    numbers = Optional(str)
+    numbers_base = Optional(str)
     is_correct = Optional(bool)
     start_time = Optional(datetime)
     end_time = Optional(datetime)
