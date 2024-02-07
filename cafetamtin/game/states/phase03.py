@@ -359,6 +359,7 @@ class Phase03(State):
             
             response['type_error'] = TypeError.ERROR_TIMEOUT
             response['subtype_error'] = TypeError.SUBTYPE_NONE
+            response['icc'] = student.inhibitory_capacity_online
             
             self.memory.get_fact('responses').append(response)
             
@@ -814,6 +815,7 @@ class Phase03(State):
             affective_quad = response['affective_quad'],
             type_error = response['type_error'],
             subtype_error = response['subtype_error'],
+            icc = response['icc'],
             user = user,
             session = session
         )

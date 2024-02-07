@@ -16,13 +16,15 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from pony.orm import *
+from pygame.locals import *
 
 from production.rule import Rule
-from production.inference_engine import InferenceEngine
-from production.level_checks import LevelChecks
+from database.models import DBUser
 from production.memory import Memory
-from production.type_error import TypeError
 from game.actors.student import Student
+from production.level_checks import LevelChecks
+from production.inference_engine import InferenceEngine
 
 class LevelRules():
     
@@ -136,3 +138,11 @@ class LevelRules():
     
     def execute_rules(self):
         self.engine.execute_rules(self.wm)
+        self.update_inhibitory_capacity_user(self.wm)
+        
+    @db_session
+    def update_inhibitory_capacity_user(self, wm : Memory):
+        student: Student = wm.get_fact('student')
+        user = DBUser[student.id]
+        user.inhibitory_capacity_online = student.inhibitory_capacity_online
+        commit()

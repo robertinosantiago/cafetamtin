@@ -309,7 +309,7 @@ class Phase02(State):
 
         if not self.show_teacher:
             pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
-            white_text = font.render("Pausar", True, (0,0,0))
+            white_text = font.render('Pausar' if not self.is_paused else 'Continuar', True, (0,0,0))
             display.blit(white_text, (35, baseline_text))
 
             pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
@@ -379,6 +379,7 @@ class Phase02(State):
             
             response['type_error'] = TypeError.ERROR_TIMEOUT
             response['subtype_error'] = TypeError.SUBTYPE_NONE
+            response['icc'] = student.inhibitory_capacity_online
             
             self.memory.get_fact('responses').append(response)
             
@@ -553,6 +554,7 @@ class Phase02(State):
             affective_quad = response['affective_quad'],
             type_error = response['type_error'],
             subtype_error = response['subtype_error'],
+            icc = response['icc'],
             user = user,
             session = session
         )

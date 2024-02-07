@@ -28,8 +28,9 @@ from game import FONT_NAME
 from game import WHITE, BLACK, RED, GREEN, YELLOW
 
 from base.board import Board
-from base.facial import FacialThread
+from production.error import Error
 from game.states.state import State
+from base.facial import FacialThread
 from game.actors.teacher import Teacher
 from game.actors.student import Student
 from production.type_error import TypeError
@@ -486,6 +487,7 @@ class Phase01Feedback(State):
         quantity_corrects = self.memory.get_fact('quantity_corrects')
         quantity_errors = self.memory.get_fact('quantity_errors')
         num_terms = self.memory.get_fact('num_terms')
+        student : Student = self.memory.get_fact('student')
         
         response = {}
         response['step'] = self.memory.get_fact('step')
@@ -502,6 +504,7 @@ class Phase01Feedback(State):
         
         response['type_error'] = ''
         response['subtype_error'] = ''
+        response['icc'] = student.inhibitory_capacity_online
         
         if len(result) > 0:
             result = int(result[0])
@@ -546,28 +549,25 @@ class Phase01Feedback(State):
                 self.memory.add_fact('num_terms', num_terms)
             
         else:
+            response['is_correct'] = False
+            self.memory.add_fact('is_correct', False)
+            history_errors = self.memory.get_fact('history_errors')
+            error = None
             
             if not valid and result == 0:
-                pass
-                #@TODO: IMPLEMENTAR
+                error = Error(type = TypeError.ERROR_NOT_VALID, subtype = TypeError.SUBTYPE_NONE)
+                self.teacher.set_message(
+                    f'Atenção {self.game.student.nickname}! lembre-se de colocar '+
+                    'o bloco numerado no tabuleiro antes de pressionar o botão VERDE. '+
+                    'A ordem correta para responder o desafio é: 1. Colocar o bloco '+
+                    'numerado no tabuleiro. 2. Pressionar o botão VERDE.'+
+                    '\n\nPressione o botão VERMELHO para continuar',
+                    'neutral1'
+                )
             else:
-            
-                response['is_correct'] = False
-                self.memory.add_fact('is_correct', False)
-                
                 #quantity_corrects = 0
                 errors = sorted(errors, key=lambda error: error.weight, reverse=True)
                 error = errors[0]
-                history_errors = self.memory.get_fact('history_errors')
-                history_errors.append(error)
-                self.memory.add_fact('history_errors', history_errors)
-                
-                
-                quantity_errors += 1
-                self.memory.add_fact('quantity_errors', quantity_errors)
-                
-                response['type_error'] = error.type
-                response['subtype_error'] = error.subtype
                 
                 if error.type == TypeError.TYPE_MISINTERPRETATION_LANGUAGE:
                     self.message_teacher_misinterpretation_language()
@@ -584,7 +584,14 @@ class Phase01Feedback(State):
                     self.message_teacher_uncategorized_solution()
                     
                 self.memory.reset()
-                
+            
+            history_errors.append(error)
+            self.memory.add_fact('history_errors', history_errors)
+            quantity_errors += 1
+            self.memory.add_fact('quantity_errors', quantity_errors)
+            response['type_error'] = error.type
+            response['subtype_error'] = error.subtype
+            
         self.memory.get_fact('responses').append(response)
         self.save_challenge(response)
         
@@ -733,6 +740,7 @@ class Phase01Feedback(State):
             affective_quad = response['affective_quad'],
             type_error = response['type_error'],
             subtype_error = response['subtype_error'],
+            icc = response['icc'],
             user = user,
             session = session
         )

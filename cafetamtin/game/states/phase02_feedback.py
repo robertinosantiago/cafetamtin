@@ -514,6 +514,7 @@ class Phase02Feedback(State):
         correct = self.memory.get_fact('correct')
         quantity_corrects = self.memory.get_fact('quantity_corrects')
         quantity_errors = self.memory.get_fact('quantity_errors')
+        student : Student = self.memory.get_fact('student')
         
         
         self.memory.add_fact('new_challenge', True)
@@ -533,6 +534,8 @@ class Phase02Feedback(State):
         
         response['type_error'] = ''
         response['subtype_error'] = ''
+        
+        response['icc'] = student.inhibitory_capacity_online
         
         if len(result) == 3:
             response['number01'] = result[0]
@@ -727,6 +730,7 @@ class Phase02Feedback(State):
             affective_quad = response['affective_quad'],
             type_error = response['type_error'],
             subtype_error = response['subtype_error'],
+            icc = response['icc'],
             user = user,
             session = session
         )

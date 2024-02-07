@@ -16,11 +16,13 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import re
-from datetime import datetime
+from pony.orm import *
 
+from production.error import Error
 from production.memory import Memory
 from production.eficiency import Eficiency
+from production.type_error import TypeError
+from database.models import DBChallengeP1, DBChallengeP2, DBChallengeP3, DBChallengeP4
 
 class LevelChecks():
     
@@ -62,7 +64,15 @@ class LevelChecks():
     
     def most_common_errors(self, wm: Memory):
         logging.info(f'Executando função: most_common_errors')
-        #@TODO: implementar a busca no banco de dados pelo erro mais comum
+        phase = wm.get_fact('phase')
+        if phase == 1:
+            return self.__count_errors_phase01__(wm)
+        if phase == 2:
+            return self.__count_errors_phase02__(wm)
+        if phase == 3:
+            return self.__count_errors_phase03__(wm)
+        if phase == 4:
+            return self.__count_errors_phase04__(wm)
         return False
     
     def problem_solving_time(self, wm: Memory):
@@ -127,3 +137,56 @@ class LevelChecks():
                 corrects += 1
                 
         return corrects
+    
+    @db_session
+    def __count_errors_phase01__(self, wm: Memory):
+        responses = wm.get_fact('responses') 
+        
+        data = select((p.type_error, p.subtype_error, count()) for p in DBChallengeP1 if p.is_correct == 0)
+        ordered = sorted(data, key = lambda x: x[2], reverse=True)
+        
+        return self.__verify_errors_phases__(responses, ordered)
+    
+    @db_session
+    def __count_errors_phase02__(self, wm: Memory):
+        responses = wm.get_fact('responses') 
+        
+        data = select((p.type_error, p.subtype_error, count()) for p in DBChallengeP2 if p.is_correct == 0)
+        ordered = sorted(data, key = lambda x: x[2], reverse=True)
+        
+        return self.__verify_errors_phases__(responses, ordered)
+    
+    @db_session
+    def __count_errors_phase03__(self, wm: Memory):
+        responses = wm.get_fact('responses') 
+        
+        data = select((p.type_error, p.subtype_error, count()) for p in DBChallengeP3 if p.is_correct == 0)
+        ordered = sorted(data, key = lambda x: x[2], reverse=True)
+        
+        return self.__verify_errors_phases__(responses, ordered)
+    
+    @db_session
+    def __count_errors_phase04__(self, wm: Memory):
+        responses = wm.get_fact('responses') 
+        
+        data = select((p.type_error, p.subtype_error, count()) for p in DBChallengeP4 if p.is_correct == 0)
+        ordered = sorted(data, key = lambda x: x[2], reverse=True)
+        
+        return self.__verify_errors_phases__(responses, ordered)
+    
+    def __verify_errors_phases__(self, responses, ordered) -> bool:
+        if len(ordered) == 0:
+            return False
+        
+        if len(responses) < 3:
+            return False
+        
+        count = 0
+        for response in responses:
+            if response['type_error'] == ordered[0][0] and response['subtype_error'] == ordered[0][1]:
+                count += 1
+        
+        if count == 0:
+            return False
+                
+        return count % 3 == 0

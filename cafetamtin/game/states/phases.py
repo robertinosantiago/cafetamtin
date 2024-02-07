@@ -105,7 +105,8 @@ class Phases(State):
         self.execute_action_menu()
     
     def buttonExitChanged(self, data):
-        self.exit_state()
+        #self.exit_state()
+        pass
 
     def update(self, delta_time):
         pass
@@ -207,9 +208,9 @@ class Phases(State):
         text = font.render("Iniciar", True, (0,0,0))
         display.blit(text, (35, baseline_text))
 
-        pygame.draw.circle(display,RED,(120,baseline_circle),10)
-        text = font.render("Voltar", True, (0,0,0))
-        display.blit(text, (135, baseline_text))
+        #pygame.draw.circle(display,RED,(120,baseline_circle),10)
+        #text = font.render("Voltar", True, (0,0,0))
+        #display.blit(text, (135, baseline_text))
     
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)

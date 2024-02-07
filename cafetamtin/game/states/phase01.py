@@ -120,8 +120,8 @@ class Phase01(State):
         self.memory.add_fact('errors', [])
         self.memory.add_fact('responses', [])
         self.memory.add_fact('reset_timer', True)
-        self.memory.add_fact('max_lives', 2)
-        self.memory.add_fact('lives', 2)
+        self.memory.add_fact('max_lives', 5)
+        self.memory.add_fact('lives', 5)
         self.memory.add_fact('score', score)
         self.memory.add_fact('correct_points', 10)
         self.memory.add_fact('incorrect_points', 5)
@@ -360,7 +360,7 @@ class Phase01(State):
 
         if not self.show_teacher:
             pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
-            white_text = font.render("Pausar", True, (0,0,0))
+            white_text = font.render('Pausar' if not self.is_paused else 'Continuar', True, (0,0,0))
             display.blit(white_text, (35, baseline_text))
 
             pygame.draw.circle(display,GREEN,(220,baseline_circle),10)
@@ -442,6 +442,7 @@ class Phase01(State):
             response['expected_result'] = int(part2)
             response['informed_result'] = -1
             response['is_correct'] = False
+            response['icc'] = student.inhibitory_capacity_online
             
             self.memory.add_fact('is_correct', False)
             self.memory.get_fact('responses').append(response)
@@ -667,6 +668,7 @@ class Phase01(State):
             affective_quad = response['affective_quad'],
             type_error = response['type_error'],
             subtype_error = response['subtype_error'],
+            icc = response['icc'],
             user = user,
             session = session
         )

@@ -91,6 +91,7 @@ class DBChallengeP1(db.Entity):
     type_external_representations = Optional(str)
     type_error = Optional(str)
     subtype_error = Optional(str)
+    icc = Optional(int)
     user = Required(DBUser)
     session = Required(DBSession)
 
@@ -112,6 +113,7 @@ class DBChallengeP2(db.Entity):
     type_external_repesentations = Optional(str)
     type_error = Optional(str)
     subtype_error = Optional(str)
+    icc = Optional(int)
     user = Required(DBUser)
     session = Required(DBSession)
 
@@ -132,6 +134,7 @@ class DBChallengeP3(db.Entity):
     type_external_representations = Optional(str)
     type_error = Optional(str)
     subtype_error = Optional(str)
+    icc = Optional(int)
     user = Required(DBUser)
     session = Required(DBSession)
 
@@ -152,5 +155,6 @@ class DBChallengeP4(db.Entity):
     type_external_representations = Optional(str)
     type_error = Optional(str)
     subtype_error = Optional(str)
+    icc = Optional(int)
     user = Required(DBUser)
     session = Required(DBSession)

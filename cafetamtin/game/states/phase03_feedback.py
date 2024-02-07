@@ -332,6 +332,7 @@ class Phase03Feedback(State):
         blocks_student = self.memory.get_fact('blocks_student')
         blocks_tutor = self.memory.get_fact('blocks_tutor')
         blocks_available = self.memory.get_fact('blocks_available')
+        student : Student = self.memory.get_fact('student')
         
         response = {}
         
@@ -348,6 +349,7 @@ class Phase03Feedback(State):
         
         response['type_error'] = ''
         response['subtype_error'] = ''
+        response['icc'] = student.inhibitory_capacity_online
         
         response['other_numbers'] = ','.join([f'{str(x)}' for x in blocks_student.keys()])
         
@@ -782,6 +784,7 @@ class Phase03Feedback(State):
             affective_quad = response['affective_quad'],
             type_error = response['type_error'],
             subtype_error = response['subtype_error'],
+            icc = response['icc'],
             user = user,
             session = session
         )

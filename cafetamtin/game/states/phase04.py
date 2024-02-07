@@ -580,108 +580,6 @@ class Phase04(State):
             self.teacher.next_message()
             self.show_teacher = True
     
-    def check_challenge_old(self):
-        numbers_students = self.board.values_positions()
-
-        if not self.check_initial_blocks(numbers_students):
-            if self.new_challenge:
-                self.teacher.set_message(
-                        'Atenção. Você deve colocar\n'+
-                        'sobre o tabuleiro os blocos\n'+
-                        'na ordem e posição solicitado\n'+
-                        'pelo tutor.', 
-                        'neutral0'
-                    )
-                self.new_challenge = False
-            else:
-                self.teacher.set_message(
-                    'Atenção. Você não deve alterar\n'+
-                    'a ordem inicial dos blocos que\n'+
-                    'estavam dispostos sobre o tabuleiro.\n'+
-                    'Por gentileza, organize-os novamente.', 
-                    'neutral0'
-                )
-            self.lives -= 1
-        else:
-
-            self.calculate_challenge_blocks(numbers_students)
-
-            if self.new_challenge:
-                if (self.blocks_in_board() != len(numbers_students)):
-                    self.teacher.set_message(
-                        'Atenção. Você deve colocar\n'+
-                        'sobre o tabuleiro os blocos\n'+
-                        'solicitados pelo tutor.', 
-                        'neutral0'
-                    )
-                    self.lives -= 1
-                
-                else:
-                    self.teacher.set_message(
-                        'Muito bom!\n'+
-                        'Você deve completar o quadrado\n'+
-                        'mágico colocando sobre o tabuleiro\n'+
-                        'os blocos restantes.', 
-                        'happy0',
-                        modal=False,
-                        position=self.position_no_modal
-                    )
-                    self.new_challenge = False
-            else:
-                found = self.count_challenges_found()
-
-                if len(numbers_students) < 9:
-                    if found == 0:
-                        self.teacher.set_message(
-                            'Atenção. Você deve colocar\n'+
-                            'sobre o tabuleiro os blocos\n'+
-                            'que faltam para completar o\n'+
-                            'quadrado mágico 3x3.', 
-                            'neutral0'
-                        )
-                        self.lives -= 1
-                    else:
-                        self.teacher.set_message(
-                            'Parabéns! Você conseguir encontrar\n'+
-                            f'{found} soma(s) que resultam 15 no\n'+ 
-                            'quadrado mágico. Tente encontrar as\n'+
-                            'demais somas.', 
-                            'happy1'
-                        )
-                else:
-                    self.student_blocks.update(numbers_students)
-                    if found == len(self.challenges):
-                        self.teacher.set_message(
-                            'Muito bem! Você conseguiu encontrar\n'+
-                            'todas as somas possíveis que resultam\n'+
-                            '15 neste quadrado mágico.', 
-                            'heart0'
-                        )
-                        self.frame_confetti = 1
-                        self.confetti.visible = True
-                        self.rainbow.run()
-
-                        if self.step < self.max_steps:
-                            self.teacher.set_message(
-                                'Tente resolver o próximo desafio!\n', 
-                                'happy0'
-                            )
-                            self.step += 1
-                            self.new_challenge = True
-
-                    else:
-                        self.teacher.set_message(
-                            'Parabéns! Você conseguir encontrar\n'+
-                            f'{found} soma(s) que resultam 15 no\n'+ 
-                            'quadrado mágico. Tente encontrar as\n'+
-                            'demais somas.', 
-                            'happy1'
-                        )
-
-
-        self.teacher.next_message()
-        self.show_teacher = True
-    
     def draw_lifes(self):
         display = self.game.game_canvas
         for i in range(0, self.memory.get_fact('lives')):
@@ -874,6 +772,7 @@ class Phase04(State):
 
             response['affective_state'] = ''
             response['affective_quad'] = ''
+            response['icc'] = student.inhibitory_capacity_online
             
             response['type_error'] = TypeError.ERROR_TIMEOUT
             response['subtype_error'] = TypeError.SUBTYPE_NONE
@@ -987,6 +886,7 @@ class Phase04(State):
             affective_quad = response['affective_quad'],
             type_error = response['type_error'],
             subtype_error = response['subtype_error'],
+            icc = response['icc'],
             user = user,
             session = session
         )
