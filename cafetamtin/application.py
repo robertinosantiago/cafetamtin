@@ -63,7 +63,7 @@ def main(argv):
 
     db.generate_mapping(create_tables=True)
 
-    #create_user()
+    create_user()
 
     app = Application()
     app.game.loop()
