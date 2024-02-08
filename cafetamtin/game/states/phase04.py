@@ -37,6 +37,7 @@ from database.models import DBSession, DBUser, DBSteps, DBChallengeP4
 from production.error import Error
 from production.memory import Memory
 from production.type_error import TypeError
+from production.level_rules import LevelRules
 from production.phase04_rules import Phase04Rules
 from game.states.phase04_feedback import Phase04Feedback
 
@@ -54,6 +55,7 @@ class Phase04(State):
         
         self.memory = Memory()
         self.rules = Phase04Rules(self.memory)
+        self.rules_level = LevelRules(self.memory)
         self.init_working_memory()
         
         self.board = Board(self.game.app)
@@ -789,7 +791,8 @@ class Phase04(State):
             quantity_errors += 1
             self.memory.add_fact('quantity_errors', quantity_errors)
             
-            self.lose_life()
+            self.rules_level.execute_rules()
+            self.adjust_game_levels()
             
             if self.memory.get_fact('lives') == 0:
                 self.teacher.set_message(

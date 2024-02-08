@@ -219,8 +219,8 @@ class Phase04Feedback(State):
             message += ' + '.join(str(x) for x in wrong_numbers_tree_odd[0])
         else:
             _sum = sum(wrong_numbers_two_even_one_odd[0])
-            message += 'Apesar de você ter compreendido as propriedades\n'
-            message += 'dos números ímpares e números pares, ao\n'
+            message += 'Apesar de você ter compreendido as propriedades \n'
+            message += 'dos números ímpares e números pares, ao \n'
             message += 'utilizarmos a expressão '
             message += ' + '.join(str(x) for x in wrong_numbers_two_even_one_odd[0])
         
@@ -485,7 +485,11 @@ class Phase04Feedback(State):
         
         response['icc'] = student.inhibitory_capacity_online
         
+        if len(self.memory.get_fact('student_blocks')) == len(numbers_student):
+            print('\n\n não colocou numero novo\n\n')
+            
         if len(errors) == 0:
+
             response['is_correct'] = True
             self.memory.add_fact('is_correct', True)
             
@@ -588,6 +592,34 @@ class Phase04Feedback(State):
         
         self.teacher.next_message()
         self.show_teacher = True
+
+        if self.memory.get_fact('lives') == 0:
+            self.teacher.set_message(
+                'Puxa, você não conseguiu '+
+                'encontrar as melhores estratégias para jogar comigo.\n\n'+
+                'Tente novamente!'
+                '\n\nPressione o botão VERMELHO para continuar', 
+                'neutral1'
+            )
+            self.memory.add_fact('lives', -1)
+            self.save_steps(4, 'not-completed')
+            #self.end_phase = True
+            self.exit_state()
+            
+
+        if self.memory.get_fact('step') > self.memory.get_fact('max_steps'):
+            self.teacher.set_message(
+                'Ual, parabéns!!! Você conseguiu resolver todos os ' +
+                'os desafios e completar todas as fases do jogo. \n\n'+
+                'Obrigado por jogar :D '+
+                '\n\nPressione o botão VERMELHO para continuar',
+                'heart0'
+            )
+            step = self.memory.get_fact('step')
+            step += 1
+            step = self.memory.add_fact('step', step)
+            self.save_steps(4, 'completed')
+            self.exit_state()
         
     def draw_board(self):
         display = self.game.game_canvas

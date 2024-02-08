@@ -35,7 +35,8 @@ class Phase03Rules:
             Rule(
                 name= 'Informar número já selecionado pelo tutor',
                 condition= lambda wm: self.checks.number_already_selected(self.wm),
-                action= self.type_error.error_misinterpretation_language
+                action= self.type_error.error_misinterpretation_language,
+                weight= 2
             )
         )
         
@@ -43,7 +44,8 @@ class Phase03Rules:
             Rule(
                 name= 'Não completar soma 15 quando possível',
                 condition= lambda wm: self.checks.do_not_make_sum_fifteen(self.wm),
-                action= self.type_error.error_domain_deficiency
+                action= self.type_error.error_domain_deficiency,
+                weight= 0
             )
         )
         
@@ -51,7 +53,8 @@ class Phase03Rules:
             Rule(
                 name= 'Evitar que o tutor some 15',
                 condition= lambda wm: self.checks.do_not_prevent_sum_fifteen(self.wm),
-                action= self.type_error.error_domain_deficiency
+                action= self.type_error.error_domain_deficiency,
+                weight= 0
             )
         )
 
@@ -59,7 +62,8 @@ class Phase03Rules:
             Rule(
                 name= 'Não selecionar o número 5 primeiro',
                 condition= lambda wm: self.checks.do_not_select_number_five_first(self.wm),
-                action= self.type_error.error_indirectly_identifiable
+                action= self.type_error.error_indirectly_identifiable,
+                weight= 1
             )
         )
         
@@ -67,7 +71,8 @@ class Phase03Rules:
             Rule(
                 name= 'Não informar nenhum número novo',
                 condition= lambda wm: self.checks.do_not_provide_new_number(self.wm),
-                action= self.type_error.error_uncategorized_solution
+                action= self.type_error.error_uncategorized_solution,
+                weight= 4
             )
         )
         
@@ -75,7 +80,8 @@ class Phase03Rules:
             Rule(
                 name= 'Informar dois ou mais números',
                 condition= lambda wm: self.checks.provide_two_or_more_numbers(self.wm),
-                action= self.type_error.error_uncategorized_solution
+                action= self.type_error.error_uncategorized_solution,
+                weight= 3
             )
         )
         

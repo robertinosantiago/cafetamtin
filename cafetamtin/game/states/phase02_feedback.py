@@ -573,6 +573,9 @@ class Phase02Feedback(State):
                         '\n\nPressione o botão VERMELHO para continuar', 
                         'happy0'
                     )
+                    self.enable_challenge = True
+                    response['type_error'] = TypeError.ERROR_RESPONSE_ALREADY_PROVIDED
+                    response['subtype_error'] = TypeError.SUBTYPE_NONE
                 else:
                     response['is_correct'] = True
                     self.memory.add_fact('is_correct', True)
@@ -655,7 +658,7 @@ class Phase02Feedback(State):
             #self.end_phase = True
             self.exit_state()
         
-        if self.memory.get_fact('step') > self.memory.get_fact('max_steps'):
+        if self.count_challenges_visible() >= self.memory.get_fact('max_steps'):
             
             message = f'Parabéns, {self.game.student.nickname}!\n\n'
             message += 'Você conseguiu encontrar todas as possíveis somas 15 '
@@ -758,6 +761,14 @@ class Phase02Feedback(State):
         )
         commit()
     
+    def count_challenges_visible(self):
+        count = 0
+        challenges = self.memory.get_fact('challenges')
+        for key, value in challenges.items():
+            if value['visible']:
+                count += 1
+        return count
+
     def __count_odd_numbers__(self, numbers) -> int:
         count = 0
         for n in numbers:

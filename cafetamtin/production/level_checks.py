@@ -60,6 +60,9 @@ class LevelChecks():
                 if response['reaction_time'] < minimum_time:
                     count += 1
         
+        if count == 0:
+            return False
+        
         return count % 3 == 0
     
     def persist_same_error(self, wm: Memory):

@@ -600,6 +600,16 @@ class Phase01Feedback(State):
         self.adjust_game_levels()
         self.teacher.next_message()
         self.show_teacher = True
+
+        if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') < self.memory.get_fact('max_steps') and self.memory.get_fact('reminders_remove_block') > 0:
+            self.teacher.set_message(
+                'Lembre-se de retirar o bloco numerado de cima '+
+                'do tabuleiro para iniciar o próximo desafio.'+
+                '\n\nPressione o botão VERMELHO para continuar',
+                'neutral1'
+            )
+            reminders = self.memory.get_fact('reminders_remove_block')
+            self.memory.add_fact('reminders_remove_block', reminders - 1)
         
         if self.memory.get_fact('lives') <= 0:
             #@colocar a mensagem 'tente novamente' caso haja mais rodadas

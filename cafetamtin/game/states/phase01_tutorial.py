@@ -46,9 +46,11 @@ class Phase01Tutorial(State):
     def load_messages(self):
         self.teacher.set_message(
             f"Olá {self.game.student.nickname}, meu nome é Monique e estou aqui para lhe auxiliar. "+
-            "Vou apresentar a você cada fase disponível no jogo.\n"+
-            "\n"+
-            "Pressione o botão VERMELHO para continuar", 
+            "Vou apresentar a você cada fase disponível no jogo.\n\n"+
+            "Você irá interagir com o jogo por meio dos blocos numerados e "+
+            "os botões coloridos da plataforma. As ações disponíveis no momento "+
+            "de cada botão estão descritos na barra inferior do jogo. "+
+            "\n\nPressione o botão VERMELHO para continuar", 
             "neutral2"
         )
         

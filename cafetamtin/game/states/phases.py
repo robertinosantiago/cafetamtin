@@ -41,7 +41,7 @@ class Phases(State):
     def __init__(self, game):
         super().__init__(game)
         self.images = self.load_images()
-        self.current_phase, self.current_score = self.load_current_phase_score()
+        self.current_phase, self.current_score, self.status = self.load_current_phase_score()
         self.reload = True
         
     def load_images(self):
@@ -73,10 +73,14 @@ class Phases(State):
         user = DBUser[self.game.student.id]
         phase = 1
         score = 0
+        status = 'not-started'
         if len(user.steps) > 0:
             phase = max(s.phase for s in user.steps)
             score = max(s.score for s in user.steps)
-        return phase, score
+            for step in user.steps:
+                if step.phase == phase and step.score == score:
+                    status= step.status
+        return phase, score, status
 
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.set_callback(self.buttonUpChanged)
@@ -102,11 +106,12 @@ class Phases(State):
         pass
 
     def buttonOkChanged(self, data):
-        self.execute_action_menu()
+        if self.current_phase <= 4 and self.status != 'completed':
+            self.execute_action_menu()
     
     def buttonExitChanged(self, data):
-        #self.exit_state()
-        pass
+        if self.current_phase <= 4 and self.status == 'completed':
+            self.exit_state()
 
     def update(self, delta_time):
         pass
@@ -115,7 +120,7 @@ class Phases(State):
     def execute_action_menu(self):
         user = DBUser[self.game.student.id]
         if len(user.steps) == 0:
-            step = DBSteps(phase = 1, score = 0, lifes = 3, status = 'started', user = user)
+            step = DBSteps(phase = 1, score = 0, lifes = 5, status = 'started', user = user)
         if self.current_phase <= 1:
             new_state = Phase01(self.game)
             new_state.enter_state()    
@@ -179,7 +184,7 @@ class Phases(State):
             text_rect = text.get_rect(center=(offset_width+slice_width*2, text_rect.bottom + 20))
             display.blit(text, text_rect)
 
-        status_phase = 'not-started' if self.current_phase < 4 else ('started' if self.current_phase == 4 else 'completed')
+        status_phase = 'not-started' if self.current_phase < 4 else ('started' if self.current_phase == 4 and self.status != 'completed' else 'completed')
         phase04 = self.images['phase04'][status_phase]
         phase04_rect = phase04.get_rect(center=(offset_width+slice_width*3, screen_height/2))
         display.blit(phase04, phase04_rect)
@@ -204,13 +209,14 @@ class Phases(State):
         pygame.draw.rect(shape, (200, 200, 200), shape.get_rect())
         display.blit(shape, rect)
         
-        pygame.draw.circle(display,GREEN,(20,baseline_circle),10)
-        text = font.render("Iniciar", True, (0,0,0))
-        display.blit(text, (35, baseline_text))
-
-        #pygame.draw.circle(display,RED,(120,baseline_circle),10)
-        #text = font.render("Voltar", True, (0,0,0))
-        #display.blit(text, (135, baseline_text))
+        if self.current_phase <= 4 and self.status != 'completed':
+            pygame.draw.circle(display,GREEN,(20,baseline_circle),10)
+            text = font.render("Iniciar", True, (0,0,0))
+            display.blit(text, (35, baseline_text))
+        else:
+            pygame.draw.circle(display,RED,(120,baseline_circle),10)
+            text = font.render("Voltar", True, (0,0,0))
+            display.blit(text, (135, baseline_text))
     
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
@@ -218,7 +224,7 @@ class Phases(State):
         
         display.fill(BACKGROUND_COLOR)
         if self.reload:
-            self.current_phase, self.current_score = self.load_current_phase_score()
+            self.current_phase, self.current_score, self.status = self.load_current_phase_score()
             self.reload = False
         self.draw_button_phases()
         self.draw_physical_buttons()

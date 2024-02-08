@@ -74,6 +74,7 @@ class Phase03Tutorial(State):
         self.teacher.set_message(
             "Em cada jogada, você deve colocar um bloco numerado sobre a "+
             "plataforma e pressionar o botão VERDE para validar a jogada.\n"+
+            "Após a validação, o bloco numerado deve permanecer sobre a plataforma."
             "\n"+
             "Pressione o botão VERMELHO para continuar",  
             "neutral2"

@@ -42,6 +42,7 @@ from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
 from production.error import Error
 from production.memory import Memory
 from production.type_error import TypeError
+from production.level_rules import LevelRules
 from production.phase01_rules import Phase01Rules
 from game.states.phase01_feedback import Phase01Feedback
 
@@ -53,6 +54,7 @@ class Phase01(State):
 
         self.memory = Memory()
         self.rules = Phase01Rules(self.memory)
+        self.rules_level = LevelRules(self.memory)
         self.init_working_memory()
         
         self.board = Board(self.game.app)
@@ -128,6 +130,7 @@ class Phase01(State):
         self.memory.add_fact('bonus_points', 5)
         self.memory.add_fact('new_challenge', True)
         self.memory.add_fact('phase', 1)
+        self.memory.add_fact('reminders_remove_block', 2)
         
         self.memory.add_fact('timer_response', Timer())
         
@@ -456,7 +459,8 @@ class Phase01(State):
             self.memory.add_fact('quantity_errors', quantity_errors)
             
             
-            self.lose_life()
+            self.rules_level.execute_rules()
+            self.adjust_game_levels()
             
             if self.memory.get_fact('lives') == 0:
                 self.teacher.set_message(

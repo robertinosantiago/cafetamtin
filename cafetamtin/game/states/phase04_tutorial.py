@@ -218,7 +218,51 @@ class Phase04Tutorial(State):
 
                 y += self.box_height + self.offset
             x += self.box_width + self.offset
+    
+    def draw_possible_sums_student(self) -> None:
+        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
+        display = self.game.game_canvas
+        matrix = [
+            [-15, -15, -15, -15, -15],
+            [-15,   0,   0,   0, -15],
+            [-15,   0,   0,   0, -15],
+            [-15,   0,   0,   0, -15],
+            [-15, -15, -15, -15, -15],
+        ]
+        box_width = 30
+        box_height = 30
+        offset = 10
+        pos_x = 642.5
+        pos_y = 100
+        x = pos_x
         
+        for c in range(0, len(matrix)):
+            y = pos_y
+            for l in range(0, len(matrix[c])):
+                if self.is_calculate_value(matrix, l, c):
+                    color = BLACK
+                    text = font.render(str(matrix[l][c]), True, color)
+                    text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
+                    display.blit(text, text_rect)
+                else:
+                    color = (220, 3, 3)
+                    rect = (x,y,box_width,box_height)
+                    shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+                    pygame.draw.rect(shape, color, shape.get_rect())
+                    display.blit(shape, rect)
+                    color = (255,255,255,255)
+                    text = font.render(str(matrix[l][c]), True, color)
+                    text_rect = text.get_rect(center=(x+box_width/2, y+box_height/2))
+                    if matrix[l][c] != 0:
+                        display.blit(text, text_rect)
+                y += box_height + offset
+            x += box_width + offset
+    
+    def is_calculate_value(self, matrix, l, c):
+        if (l > 0 and l < len(matrix) - 1) and (c > 0 and c < len(matrix[0]) - 1):
+            return False
+        return True
+
     def draw_physical_buttons(self) -> None:
         display = self.game.game_canvas
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
@@ -236,6 +280,7 @@ class Phase04Tutorial(State):
         display.fill((255,255,255))
 
         self.draw_board()
+        self.draw_possible_sums_student()
         self.draw_physical_buttons()
         
         if self.show_teacher:

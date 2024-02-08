@@ -22,6 +22,7 @@ import logging
 class TypeError:
     ERROR_NOT_VALID = 'Expressão não válida'
     ERROR_TIMEOUT = 'Tempo excedido'
+    ERROR_RESPONSE_ALREADY_PROVIDED = 'Resposta já fornecida'
     
     TYPE_DIRECTLY_IDENTIFIABLE = 'Diretamente identificáveis'
     TYPE_MISINTERPRETATION_LANGUAGE = 'Interpretação equivocada da linguagem'
