@@ -602,20 +602,6 @@ class Phase01(State):
         for x in x_coordenate:
             student_desk_rect = student_desk.get_rect(topleft=(x,380))
             display.blit(student_desk, student_desk_rect)
-
-    def draw_pause(self):
-        display = self.game.game_canvas
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-                
-        rect_background = (0,0,screen_width,screen_height)
-        shape_surf = pygame.Surface(pygame.Rect(rect_background).size, pygame.SRCALPHA)
-        pygame.draw.rect(shape_surf, (0,0,0,230), shape_surf.get_rect())
-        display.blit(shape_surf, rect_background)
-
-        font = pygame.font.SysFont(FONT_NAME, 72, False, False)
-        instruction_text = font.render('Pause', True, (220,220,220))
-        instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
-        display.blit(instruction_text, instruction_text_rect)
         
     def draw_confetti(self):
         display = self.game.game_canvas

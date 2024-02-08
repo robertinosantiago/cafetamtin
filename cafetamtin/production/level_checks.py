@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
+import math
 import logging
 from pony.orm import *
 
@@ -34,12 +35,24 @@ class LevelChecks():
         responses = wm.get_fact('responses')
         is_correct = wm.get_fact('is_correct')
         minimum_time = wm.get_fact('minimum_time')
+        phase = wm.get_fact('phase')
+        
+        self.__get_first_quartil_phase01__(wm)
         
         if is_correct:
             return False
         
         if len(responses) < 3:
             return False
+        
+        if phase == 1:
+            minimum_time = self.__get_first_quartil_phase01__(wm)
+        if phase == 2:
+            minimum_time = self.__get_first_quartil_phase02__(wm)
+        if phase == 3:
+            minimum_time = self.__get_first_quartil_phase03__(wm)
+        if phase == 4:
+            minimum_time = self.__get_first_quartil_phase04__(wm)
         
         count = 0
         for response in responses:
@@ -76,7 +89,7 @@ class LevelChecks():
         return False
     
     def problem_solving_time(self, wm: Memory):
-        logging.info(f'Executando função: time_per_step')
+        logging.info(f'Executando função: problem_solving_time')
         responses = wm.get_fact('responses')
                 
         if len(responses) < 3:
@@ -190,3 +203,40 @@ class LevelChecks():
             return False
                 
         return count % 3 == 0
+    
+    @db_session
+    def __get_first_quartil_phase01__(self, wm: Memory):
+        minimum_time = wm.get_fact('minimum_time')
+        data = DBChallengeP1.select(lambda p: not p.is_correct).order_by(lambda p: p.reaction_time)[:]
+        return self.__calculate_quartil__(data, minimum_time)
+        
+    @db_session
+    def __get_first_quartil_phase02__(self, wm: Memory):
+        minimum_time = wm.get_fact('minimum_time')
+        data = DBChallengeP2.select(lambda p: not p.is_correct).order_by(lambda p: p.reaction_time)[:]
+        return self.__calculate_quartil__(data, minimum_time)
+    
+    @db_session
+    def __get_first_quartil_phase03__(self, wm: Memory):
+        minimum_time = wm.get_fact('minimum_time')
+        data = DBChallengeP3.select(lambda p: not p.is_correct).order_by(lambda p: p.reaction_time)[:]
+        return self.__calculate_quartil__(data, minimum_time)
+    
+    @db_session
+    def __get_first_quartil_phase04__(self, wm: Memory):
+        minimum_time = wm.get_fact('minimum_time')
+        data = DBChallengeP4.select(lambda p: not p.is_correct).order_by(lambda p: p.reaction_time)[:]
+        return self.__calculate_quartil__(data, minimum_time)
+        
+    def __calculate_quartil__(self, data, minimum_time):
+        if len(data) == 0:
+            return minimum_time
+        
+        first_quartil = (len(data) + 1) * 0.25
+        n1 = int(first_quartil)
+        n2 = math.ceil(first_quartil)
+        
+        if n1 == n2:
+            return data[n1].reaction_time
+        
+        return (data[n1].reaction_time + data[n2].reaction_time) / 2

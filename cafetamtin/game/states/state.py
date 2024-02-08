@@ -129,6 +129,11 @@ class State():
         instruction_text_rect = instruction_text.get_rect(center=(screen_width/2, screen_height/2))
         display.blit(instruction_text, instruction_text_rect)
 
+        #rect = (0, screen_height - 50, screen_width, screen_height)
+        #shape = pygame.Surface(pygame.Rect(rect).size, pygame.SRCALPHA)
+        #pygame.draw.rect(shape, (0,0,0,255), shape.get_rect())
+        #display.blit(shape, rect)
+
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
         pygame.draw.circle(display,WHITE,(20,baseline_circle),10)
         white_text = font.render("Continuar", True, WHITE)
