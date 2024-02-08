@@ -268,9 +268,7 @@ class Phase01(State):
     def turn_on_led(self):
         pass
         #self.leds.central_led()
-        
-    def control_timer(self):
-        pass
+
 
     def starting_game(self):
         if not self.started:
