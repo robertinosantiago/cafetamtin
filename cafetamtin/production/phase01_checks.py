@@ -29,22 +29,22 @@ class Phase01Checks:
         pass
     
     def zero_numbers(self, wm):
-        logging.info(f'Executando função: zero_numbers')
+        logging.debug(f'Executando função: zero_numbers')
         result = wm.get_fact('result')
         return len(result) == 0
         
     def more_numbers(self, wm):
-        logging.info(f'Executando função: more_numbers')
+        logging.debug(f'Executando função: more_numbers')
         result = wm.get_fact('result')
         return len(result) > 1
             
     def one_number(self, wm):
         result = wm.get_fact('result')
-        logging.info(f'Executando função: one_number')
+        logging.debug(f'Executando função: one_number')
         return len(result) == 1
     
     def union_terms(self, wm):
-        logging.info(f'Executando função: union_terms')
+        logging.debug(f'Executando função: union_terms')
         expression = wm.get_fact('expression')
         result = wm.get_fact('result')
         
@@ -67,7 +67,7 @@ class Phase01Checks:
         return False
     
     def switched_operators(self, wm):
-        logging.info(f'Executando função: switched_operators')
+        logging.debug(f'Executando função: switched_operators')
         
         expression = wm.get_fact('expression')
         result = wm.get_fact('result')
@@ -126,7 +126,7 @@ class Phase01Checks:
         return False
                 
     def wrong_answer(self, wm):
-        logging.info(f'Executando função: wrong_answer')
+        logging.debug(f'Executando função: wrong_answer')
         
         expression = wm.get_fact('expression')
         result = wm.get_fact('result')
@@ -142,7 +142,7 @@ class Phase01Checks:
         return False
         
     def long_time(self, wm):
-        logging.info(f'Executando função: long_time')
+        logging.debug(f'Executando função: long_time')
         
         time = wm.get_fact('timer_response').total_time_seconds()
         max_time = wm.get_fact('average_time')
@@ -154,7 +154,7 @@ class Phase01Checks:
         return time > max_time
     
     def many_errors(self, wm):
-        logging.info(f'Executando função: many_errors')
+        logging.debug(f'Executando função: many_errors')
         quantity_errors = wm.get_fact('quantity_errors')
         limit_errors = wm.get_fact('limit_errors')
         if (quantity_errors >= limit_errors):
@@ -164,7 +164,7 @@ class Phase01Checks:
         
     
     def is_correct(self, wm):
-        logging.info(f'Executando função: is_correct')
+        logging.debug(f'Executando função: is_correct')
         expression = wm.get_fact('expression')
         result = wm.get_fact('result')
         valid = wm.get_fact('valid')

@@ -27,17 +27,17 @@ class Phase02Checks:
         pass
     
     def zero_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: zero_numbers')
+        logging.debug(f'Executando função: zero_numbers')
         result = wm.get_fact('result')
         return len(result) == 0
     
     def different_three_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: different_three_numbers')
+        logging.debug(f'Executando função: different_three_numbers')
         result = wm.get_fact('result')
         return len(result) != 3
     
     def three_odd_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: three_odd_numbers')
+        logging.debug(f'Executando função: three_odd_numbers')
         result = wm.get_fact('result')
         if len(result) == 3:
             n1 = result[0]
@@ -50,7 +50,7 @@ class Phase02Checks:
         return False
     
     def three_even_numbers(self, wm:Memory) -> bool:
-        logging.info(f'Executando função: three_even_numbers')
+        logging.debug(f'Executando função: three_even_numbers')
         result = wm.get_fact('result')
         if len(result) == 3:
             n1 = result[0]
@@ -62,7 +62,7 @@ class Phase02Checks:
         return False
     
     def two_even_and_one_odd_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: two_even_and_one_odd_numbers')
+        logging.debug(f'Executando função: two_even_and_one_odd_numbers')
         result = wm.get_fact('result')
         if len(result) == 3:
             n1 = result[0]
@@ -75,7 +75,7 @@ class Phase02Checks:
         return False
     
     def two_odd_and_one_even_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: two_odd_and_one_even_numbers')
+        logging.debug(f'Executando função: two_odd_and_one_even_numbers')
         result = wm.get_fact('result')
         if len(result) == 3:
             n1 = result[0]
@@ -87,7 +87,7 @@ class Phase02Checks:
         return False
     
     def many_errors(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: many_errors')
+        logging.debug(f'Executando função: many_errors')
         quantity_errors = wm.get_fact('quantity_errors')
         limit_errors = wm.get_fact('limit_errors')
         
@@ -103,7 +103,7 @@ class Phase02Checks:
         return False
     
     def long_time(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: long_time')
+        logging.debug(f'Executando função: long_time')
         result = wm.get_fact('result')
         time = wm.get_fact('timer_response').total_time_seconds()
         max_time = wm.get_fact('average_time')
@@ -116,7 +116,7 @@ class Phase02Checks:
         return False
     
     def is_correct(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: is_correct')
+        logging.debug(f'Executando função: is_correct')
         result = wm.get_fact('result')
         
         if len(result) == 3:

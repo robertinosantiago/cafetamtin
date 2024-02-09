@@ -24,13 +24,13 @@ class Phase04Checks:
         pass
     
     def zero_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: zero_numbers')
+        logging.debug(f'Executando função: zero_numbers')
         numbers_student = wm.get_fact('numbers_student')
         
         return len(numbers_student) == 0
     
     def long_time(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: long_time')
+        logging.debug(f'Executando função: long_time')
         time = wm.get_fact('timer_response').total_time_seconds()
         max_time = wm.get_fact('average_time')
         
@@ -40,7 +40,7 @@ class Phase04Checks:
         return time > max_time and len(initial_sums) >= len(student_sums)
     
     def three_odd_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: three_odd_numbers')
+        logging.debug(f'Executando função: three_odd_numbers')
         numbers = self.__student_numbers__(wm)
                 
         for n in numbers:
@@ -51,7 +51,7 @@ class Phase04Checks:
         return False
     
     def two_odd_and_one_even_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: two_odd_and_one_even_numbers')
+        logging.debug(f'Executando função: two_odd_and_one_even_numbers')
         numbers = self.__student_numbers__(wm)
         
         for n in numbers:
@@ -62,7 +62,7 @@ class Phase04Checks:
         return False
     
     def three_even_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: three_even_numbers')
+        logging.debug(f'Executando função: three_even_numbers')
         numbers = self.__student_numbers__(wm)
                 
         for n in numbers:
@@ -73,7 +73,7 @@ class Phase04Checks:
         return False
     
     def two_even_and_one_odd_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: two_even_and_one_odd_numbers')
+        logging.debug(f'Executando função: two_even_and_one_odd_numbers')
         numbers = self.__student_numbers__(wm)
         
         for n in numbers:
@@ -84,7 +84,7 @@ class Phase04Checks:
         return False
     
     def not_five_in_center(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: five_not_in_center')
+        logging.debug(f'Executando função: five_not_in_center')
         numbers_student = wm.get_fact('numbers_student')
         
         position = numbers_student.get(5)
@@ -98,7 +98,7 @@ class Phase04Checks:
         return False
     
     def not_even_number_in_corners(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: not_even_number_in_corners')
+        logging.debug(f'Executando função: not_even_number_in_corners')
         numbers_student : dict = wm.get_fact('numbers_student')
         numbers_even = {}
         
@@ -116,7 +116,7 @@ class Phase04Checks:
         return False
     
     def no_sum_fifteen(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: no_sum_fifteen')
+        logging.debug(f'Executando função: no_sum_fifteen')
         #initial_sums = self.__initial_sums__(wm)        
         student_sums = self.__student_sums__(wm)
         

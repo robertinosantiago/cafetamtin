@@ -49,7 +49,8 @@ class Phase02(State):
 
     def __init__(self, game):
         super().__init__(game)
-        
+        self.log('Executando Phase02')
+
         self.memory = Memory()
         self.rules = Phase02Rules(self.memory)
         self.rules_level = LevelRules(self.memory)
@@ -171,11 +172,13 @@ class Phase02(State):
             return
         
         if self.is_paused:
+            self.log('[TIMER] Resume')
             self.memory.get_fact('timer_response').resume()
             interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
             self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             self.is_paused = False
         else:
+            self.log('[TIMER] Pause')
             self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
@@ -189,12 +192,13 @@ class Phase02(State):
         if self.is_paused:
             return
         
+        self.log('Responder desafio')
         self.memory.get_fact('timer_response').stop()
 
         if self.teacher.has_next_message():
             self.teacher.clear_messages()
 
-
+        self.log('Acesso a dicas')
         self.teacher.set_message(
             "Verificando...\n"+
             "Aguarde.", 
@@ -335,6 +339,7 @@ class Phase02(State):
         reset_timer = self.memory.get_fact('reset_timer')
                 
         if reset_timer and not self.show_teacher:
+            self.log('[TIMER] - Reset')
             self.memory.add_fact('reset_timer', False)
             self.memory.get_fact('timer_response').stop()
             self.memory.get_fact('timer_response').start()
@@ -354,9 +359,9 @@ class Phase02(State):
         
             
     def end_timer(self):
-        #@TODO: verificar se é melhor iniciar o Feedback
         student: Student = self.memory.get_fact('student')
         if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
+            self.log('[TIMER] - Acabou o tempo')
             self.memory.add_fact('reset_timer', True)
             
             self.memory.get_fact('timer_response').stop()
@@ -385,6 +390,7 @@ class Phase02(State):
             
             self.memory.get_fact('responses').append(response)
             
+            self.log(f'[RESPONSE]\n{response}')
             self.save_challenge(response)
             
             history_errors = self.memory.get_fact('history_errors')
@@ -418,13 +424,6 @@ class Phase02(State):
              
             self.teacher.next_message()
             self.show_teacher = True
-            
-    def lose_life(self):
-        if self.memory.get_fact('lives') > 0:
-            self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
-        
-        if self.memory.get_fact('lives') == 0:
-            self.end_phase = True
     
     def draw_table(self):
         display = self.game.game_canvas
@@ -490,6 +489,8 @@ class Phase02(State):
         blocks = self.board.result_matrix_board()
         self.memory.add_fact('result', blocks)
         
+        self.log(f'Result [{blocks}]')
+
         self.rules.execute_rules()
         
         feedback = Phase02Feedback(self.game, self.memory)
@@ -499,6 +500,7 @@ class Phase02(State):
         self.show_teacher = False
         
         if self.memory.get_fact('lives') == 0:
+            self.log('Acabaram as vidas')
             self.teacher.set_message(
                 "Infelizmente, você não conseguiu "+
                 "encontrar todas as combinações.\n\n"+
@@ -513,6 +515,7 @@ class Phase02(State):
             
 
         if self.count_challenges_visible() >= self.memory.get_fact('max_steps') and not self.end_phase:
+            self.log('Acabaram os desafios')
             self.teacher.set_message(
                 "Parabéns!!! Você encontrou todas "+
                 "as somas possíveis com 3 números "+
@@ -555,11 +558,9 @@ class Phase02(State):
     
     @db_session
     def update_challenge(self, id, expression, quad):
-        logging.info(f'Atualizando challenge')
         challenge = DBChallengeP2[id]
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
-        logging.info(f'Atualizado')
 
     @db_session
     def save_steps(self, phase, status):

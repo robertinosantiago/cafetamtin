@@ -29,6 +29,7 @@ class Phase02Tutorial(State):
     
     def __init__(self, game) -> None:
         super().__init__(game)
+        self.log('Executando Phase02-Tutorial')
         
         self.board = Board(self.game.app)
         self.teacher = Teacher(self.game.game_canvas)

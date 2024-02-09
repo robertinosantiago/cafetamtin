@@ -15,14 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-from pathlib import Path
-from imutils import face_utils
-import datetime
-import imutils
+import cv2
 import time
 import dlib
-import cv2, math
+import logging
 import numpy as np
+from pathlib import Path
+from imutils import face_utils
 from imutils import face_utils, rotate_bound
 
 #Import biblioteca torch
@@ -33,7 +32,6 @@ from torch.utils.data.sampler import WeightedRandomSampler
 from torchvision import transforms
 
 from threading import Thread
-
 
 #importa biblioteca Rede Neural Profunda
 from emonet.models import EmoNet
@@ -57,6 +55,7 @@ class FacialThread(Thread):
         self.valence = valence
         self.arousal = arousal
         self.calculateQuad()
+        logging.info(f'|Facial|EXPRESSION[{self.expression}]:QUAD[{self.quad}]:VALENCE[{self.valence}]:AROUSAL[{self.arousal}]')
         self.action(self.id, self.expression, self.quad)
         
     def calculateQuad(self):
@@ -100,9 +99,6 @@ class Facial:
             str(self.__get_data_path().joinpath('affectnet', 'shape_predictor_68_face_landmarks.dat'))
         )
         self.__expressions = {0: 'neutral', 1:'happy', 2:'sad', 3:'surprise', 4:'fear', 5:'disgust', 6:'anger', 7:'contempt', 8:'none'}
-        print('init facial')
-
-        
         
     def __get_data_path(self):
         path = Path(__file__).absolute()
@@ -149,14 +145,9 @@ class Facial:
                 expression = self.__expressions.get(int(expr))
                 valence = val
                 arousal = ar
-                
-                print("expression = ", expression)
-                print("valencia = ", valence)
-                print("arousal = ", arousal)
         
         et = time.time()
         elapsed_time = et - st
-        print('Execution time:', elapsed_time, 'seconds')
         
         return expression, valence, arousal
                 

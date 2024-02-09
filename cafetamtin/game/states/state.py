@@ -16,11 +16,11 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import pygame
-from gpiozero import Button
+import logging
+from utils.confetti import Confetti
 
 from game import FONT_NAME
 from game import WHITE, BLACK, RED, GREEN, YELLOW
-from utils.confetti import Confetti
 
 class State():
     def __init__(self, game, memory = None):
@@ -145,3 +145,7 @@ class State():
         minutes = seconds // 60
         seconds %= 60
         return int(hours), int(minutes), int(seconds)
+    
+    def log(self, message):
+        text = f'User[{self.game.student.id}]|{message}'
+        logging.info(text)

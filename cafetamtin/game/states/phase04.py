@@ -52,6 +52,7 @@ class Phase04(State):
 
     def __init__(self, game):
         super().__init__(game)
+        self.log('Executando Phase03')
         
         self.memory = Memory()
         self.rules = Phase04Rules(self.memory)
@@ -185,12 +186,14 @@ class Phase04(State):
         
         if self.is_paused:
             if self.memory.get_fact('valid_initial'):
+                self.log('[TIMER] Resume')
                 self.memory.get_fact('timer_response').resume()
                 interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
                 self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             self.is_paused = False
         else:
             if self.memory.get_fact('valid_initial'):
+                self.log('[TIMER] Pause')
                 self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
@@ -205,6 +208,7 @@ class Phase04(State):
             return
         
         if self.memory.get_fact('valid_initial'):
+            self.log('Responder desafio')
             self.memory.get_fact('timer_response').stop()
 
             if self.teacher.has_next_message():
@@ -271,6 +275,7 @@ class Phase04(State):
             tips_times = self.memory.get_fact('tips_times')
             self.memory.add_fact('tips_times', tips_times + 1)
             
+            self.log('Acesso a dicas')
             self.teacher.set_message(
                 "Dicas", 
                 "neutral0"
@@ -546,6 +551,10 @@ class Phase04(State):
         self.memory.add_fact('numbers_initial_response', str(self.__initial_numbers__()))
         self.memory.add_fact('numbers_student_response', str(self.__student_numbers__()))
         
+        self.log(f'numbers_student [{numbers_student}]')
+        self.log(f'numbers_initial_response [{str(self.__initial_numbers__())}]')
+        self.log(f'numbers_student_response [{str(self.__student_numbers__())}]')
+
         self.rules.execute_rules()
         
         feedback = Phase04Feedback(self.game, self.memory)
@@ -557,6 +566,7 @@ class Phase04(State):
         self.show_teacher = False
         
         if self.memory.get_fact('lives') == 0:
+            self.log('Acabaram as vidas')
             self.teacher.set_message(
                 'Puxa, você não conseguiu '+
                 'encontrar as melhores estratégias para jogar comigo.\n\n'+
@@ -570,6 +580,7 @@ class Phase04(State):
             
 
         if self.memory.get_fact('step') > self.memory.get_fact('max_steps') and not self.end_phase:
+            self.log('Acabaram os desafios')
             self.teacher.set_message(
                 'Ual, parabéns!!! Você conseguiu resolver todos os ' +
                 'os desafios e completar todas as fases do jogo. \n\n'+
@@ -623,14 +634,6 @@ class Phase04(State):
             green_text = font.render('Responder' if self.memory.get_fact('valid_initial') else 'Validar posições', True, (0,0,0))
             display.blit(green_text, (235, baseline_text))
 
-    def lose_life(self):
-        if self.memory.get_fact('lives') > 0:
-            self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
-        
-        if self.memory.get_fact('lives') == 0:
-            self.end_phase = True
-
-    
     
     def draw_challenge(self):
         initial_blocks = self.memory.get_fact('initial_blocks')
@@ -730,6 +733,13 @@ class Phase04(State):
         screen_width = self.game.GAME_WIDTH
         reset_timer = self.memory.get_fact('reset_timer')
         end_time = self.memory.get_fact('end_time')
+        
+        if reset_timer and not self.show_teacher:
+            self.log('[TIMER] - Reset')
+            self.memory.add_fact('reset_timer', False)
+            self.memory.get_fact('timer_response').stop()
+            self.memory.get_fact('timer_response').start()
+            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
 
         if not self.memory.get_fact('timer_response').is_paused() and self.memory.get_fact('timer_response').is_started() and self.memory.get_fact('valid_initial'):
             time_left = max(end_time - datetime.now(), timedelta(0))
@@ -743,16 +753,12 @@ class Phase04(State):
             timer_text_rect = timer_text.get_rect(center=(screen_width/2, 20))
             display.blit(timer_text, timer_text_rect)
         
-        if reset_timer and not self.show_teacher:
-            self.memory.add_fact('reset_timer', False)
-            self.memory.get_fact('timer_response').stop()
-            self.memory.get_fact('timer_response').start()
-            self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
     
     def end_timer(self):
-        #@TODO: verificar se é melhor iniciar o Feedback
         student: Student = self.memory.get_fact('student')
         if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
+            self.log('[TIMER] - Acabou o tempo')
+
             self.memory.add_fact('reset_timer', True)
             
             self.memory.get_fact('timer_response').stop()
@@ -781,6 +787,7 @@ class Phase04(State):
             
             self.memory.get_fact('responses').append(response)
             
+            self.log(f'[RESPONSE]\n{response}')
             self.save_challenge(response)
             
             history_errors = self.memory.get_fact('history_errors')
@@ -899,11 +906,9 @@ class Phase04(State):
     
     @db_session
     def update_challenge(self, id, expression, quad):
-        logging.info(f'Atualizando challenge')
         challenge = DBChallengeP4[id]
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
-        logging.info(f'Atualizado')
 
     @db_session
     def save_steps(self, phase, status):

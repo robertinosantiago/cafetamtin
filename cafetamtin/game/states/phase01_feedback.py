@@ -41,6 +41,7 @@ class Phase01Feedback(State):
     
     def __init__(self, game, working_memory):
         super().__init__(game, working_memory)
+        self.log('Executando Phase01-Feedback')
         
         self.rules = LevelRules(self.memory)
         self.board = Board(self.game.app)
@@ -593,6 +594,7 @@ class Phase01Feedback(State):
             response['subtype_error'] = error.subtype
             
         self.memory.get_fact('responses').append(response)
+        self.log(f'[RESPONSE]\n {response}')
         self.save_challenge(response)
         
         
@@ -760,11 +762,9 @@ class Phase01Feedback(State):
     
     @db_session
     def update_challenge(self, id, expression, quad):
-        logging.info(f'Atualizando challenge')
         challenge = DBChallengeP1[id]
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
-        logging.info(f'Atualizado')
         
     @db_session
     def save_steps(self, phase, status):
@@ -779,9 +779,6 @@ class Phase01Feedback(State):
         commit()
         
     def render(self, display):
-        font = pygame.font.SysFont(FONT_NAME, 20, False, False)
-        screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT
-        offset_height = 0
         
         display.fill((255,255,255))
         

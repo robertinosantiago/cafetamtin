@@ -16,6 +16,7 @@
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
 import pygame
+import logging
 from pony.orm import *
 
 from database.models import DBBoard
@@ -124,6 +125,22 @@ class Board:
             self.matrix_board.append(line)
 
     def draw_matrix_board(self):
+        message = '\n'
+        message += '===='*(self.columns-1)
+        message +='\n'
+        for i in range(self.lines):
+            message += '|'
+            for j in range(self.columns):
+                message += '{0:2}|'.format(self.matrix_board[i][j])
+            message += '\n'
+            if i == self.lines - 1:
+                message += '===='*(self.columns-1)    
+            else:
+                message += '----'*(self.columns-1)
+            message += '\n'
+        logging.info(message)
+            
+    def draw_matrix_board_console(self):
         print('===='*(self.columns-1))
         for i in range(self.lines):
             print('|', end='')

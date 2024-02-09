@@ -103,7 +103,7 @@ class Recognizer:
                         confidences.append(float(confidence))
                         class_ids.append(class_id)
 
-                        print('center: x:{}, y:{} = Number: {}, confidence: {}'.format(center_x, center_y, self.classes[class_id], confidence))
+                        #print('center: x:{}, y:{} = Number: {}, confidence: {}'.format(center_x, center_y, self.classes[class_id], confidence))
                         self.draw_prediction(image, class_id, confidence, round(x), round(y), round(x+w), round(y+h))
                         #cv2.imwrite("temp/object-detection.jpg", image)
 

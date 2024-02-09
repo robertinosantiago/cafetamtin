@@ -27,13 +27,13 @@ class Phase03Checks:
         pass
     
     def zero_numbers(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: zero_numbers')
+        logging.debug(f'Executando função: zero_numbers')
         numbers_student = wm.get_fact('numbers_student')
         
         return len(numbers_student) == 0
     
     def number_already_selected(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: number_already_selected')
+        logging.debug(f'Executando função: number_already_selected')
         numbers_student = wm.get_fact('numbers_student')
         blocks_student = wm.get_fact('blocks_student')
         blocks_tutor = wm.get_fact('blocks_tutor')
@@ -46,7 +46,7 @@ class Phase03Checks:
         return diff[0] in blocks_tutor
     
     def do_not_select_number_five_first(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: do_not_select_number_five_first')
+        logging.debug(f'Executando função: do_not_select_number_five_first')
         numbers_student = wm.get_fact('numbers_student')
         blocks_tutor = wm.get_fact('blocks_tutor')
         
@@ -57,7 +57,7 @@ class Phase03Checks:
         
         
     def do_not_provide_new_number(self, wm: Memory) -> bool:
-        logging.info(f'Executando função: do_not_provide_new_number')
+        logging.debug(f'Executando função: do_not_provide_new_number')
         numbers_student = wm.get_fact('numbers_student')
         blocks_student = wm.get_fact('blocks_student')
         

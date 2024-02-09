@@ -31,7 +31,7 @@ class LevelChecks():
         pass
     
     def impulsive_errors(self, wm: Memory):
-        logging.info(f'Executando função: impulsive_errors')
+        logging.debug(f'Executando função: impulsive_errors')
         responses = wm.get_fact('responses')
         is_correct = wm.get_fact('is_correct')
         minimum_time = wm.get_fact('minimum_time')
@@ -66,7 +66,7 @@ class LevelChecks():
         return count % 3 == 0
     
     def persist_same_error(self, wm: Memory):
-        logging.info(f'Executando função: persist_same_error')
+        logging.debug(f'Executando função: persist_same_error')
         responses = wm.get_fact('responses') 
         
         if len(responses) < 2:
@@ -79,7 +79,7 @@ class LevelChecks():
         return responses[-1]['type_error'] == responses[-2]['type_error'] and responses[-1]['subtype_error'] == responses[-2]['subtype_error']
     
     def most_common_errors(self, wm: Memory):
-        logging.info(f'Executando função: most_common_errors')
+        logging.debug(f'Executando função: most_common_errors')
         phase = wm.get_fact('phase')
         if phase == 1:
             return self.__count_errors_phase01__(wm)
@@ -92,7 +92,7 @@ class LevelChecks():
         return False
     
     def problem_solving_time(self, wm: Memory):
-        logging.info(f'Executando função: problem_solving_time')
+        logging.debug(f'Executando função: problem_solving_time')
         responses = wm.get_fact('responses')
                 
         if len(responses) < 3:
@@ -109,7 +109,7 @@ class LevelChecks():
         return count >= 3
     
     def number_attempts(self, wm: Memory):
-        logging.info(f'Executando função: number_attemps')
+        logging.debug(f'Executando função: number_attemps')
         responses = wm.get_fact('responses')
         
         count = 0
@@ -123,22 +123,22 @@ class LevelChecks():
         return count % 5 == 0
     
     def is_student_efficiency_high(self, wm: Memory):
-        logging.info(f'Executando função: is_student_efficiency_high')
+        logging.debug(f'Executando função: is_student_efficiency_high')
         return self.student_efficiency(wm) == Eficiency.HIGH
     
     def is_student_efficiency_medium(self, wm: Memory):
-        logging.info(f'Executando função: is_student_efficiency_medium')
+        logging.debug(f'Executando função: is_student_efficiency_medium')
         return self.student_efficiency(wm) == Eficiency.MEDIUM
     
     def is_student_efficiency_low(self, wm: Memory):
-        logging.info(f'Executando função: is_student_efficiency_low')
+        logging.debug(f'Executando função: is_student_efficiency_low')
         return self.student_efficiency(wm) == Eficiency.LOW
     
     def student_efficiency(self, wm: Memory):
         corrects = self.__get_corrects(wm)
         step = len(wm.get_fact('responses'))
         index =  float(corrects) / float(step)
-        logging.info(f'Student efficiency: {corrects} div {step} = {index}')
+        logging.debug(f'Student efficiency: {corrects} div {step} = {index}')
         if index <= 0.33:
             return Eficiency.LOW
         elif index > 0.66:

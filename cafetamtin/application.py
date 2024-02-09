@@ -45,7 +45,12 @@ class Application:
         self.game = Game(self, False)
 
 def main(argv):
-    logging.basicConfig(level=logging.INFO)
+    now = datetime.now()
+    logging.basicConfig(level=logging.INFO,
+        format='%(asctime)s|%(levelname)s|%(funcName)s|%(message)s',
+        filename=f'log/cafetamtin-{now.strftime("%Y-%m-%d_%H-%M-%S")}.log',
+        filemode='w',
+        datefmt='%Y-%m-%d %H:%M:%S')
     
     fullpath = os.path.abspath(argv[0])
     dir = os.path.dirname(fullpath)

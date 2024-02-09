@@ -93,8 +93,6 @@ class LevelRules():
         )
         
     def decrease_inhibitory_control(self, wm: Memory, rule_name, weight):
-        logging.info(f'Executando função: decrease_inhibitory_control')
-        logging.info(f'Disparado por: {rule_name}')
         student: Student = wm.get_fact('student')
         logging.info(f'Atual Student ICC: {student.inhibitory_capacity_online}')
         
@@ -109,8 +107,6 @@ class LevelRules():
         
             
     def increase_inhibitory_control(self, wm, rule_name, weight):
-        logging.info(f'Executando função: increase_inhibitory_control')
-        logging.info(f'Disparado por: {rule_name}')
         student: Student = wm.get_fact('student')
         logging.info(f'Atual Student ICC: {student.inhibitory_capacity_online}')
         
@@ -124,8 +120,6 @@ class LevelRules():
         logging.info(f'Novo Student ICC: {student.inhibitory_capacity_online}')
         
     def medium_inhibitory_control(self, wm, rule_name, weight):
-        logging.info(f'Executando função: medium_inhibitory_control')
-        logging.info(f'Disparado por: {rule_name}')
         student: Student = wm.get_fact('student')
         logging.info(f'Atual Student ICC: {student.inhibitory_capacity_online}')
         

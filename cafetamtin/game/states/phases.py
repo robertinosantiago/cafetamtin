@@ -15,8 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-import pygame
 import os
+import pygame
+import logging
+import datetime
 from pony.orm import *
 
 from game.states.state import State
@@ -43,6 +45,7 @@ class Phases(State):
         self.images = self.load_images()
         self.current_phase, self.current_score, self.status = self.load_current_phase_score()
         self.reload = True
+        self.log('Estudante selecionado')
         
     def load_images(self):
         return {
@@ -217,7 +220,7 @@ class Phases(State):
             pygame.draw.circle(display,RED,(120,baseline_circle),10)
             text = font.render("Voltar", True, (0,0,0))
             display.blit(text, (135, baseline_text))
-    
+
     def render(self, display):
         font = pygame.font.SysFont(FONT_NAME, 20, False, False)
         screen_width, screen_height = self.game.GAME_WIDTH, self.game.GAME_HEIGHT

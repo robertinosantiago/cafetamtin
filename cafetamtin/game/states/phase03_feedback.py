@@ -41,6 +41,7 @@ from database.models import DBSession, DBSteps, DBUser ,DBChallengeP3
 class Phase03Feedback(State):
     def __init__(self, game, working_memory):
         super().__init__(game, working_memory)
+        self.log('Executando Phase03-Feedback')
     
         self.rules = LevelRules(self.memory)
         self.board = Board(self.game.app)
@@ -423,6 +424,7 @@ class Phase03Feedback(State):
             self.memory.reset()
             
         self.memory.get_fact('responses').append(response)
+        self.log(f'[RESPONSE]\n {response}')
         self.save_challenge(response)
         self.memory.add_fact('quantity_corrects', quantity_corrects)
         

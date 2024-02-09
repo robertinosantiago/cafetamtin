@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 class Rule:
     
     def __init__(self, name, condition, action, weight = 0):
@@ -25,6 +27,7 @@ class Rule:
 
     def evaluate(self, working_memory):
         if self.condition(working_memory):
+            logging.info(f'Fase [{working_memory.get_fact("phase")}]| Regra disparada [{self.name}]')
             self.action(working_memory, self.name, self.weight)
             
     def __eq__(self, other):

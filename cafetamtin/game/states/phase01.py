@@ -51,6 +51,7 @@ class Phase01(State):
     
     def __init__(self, game):
         super().__init__(game)
+        self.log('Executando Phase01')
 
         self.memory = Memory()
         self.rules = Phase01Rules(self.memory)
@@ -175,11 +176,13 @@ class Phase01(State):
             return
         
         if self.is_paused:
+            self.log('[TIMER] Resume')
             self.memory.get_fact('timer_response').resume()
             interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
             self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
             self.is_paused = False
         else:
+            self.log('[TIMER] Pause')
             self.memory.get_fact('timer_response').pause()
             self.is_paused = True
 
@@ -193,6 +196,7 @@ class Phase01(State):
         if self.is_paused:
             return
         
+        self.log('Responder desafio')
         self.memory.get_fact('timer_response').stop()
         
         if self.teacher.has_next_message():
@@ -225,6 +229,7 @@ class Phase01(State):
             tips_times = self.memory.get_fact('tips_times')
             self.memory.add_fact('tips_times', tips_times + 1)
             
+            self.log('Acesso a dicas')
             self.teacher.set_message(
                 "Dicas", 
                 "neutral0"
@@ -299,6 +304,9 @@ class Phase01(State):
         self.memory.add_fact('expression', expression)
         self.memory.add_fact('result', blocks)
         
+        self.log(f'Expressão [{expression}]')
+        self.log(f'Result [{result}]')
+
         self.rules.execute_rules()
         
         feedback = Phase01Feedback(self.game, self.memory)
@@ -307,7 +315,8 @@ class Phase01(State):
         self.generate_new_challenge()
                 
         if self.memory.get_fact('lives') <= 0:
-            #@colocar a mensagem 'tente novamente' caso haja mais rodadas
+            self.log('Acabaram as vidas')
+
             self.teacher.set_message(
                 "Infelizmente, você não conseguiu "+
                 "realizar todas as operações corretamente. "+
@@ -318,6 +327,8 @@ class Phase01(State):
             self.end_phase = True
         
         if self.memory.get_fact('step') >= self.memory.get_fact('max_steps') and not self.end_phase:
+            self.log('Acabaram os desafios')
+
             self.teacher.set_message(
                 "Parabéns!!! Você conseguiu realizar "+
                 "as operações corretamente. Nos vemos na "+
@@ -376,6 +387,7 @@ class Phase01(State):
         end_time = self.memory.get_fact('end_time')
         
         if reset_timer and not self.show_teacher:
+            self.log('[TIMER] - Reset')
             self.memory.add_fact('reset_timer', False)
             self.memory.get_fact('timer_response').stop()
             self.memory.get_fact('timer_response').start()
@@ -397,11 +409,10 @@ class Phase01(State):
     def end_timer(self):
         student: Student = self.memory.get_fact('student')
         if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
+            self.log('[TIMER] - Acabou o tempo')
+            
             self.memory.add_fact('reset_timer', True)
-            
             self.memory.get_fact('timer_response').stop()
-            
-            #@TODO: verificar como baixar o ICC
             
             response = {}
             response['step'] = self.memory.get_fact('step')
@@ -448,6 +459,7 @@ class Phase01(State):
             self.memory.add_fact('is_correct', False)
             self.memory.get_fact('responses').append(response)
             
+            self.log(f'[RESPONSE]\n{response}')
             self.save_challenge(response)
             
             history_errors = self.memory.get_fact('history_errors')
@@ -486,16 +498,7 @@ class Phase01(State):
             step += 1
             step = self.memory.add_fact('step', step)
             
-            #@TODO: ajustar o game level
             self.generate_new_challenge()
-    
-    
-    def lose_life(self):
-        if self.memory.get_fact('lives') > 0:
-            self.memory.add_fact('lives', self.memory.get_fact('lives') - 1)
-        
-        if self.memory.get_fact('lives') == 0:
-            self.end_phase = True
 
     def draw_challenge(self):
         display = self.game.game_canvas
@@ -539,8 +542,6 @@ class Phase01(State):
         self.challenge = self.random_calc()
         self.new_challenge = True
         self.memory.add_fact('tips_times', 0)
-
-
 
     def random_calc(self):
         if self.memory.get_fact('num_terms') == 2:
@@ -667,11 +668,9 @@ class Phase01(State):
         
     @db_session
     def update_challenge(self, id, expression, quad):
-        logging.info(f'Atualizando challenge')
         challenge = DBChallengeP1[id]
         challenge.set(affective_state = expression, affective_quad = quad)
         challenge.flush()
-        logging.info(f'Atualizado')
         
     def adjust_game_levels(self):
         student: Student = self.memory.get_fact('student')
