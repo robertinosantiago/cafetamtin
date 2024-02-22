@@ -21,30 +21,31 @@ import math
 import random
 import pygame
 import logging
-from pygame.locals import *
 from pony.orm import *
+from pygame.locals import *
 from datetime import datetime, timedelta
 
-from game import BACKGROUND_COLOR
 from game import TEXT_COLOR
 from game import FONT_NAME
+from game import BACKGROUND_COLOR
 from game import WHITE, BLACK, RED, GREEN
 
-from game.states.state import State
-from game.actors.teacher import Teacher
-from game.actors.student import Student
 from base.board import Board
-from base.leds import Leds, RainbowThread
-from base.facial import FacialThread
+from utils.tips import Tips
 from utils.timer import Timer
 from utils.confetti import Confetti
-from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
+from game.states.state import State
+from base.facial import FacialThread
+from game.actors.teacher import Teacher
+from game.actors.student import Student
+from base.leds import Leds, RainbowThread
 from production.error import Error
 from production.memory import Memory
 from production.type_error import TypeError
 from production.level_rules import LevelRules
 from production.phase01_rules import Phase01Rules
 from game.states.phase01_feedback import Phase01Feedback
+from database.models import DBChallengeP1, DBSession, DBSteps, DBUser
 
 
 class Phase01(State):
@@ -53,6 +54,10 @@ class Phase01(State):
         super().__init__(game)
         self.log('Executando Phase01')
 
+        self.tips = Tips()
+        self.tips_errors = []
+        self.load_tips()
+        
         self.memory = Memory()
         self.rules = Phase01Rules(self.memory)
         self.rules_level = LevelRules(self.memory)
@@ -143,6 +148,36 @@ class Phase01(State):
             'student-desk': pygame.image.load(os.path.join("images", "student-desk.png")),
             'arrow-red': pygame.image.load(os.path.join("images", "arrow-red.png")),
         }
+    
+    def load_tips(self):
+        error1 = Error(type=TypeError.TYPE_MISINTERPRETATION_LANGUAGE, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error1, message='Verbalize e anote as operações para facilitar a compreensão.')
+        self.tips.add_tip(error=error1, message='Utilize papel e caneta caso esteja com dificuldades em realizar as operações mentalmente.')
+        
+        error2 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_DOMAIN_DEFICIENCY)
+        self.tips.add_tip(error=error2, message='Combine números dois a dois para facilitar a soma ou subtração.')
+        self.tips.add_tip(error=error2, message='Você pode alterar a ordem dos números, na soma, sem alterar o resultado desta operação. A propriedade matemática que garante isso se chama "associativa".')
+        
+        error3 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_RULE_DEFICIECY)
+        self.tips.add_tip(error=error3, message='O resultado da soma de dois números pares sempre será um número par.')
+        self.tips.add_tip(error=error3, message='O resultado da soma de dois números ímpares sempre será um número par.')
+        self.tips.add_tip(error=error3, message='O resultado da soma entre um número par e um número ímpar sempre será um número ímpar.')
+        
+        error4 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_OPERATOR_USAGE)
+        self.tips.add_tip(error=error4, message='Na expressão matemática x + y - z, a adição (+) e a subtração (-) têm a mesma prioridade; logo, pode-se respeitar a ordem em que as operações aparecem na expressão.')
+        self.tips.add_tip(error=error4, message='Uma expressão matemática que possua os operadores adição (+) e subtração (-), a expressão deve ser avaliada da esquerda para a direita.')
+        
+        error5 = Error(type=TypeError.TYPE_UNCATEGORIZED_SOLUTION, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error5, message='Utilize objetos físicos ou virtuais para representar os números envolvidos na expressão matemática.')
+        self.tips.add_tip(error=error5, message='A adição combina dois ou mais números para encontrar sua totalidade.')
+        self.tips.add_tip(error=error5, message='A subtração separa ou subtrai um número de outro a fim de encontrar a diferença entre eles.')
+        
+        self.tips_errors.append({'error': error1, 'count': 0})
+        self.tips_errors.append({'error': error2, 'count': 0})
+        self.tips_errors.append({'error': error3, 'count': 0})
+        self.tips_errors.append({'error': error4, 'count': 0})
+        self.tips_errors.append({'error': error5, 'count': 0})
+        
 
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
@@ -230,9 +265,13 @@ class Phase01(State):
             self.memory.add_fact('tips_times', tips_times + 1)
             
             self.log('Acesso a dicas')
+            
+            emotions = ['neutral0', 'neutral1', 'neutral2']
+            message, image = self.get_message_tips()
             self.teacher.set_message(
-                "Dicas", 
-                "neutral0"
+                message= f'Dica\n\n {message}\n\nPressione o botão VERMELHO para continuar',
+                image_key= emotions[random.randrange(0,len(emotions))],
+                image_explication= image
             )
 
         if self.teacher.has_next_message():
@@ -250,7 +289,10 @@ class Phase01(State):
                 if self.memory.get_fact('timer_response').is_paused():
                     self.memory.get_fact('timer_response').resume()
                     interval = self.memory.get_fact('timer_response').get_time_resumed() - self.memory.get_fact('timer_response').get_time_paused()
-                    self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+                    if self.memory.get_fact('end_time'):
+                        self.memory.add_fact('end_time', self.memory.get_fact('end_time') + timedelta(seconds=interval.seconds))
+                    else:
+                        self.memory.add_fact('end_time', datetime.now() + timedelta(seconds=self.memory.get_fact('amount_time')))
             
             if self.end_phase and self.memory.get_fact('lives') <= 0:
                 self.memory.add_fact('lives', -1)
@@ -290,6 +332,32 @@ class Phase01(State):
             self.teacher.next_message()
             self.show_teacher = True
 
+    def get_message_tips(self):
+        error = None
+        
+        if len(self.memory.get_fact('history_errors')) == 0:
+            self.tips_errors = sorted(self.tips_errors, key=lambda x: x['count'])
+            error = self.tips_errors[0]['error']
+            self.tips_errors[0]['count'] += 1
+        else:
+            
+            counters = {}
+            for k in self.tips_errors:
+                count = 0
+                for e in self.memory.get_fact('history_errors'):
+                    if k['error'] == e:
+                        count += 1
+                counters[k['error']] = count
+            counters = sorted(counters.items(), key=lambda x: x[1], reverse=True)
+            error = counters[0][0]
+            for i in range(0, len(self.tips_errors)):
+                if self.tips_errors[i]['error'] == error:
+                    self.tips_errors[i]['count'] += 1
+        
+        tip = self.tips.get_tip(error)
+        return tip['message'], tip['image']
+            
+                        
 
     def check_challenge(self):
         blocks = self.board.result_matrix_board()

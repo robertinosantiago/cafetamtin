@@ -1,0 +1,35 @@
+2024-02-21 20:53:00|INFO|log|User[14]|Estudante selecionado
+2024-02-21 20:53:02|INFO|log|User[14]|Executando Phase01
+2024-02-21 20:53:03|INFO|log|User[14]|Executando Phase01-Tutorial
+2024-02-21 20:53:07|INFO|log|User[14]|Responder desafio
+2024-02-21 20:53:08|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 3| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 4|
+------------------------
+| 0| 0| 0| 0| 0| 0| 1|
+========================
+
+2024-02-21 20:53:08|INFO|log|User[14]|Expressão [6-4=2]
+2024-02-21 20:53:08|INFO|log|User[14]|Result [2]
+2024-02-21 20:53:08|INFO|evaluate|Fase [1]| Regra disparada [Mais de um numero]
+2024-02-21 20:53:08|INFO|not_valid|A regra Mais de um numero disparou a funçao not_valid
+2024-02-21 20:53:08|INFO|evaluate|Fase [1]| Regra disparada [Mais de um numero]
+2024-02-21 20:53:08|INFO|__add_error_in_wm__|A regra Mais de um numero disparou a funçao error_rule_deficiency
+2024-02-21 20:53:08|INFO|log|User[14]|Executando Phase01-Feedback
+2024-02-21 20:53:08|INFO|log|User[14]|[RESPONSE]
+ {'step': 1, 'reaction_time': 0, 'reaction_time_without_pauses': 0, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': None, 'end_time': None, 'affective_state': '', 'affective_quad': '', 'type_error': 'Diretamente identificáveis', 'subtype_error': 'Erro de deficiência de regra, teorema ou definição', 'icc': 0, 'number01': 6, 'operator01': '-', 'number02': 4, 'operator02': '', 'number03': 0, 'expected_result': 2, 'informed_result': 1, 'is_correct': False}
+2024-02-21 20:53:08|INFO|evaluate|Fase [1]| Regra disparada [Baixa eficiência]
+2024-02-21 20:53:08|INFO|decrease_inhibitory_control|Atual Student ICC: 0
+2024-02-21 20:53:08|INFO|decrease_inhibitory_control|Novo Student ICC: 0
+2024-02-21 20:53:09|INFO|run||Facial|EXPRESSION[]:QUAD[QN]:VALENCE[None]:AROUSAL[None]
+2024-02-21 20:53:17|INFO|log|User[14]|Acesso a dicas

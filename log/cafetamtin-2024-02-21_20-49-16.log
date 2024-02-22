@@ -1,0 +1,36 @@
+2024-02-21 20:49:26|INFO|log|User[14]|Estudante selecionado
+2024-02-21 20:49:27|INFO|log|User[14]|Executando Phase01
+2024-02-21 20:49:28|INFO|log|User[14]|Executando Phase01-Tutorial
+2024-02-21 20:49:31|INFO|log|User[14]|[TIMER] - Reset
+2024-02-21 20:49:32|INFO|log|User[14]|Responder desafio
+2024-02-21 20:49:32|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 3| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-21 20:49:32|INFO|log|User[14]|Expressão [6+1=7]
+2024-02-21 20:49:32|INFO|log|User[14]|Result [7]
+2024-02-21 20:49:32|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-21 20:49:32|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-21 20:49:32|INFO|evaluate|Fase [1]| Regra disparada [Resposta errada]
+2024-02-21 20:49:32|INFO|__add_error_in_wm__|A regra Resposta errada disparou a funçao error_domain_deficiency
+2024-02-21 20:49:33|INFO|log|User[14]|Executando Phase01-Feedback
+2024-02-21 20:49:33|INFO|log|User[14]|[RESPONSE]
+ {'step': 1, 'reaction_time': 0.862866, 'reaction_time_without_pauses': 0.862866, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 21, 20, 49, 31, 172735), 'end_time': datetime.datetime(2024, 2, 21, 20, 49, 32, 35601), 'affective_state': '', 'affective_quad': '', 'type_error': 'Diretamente identificáveis', 'subtype_error': 'Erro de deficiência no domínio ou uso inadequado de dados', 'icc': 1, 'number01': 6, 'operator01': '+', 'number02': 1, 'operator02': '', 'number03': 0, 'expected_result': 7, 'informed_result': 3, 'is_correct': False}
+2024-02-21 20:49:33|INFO|evaluate|Fase [1]| Regra disparada [Baixa eficiência]
+2024-02-21 20:49:33|INFO|decrease_inhibitory_control|Atual Student ICC: 1
+2024-02-21 20:49:33|INFO|decrease_inhibitory_control|Novo Student ICC: 0
+2024-02-21 20:49:34|INFO|run||Facial|EXPRESSION[]:QUAD[QN]:VALENCE[None]:AROUSAL[None]
+2024-02-21 20:49:37|INFO|log|User[14]|Acesso a dicas

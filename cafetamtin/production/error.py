@@ -15,20 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with CaFE-TaMTIn Approach.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
-from datetime import datetime
-
 class Error:
     
     def __init__(self, type = None, subtype = None, weight=0):
         self.type = type
         self.subtype = subtype
-        self.timestamp = time.time()
         self.weight = weight
         
     def __repr__(self):
-        date_time = datetime.fromtimestamp(self.timestamp)
-        strtime = date_time.strftime("%d/%m/%Y %H:%M") 
         message =  f'Error type: {self.type} \n'
         message += f'Subtype...: {self.subtype} \n'
         message += f'Weight....: {self.weight} \n'
@@ -38,3 +32,6 @@ class Error:
         if isinstance(other, Error):
             return (self.type == other.type and self.subtype == other.subtype)
         return False
+    
+    def __hash__(self):
+        return hash((self.type, self.subtype))

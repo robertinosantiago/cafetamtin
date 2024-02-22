@@ -1,0 +1,1296 @@
+2024-02-14 17:12:41|INFO|log|User[30]|Estudante selecionado
+2024-02-14 17:12:47|INFO|log|User[30]|Executando Phase01
+2024-02-14 17:12:47|INFO|log|User[30]|Executando Phase01-Tutorial
+2024-02-14 17:13:09|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:13:16|INFO|log|User[30]|Responder desafio
+2024-02-14 17:13:17|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 5| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:13:17|INFO|log|User[30]|Expressão [9-4=5]
+2024-02-14 17:13:17|INFO|log|User[30]|Result [5]
+2024-02-14 17:13:17|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:13:17|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:13:17|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:13:17|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:13:18|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:13:18|INFO|log|User[30]|[RESPONSE]
+ {'step': 1, 'reaction_time': 7.403388, 'reaction_time_without_pauses': 7.403388, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 13, 9, 365108), 'end_time': datetime.datetime(2024, 2, 14, 17, 13, 16, 768496), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 1, 'number01': 9, 'operator01': '-', 'number02': 4, 'operator02': '', 'number03': 0, 'expected_result': 5, 'informed_result': 5, 'is_correct': True}
+2024-02-14 17:13:18|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:13:18|INFO|increase_inhibitory_control|Atual Student ICC: 1
+2024-02-14 17:13:18|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:13:18|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:13:20|INFO|run||Facial|EXPRESSION[fear]:QUAD[Q2]:VALENCE[-0.09437941014766693]:AROUSAL[0.4396092891693115]
+2024-02-14 17:13:26|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:13:35|INFO|log|User[30]|Responder desafio
+2024-02-14 17:13:36|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 3| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:13:36|INFO|log|User[30]|Expressão [2+1=3]
+2024-02-14 17:13:36|INFO|log|User[30]|Result [3]
+2024-02-14 17:13:36|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:13:36|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:13:36|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:13:36|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:13:36|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:13:36|INFO|log|User[30]|[RESPONSE]
+ {'step': 2, 'reaction_time': 8.395576, 'reaction_time_without_pauses': 8.395576, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 13, 26, 689433), 'end_time': datetime.datetime(2024, 2, 14, 17, 13, 35, 85009), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 2, 'operator01': '+', 'number02': 1, 'operator02': '', 'number03': 0, 'expected_result': 3, 'informed_result': 3, 'is_correct': True}
+2024-02-14 17:13:36|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:13:36|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:13:36|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:13:37|INFO|run||Facial|EXPRESSION[fear]:QUAD[Q2]:VALENCE[-0.17037175595760345]:AROUSAL[0.3909887969493866]
+2024-02-14 17:13:44|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:13:48|INFO|log|User[30]|Responder desafio
+2024-02-14 17:13:49|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 2| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:13:49|INFO|log|User[30]|Expressão [4-2=2]
+2024-02-14 17:13:49|INFO|log|User[30]|Result [2]
+2024-02-14 17:13:49|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:13:49|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:13:49|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:13:49|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:13:50|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:13:50|INFO|log|User[30]|[RESPONSE]
+ {'step': 3, 'reaction_time': 4.306906, 'reaction_time_without_pauses': 4.306906, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 13, 44, 594321), 'end_time': datetime.datetime(2024, 2, 14, 17, 13, 48, 901227), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 4, 'operator01': '-', 'number02': 2, 'operator02': '', 'number03': 0, 'expected_result': 2, 'informed_result': 2, 'is_correct': True}
+2024-02-14 17:13:50|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:13:50|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:13:50|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:13:51|INFO|run||Facial|EXPRESSION[fear]:QUAD[Q2]:VALENCE[-0.16253168880939484]:AROUSAL[0.45699048042297363]
+2024-02-14 17:13:55|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:14:00|INFO|log|User[30]|Responder desafio
+2024-02-14 17:14:01|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 2| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:14:01|INFO|log|User[30]|Expressão [8-6=2]
+2024-02-14 17:14:01|INFO|log|User[30]|Result [2]
+2024-02-14 17:14:01|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:14:01|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:14:01|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:14:01|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:14:01|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:14:01|INFO|log|User[30]|[RESPONSE]
+ {'step': 4, 'reaction_time': 4.454199, 'reaction_time_without_pauses': 4.454199, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 13, 55, 713175), 'end_time': datetime.datetime(2024, 2, 14, 17, 14, 0, 167374), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 8, 'operator01': '-', 'number02': 6, 'operator02': '', 'number03': 0, 'expected_result': 2, 'informed_result': 2, 'is_correct': True}
+2024-02-14 17:14:01|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:14:01|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:14:01|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:14:03|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.15812765061855316]:AROUSAL[0.15360058844089508]
+2024-02-14 17:14:04|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:14:11|INFO|log|User[30]|Responder desafio
+2024-02-14 17:14:12|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 9| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:14:12|INFO|log|User[30]|Expressão [3+6=9]
+2024-02-14 17:14:12|INFO|log|User[30]|Result [9]
+2024-02-14 17:14:12|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:14:12|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:14:12|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:14:12|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:14:12|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:14:12|INFO|log|User[30]|[RESPONSE]
+ {'step': 5, 'reaction_time': 6.745687, 'reaction_time_without_pauses': 6.745687, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 14, 4, 759548), 'end_time': datetime.datetime(2024, 2, 14, 17, 14, 11, 505235), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 3, 'operator01': '+', 'number02': 6, 'operator02': '', 'number03': 0, 'expected_result': 9, 'informed_result': 9, 'is_correct': True}
+2024-02-14 17:14:12|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:14:12|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:14:12|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:14:14|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.0015014372766017914]:AROUSAL[0.2399425208568573]
+2024-02-14 17:14:15|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:14:23|INFO|log|User[30]|Responder desafio
+2024-02-14 17:14:24|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 6| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:14:24|INFO|log|User[30]|Expressão [9+3-6=6]
+2024-02-14 17:14:24|INFO|log|User[30]|Result [6]
+2024-02-14 17:14:24|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:14:24|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:14:24|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:14:24|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:14:24|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:14:24|INFO|log|User[30]|[RESPONSE]
+ {'step': 6, 'reaction_time': 7.669735, 'reaction_time_without_pauses': 7.669735, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 14, 15, 836431), 'end_time': datetime.datetime(2024, 2, 14, 17, 14, 23, 506166), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 9, 'operator01': '+', 'number02': 3, 'operator02': '-', 'number03': 6, 'expected_result': 6, 'informed_result': 6, 'is_correct': True}
+2024-02-14 17:14:24|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:14:24|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:14:24|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:14:26|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.3265519440174103]:AROUSAL[0.0313684344291687]
+2024-02-14 17:14:27|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:14:32|INFO|log|User[30]|Responder desafio
+2024-02-14 17:14:33|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 6| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:14:33|INFO|log|User[30]|Expressão [2+8-4=6]
+2024-02-14 17:14:33|INFO|log|User[30]|Result [6]
+2024-02-14 17:14:33|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:14:33|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:14:33|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:14:33|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:14:33|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:14:33|INFO|log|User[30]|[RESPONSE]
+ {'step': 7, 'reaction_time': 4.967474, 'reaction_time_without_pauses': 4.967474, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 14, 27, 686479), 'end_time': datetime.datetime(2024, 2, 14, 17, 14, 32, 653953), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 2, 'operator01': '+', 'number02': 8, 'operator02': '-', 'number03': 4, 'expected_result': 6, 'informed_result': 6, 'is_correct': True}
+2024-02-14 17:14:34|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:14:34|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:14:34|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:14:35|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.099514901638031]:AROUSAL[0.21889106929302216]
+2024-02-14 17:14:41|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:14:47|INFO|log|User[30]|Responder desafio
+2024-02-14 17:14:48|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 9| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:14:48|INFO|log|User[30]|Expressão [5+7-3=9]
+2024-02-14 17:14:48|INFO|log|User[30]|Result [9]
+2024-02-14 17:14:48|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:14:48|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:14:48|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:14:48|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:14:48|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:14:48|INFO|log|User[30]|[RESPONSE]
+ {'step': 8, 'reaction_time': 6.02927, 'reaction_time_without_pauses': 6.02927, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 14, 41, 92923), 'end_time': datetime.datetime(2024, 2, 14, 17, 14, 47, 122193), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 5, 'operator01': '+', 'number02': 7, 'operator02': '-', 'number03': 3, 'expected_result': 9, 'informed_result': 9, 'is_correct': True}
+2024-02-14 17:14:48|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:14:48|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:14:48|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:14:50|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.01674952730536461]:AROUSAL[0.25423672795295715]
+2024-02-14 17:14:51|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:14:57|INFO|log|User[30]|Responder desafio
+2024-02-14 17:14:58|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 2| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:14:58|INFO|log|User[30]|Expressão [4+3-5=2]
+2024-02-14 17:14:58|INFO|log|User[30]|Result [2]
+2024-02-14 17:14:58|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:14:58|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:14:58|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:14:58|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:14:59|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:14:59|INFO|log|User[30]|[RESPONSE]
+ {'step': 9, 'reaction_time': 6.387375, 'reaction_time_without_pauses': 6.387375, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 14, 51, 366066), 'end_time': datetime.datetime(2024, 2, 14, 17, 14, 57, 753441), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 4, 'operator01': '+', 'number02': 3, 'operator02': '-', 'number03': 5, 'expected_result': 2, 'informed_result': 2, 'is_correct': True}
+2024-02-14 17:14:59|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:14:59|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:14:59|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:15:00|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.20314261317253113]:AROUSAL[0.0755733847618103]
+2024-02-14 17:15:02|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:15:07|INFO|log|User[30]|Responder desafio
+2024-02-14 17:15:08|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 8| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:15:08|INFO|log|User[30]|Expressão [9+3-4=8]
+2024-02-14 17:15:08|INFO|log|User[30]|Result [8]
+2024-02-14 17:15:08|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-14 17:15:08|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-14 17:15:08|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-14 17:15:08|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-14 17:15:08|INFO|log|User[30]|Executando Phase01-Feedback
+2024-02-14 17:15:09|INFO|log|User[30]|[RESPONSE]
+ {'step': 10, 'reaction_time': 5.329636, 'reaction_time_without_pauses': 5.329636, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 14, 17, 15, 2, 367990), 'end_time': datetime.datetime(2024, 2, 14, 17, 15, 7, 697626), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 9, 'operator01': '+', 'number02': 3, 'operator02': '-', 'number03': 4, 'expected_result': 8, 'informed_result': 8, 'is_correct': True}
+2024-02-14 17:15:09|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-14 17:15:09|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:15:09|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:15:09|INFO|log|User[30]|Acabaram os desafios
+2024-02-14 17:15:10|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.2625487744808197]:AROUSAL[0.05949676036834717]
+2024-02-14 17:15:19|INFO|log|User[30]|Executando Phase02
+2024-02-14 17:15:20|INFO|log|User[30]|Executando Phase02-Tutorial
+2024-02-14 17:15:59|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:16:14|INFO|log|User[30]|Responder desafio
+2024-02-14 17:16:14|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:16:15|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 2| 4| 9| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:16:15|INFO|log|User[30]|Result [[2, 4, 9]]
+2024-02-14 17:16:15|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:16:15|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:16:16|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:16:16|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 14.981613, 'reaction_time_without_pauses': 14.981613, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 15, 59, 670768), 'end_time': datetime.datetime(2024, 2, 14, 17, 16, 14, 652381), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 2, 'number02': 4, 'number03': 9, 'is_correct': True}
+2024-02-14 17:16:16|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:16:16|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:16:16|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:16:17|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.2549380362033844]:AROUSAL[0.19341766834259033]
+2024-02-14 17:16:17|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:16:17|INFO|update_challenge|Atualizado
+2024-02-14 17:16:19|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:16:32|INFO|log|User[30]|Responder desafio
+2024-02-14 17:16:32|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:16:33|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 2| 5| 9| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:16:33|INFO|log|User[30]|Result [[2, 5, 9]]
+2024-02-14 17:16:33|INFO|evaluate|Fase [2]| Regra disparada [dois numeros impares e um numero par]
+2024-02-14 17:16:33|INFO|__add_error_in_wm__|A regra dois numeros impares e um numero par disparou a funçao error_rule_deficiency
+2024-02-14 17:16:33|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:16:33|INFO|message_teacher_rule_deficiency|Executando função: message_teacher_rule_deficiency
+2024-02-14 17:16:33|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 12.761821, 'reaction_time_without_pauses': 12.761821, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 16, 19, 421377), 'end_time': datetime.datetime(2024, 2, 14, 17, 16, 32, 183198), 'affective_state': '', 'affective_quad': '', 'type_error': 'Diretamente identificáveis', 'subtype_error': 'Erro de deficiência de regra, teorema ou definição', 'icc': 2, 'number01': 2, 'number02': 5, 'number03': 9, 'is_correct': False}
+2024-02-14 17:16:33|INFO|evaluate|Fase [2]| Regra disparada [Eficiência média]
+2024-02-14 17:16:33|INFO|medium_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:16:33|INFO|medium_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:16:34|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.11287279427051544]:AROUSAL[0.27888309955596924]
+2024-02-14 17:16:34|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:16:35|INFO|update_challenge|Atualizado
+2024-02-14 17:16:44|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:16:46|INFO|log|User[30]|Responder desafio
+2024-02-14 17:16:46|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:16:47|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 2| 5| 8| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:16:47|INFO|log|User[30]|Result [[2, 5, 8]]
+2024-02-14 17:16:47|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:16:47|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:16:47|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:16:47|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 1.501768, 'reaction_time_without_pauses': 1.501768, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 16, 44, 513953), 'end_time': datetime.datetime(2024, 2, 14, 17, 16, 46, 15721), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 2, 'number02': 5, 'number03': 8, 'is_correct': True}
+2024-02-14 17:16:47|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:16:47|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:16:47|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:16:47|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:16:48|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.12260608375072479]:AROUSAL[0.20309007167816162]
+2024-02-14 17:16:48|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:16:48|INFO|update_challenge|Atualizado
+2024-02-14 17:16:56|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:16:57|INFO|log|User[30]|Responder desafio
+2024-02-14 17:16:57|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:16:58|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 3| 5| 7| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:16:58|INFO|log|User[30]|Result [[3, 5, 7]]
+2024-02-14 17:16:58|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:16:58|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:16:59|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:16:59|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 1.182742, 'reaction_time_without_pauses': 1.182742, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 16, 56, 729632), 'end_time': datetime.datetime(2024, 2, 14, 17, 16, 57, 912374), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 3, 'number02': 5, 'number03': 7, 'is_correct': True}
+2024-02-14 17:16:59|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:16:59|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:16:59|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:17:00|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.04363055154681206]:AROUSAL[0.16867868602275848]
+2024-02-14 17:17:00|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:17:00|INFO|update_challenge|Atualizado
+2024-02-14 17:17:02|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:17:15|INFO|log|User[30]|Responder desafio
+2024-02-14 17:17:15|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:17:16|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 6| 2| 7| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:17:16|INFO|log|User[30]|Result [[6, 2, 7]]
+2024-02-14 17:17:16|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:17:16|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:17:16|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:17:16|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 12.448337, 'reaction_time_without_pauses': 12.448337, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 17, 2, 808660), 'end_time': datetime.datetime(2024, 2, 14, 17, 17, 15, 256997), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 6, 'number02': 2, 'number03': 7, 'is_correct': True}
+2024-02-14 17:17:16|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:17:16|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:17:16|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:17:16|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:17:18|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.017428483814001083]:AROUSAL[0.1599343866109848]
+2024-02-14 17:17:18|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:17:18|INFO|update_challenge|Atualizado
+2024-02-14 17:17:21|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:17:39|INFO|log|User[30]|Responder desafio
+2024-02-14 17:17:39|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:17:40|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 1| 9| 8| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:17:40|INFO|log|User[30]|Result [[1, 9, 8]]
+2024-02-14 17:17:40|INFO|evaluate|Fase [2]| Regra disparada [dois numeros impares e um numero par]
+2024-02-14 17:17:40|INFO|__add_error_in_wm__|A regra dois numeros impares e um numero par disparou a funçao error_rule_deficiency
+2024-02-14 17:17:41|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:17:41|INFO|message_teacher_rule_deficiency|Executando função: message_teacher_rule_deficiency
+2024-02-14 17:17:41|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 18.163979, 'reaction_time_without_pauses': 18.163979, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 17, 21, 730604), 'end_time': datetime.datetime(2024, 2, 14, 17, 17, 39, 894583), 'affective_state': '', 'affective_quad': '', 'type_error': 'Diretamente identificáveis', 'subtype_error': 'Erro de deficiência de regra, teorema ou definição', 'icc': 2, 'number01': 1, 'number02': 9, 'number03': 8, 'is_correct': False}
+2024-02-14 17:17:41|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:17:41|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:17:41|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:17:42|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.16352878510951996]:AROUSAL[0.03641059994697571]
+2024-02-14 17:17:42|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:17:42|INFO|update_challenge|Atualizado
+2024-02-14 17:17:49|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:17:49|INFO|log|User[30]|Responder desafio
+2024-02-14 17:17:49|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:17:51|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 1| 9| 5| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:17:51|INFO|log|User[30]|Result [[1, 9, 5]]
+2024-02-14 17:17:51|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:17:51|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:17:51|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:17:51|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 0.901646, 'reaction_time_without_pauses': 0.901646, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 17, 49, 94489), 'end_time': datetime.datetime(2024, 2, 14, 17, 17, 49, 996135), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 1, 'number02': 9, 'number03': 5, 'is_correct': True}
+2024-02-14 17:17:51|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:17:51|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:17:51|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:17:53|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.19757357239723206]:AROUSAL[0.04343992471694946]
+2024-02-14 17:17:53|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:17:53|INFO|update_challenge|Atualizado
+2024-02-14 17:17:55|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:18:12|INFO|log|User[30]|Responder desafio
+2024-02-14 17:18:12|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:18:13|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 4| 6| 5| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:18:13|INFO|log|User[30]|Result [[4, 6, 5]]
+2024-02-14 17:18:13|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:18:13|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:18:13|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:18:13|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 16.959812, 'reaction_time_without_pauses': 16.959812, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 17, 55, 176086), 'end_time': datetime.datetime(2024, 2, 14, 17, 18, 12, 135898), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 4, 'number02': 6, 'number03': 5, 'is_correct': True}
+2024-02-14 17:18:13|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:18:13|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:18:13|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:18:15|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.009982701390981674]:AROUSAL[0.14218628406524658]
+2024-02-14 17:18:15|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:18:15|INFO|update_challenge|Atualizado
+2024-02-14 17:18:16|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:19:14|INFO|log|User[30]|Responder desafio
+2024-02-14 17:19:14|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:19:15|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 8| 0| 4| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:19:15|INFO|log|User[30]|Result [[8, 4]]
+2024-02-14 17:19:15|INFO|evaluate|Fase [2]| Regra disparada [diferente de tres termos]
+2024-02-14 17:19:15|INFO|__add_error_in_wm__|A regra diferente de tres termos disparou a funçao error_indirectly_identifiable
+2024-02-14 17:19:15|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:19:15|INFO|message_teacher_indirectly_identifiable|Executando função: message_teacher_indirectly_identifiable
+2024-02-14 17:19:15|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 57.898616, 'reaction_time_without_pauses': 57.898616, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 18, 16, 644909), 'end_time': datetime.datetime(2024, 2, 14, 17, 19, 14, 543525), 'affective_state': '', 'affective_quad': '', 'type_error': 'Indiretamente identificáveis', 'subtype_error': '', 'icc': 2, 'number01': 8, 'number02': 4, 'number03': -1, 'is_correct': False}
+2024-02-14 17:19:15|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:19:15|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:19:15|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:19:17|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.128836989402771]:AROUSAL[0.15191622078418732]
+2024-02-14 17:19:17|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:19:17|INFO|update_challenge|Atualizado
+2024-02-14 17:19:31|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:19:32|INFO|log|User[30]|Responder desafio
+2024-02-14 17:19:32|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:19:33|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 8| 4| 0| 0|
+------------------------
+| 0| 0| 3| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:19:33|INFO|log|User[30]|Result [[8, 4, 3]]
+2024-02-14 17:19:33|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:19:33|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:19:33|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:19:33|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 1.147047, 'reaction_time_without_pauses': 1.147047, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 19, 31, 471449), 'end_time': datetime.datetime(2024, 2, 14, 17, 19, 32, 618496), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 8, 'number02': 4, 'number03': 3, 'is_correct': True}
+2024-02-14 17:19:34|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:19:34|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:19:34|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:19:35|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.1703849881887436]:AROUSAL[0.09188088774681091]
+2024-02-14 17:19:35|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:19:35|INFO|update_challenge|Atualizado
+2024-02-14 17:19:39|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:20:01|INFO|log|User[30]|Responder desafio
+2024-02-14 17:20:01|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:20:02|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 8| 6| 0| 0|
+------------------------
+| 0| 0| 1| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:20:02|INFO|log|User[30]|Result [[8, 6, 1]]
+2024-02-14 17:20:02|INFO|evaluate|Fase [2]| Regra disparada [resposta correta]
+2024-02-14 17:20:02|INFO|correct|A regra resposta correta disparou a funçao correct
+2024-02-14 17:20:02|INFO|log|User[30]|Executando Phase02-Feedback
+2024-02-14 17:20:02|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 21.900047, 'reaction_time_without_pauses': 21.900047, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 19, 39, 643280), 'end_time': datetime.datetime(2024, 2, 14, 17, 20, 1, 543327), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 8, 'number02': 6, 'number03': 1, 'is_correct': True}
+2024-02-14 17:20:02|INFO|evaluate|Fase [2]| Regra disparada [Alta eficiência]
+2024-02-14 17:20:02|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:20:02|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:20:03|INFO|log|User[30]|Acabaram os desafios
+2024-02-14 17:20:04|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.16645337641239166]:AROUSAL[0.10068941116333008]
+2024-02-14 17:20:04|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:20:04|INFO|update_challenge|Atualizado
+2024-02-14 17:20:13|INFO|log|User[30]|Executando Phase03
+2024-02-14 17:20:13|INFO|log|User[30]|Executando Phase03-Tutorial
+2024-02-14 17:20:45|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:20:49|INFO|log|User[30]|Responder desafio
+2024-02-14 17:20:50|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 8| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:20:50|INFO|log|User[30]|Result [{8: (3, 4)}]
+2024-02-14 17:20:50|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:20:50|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:20:50|INFO|evaluate|Fase [3]| Regra disparada [Não selecionar o número 5 primeiro]
+2024-02-14 17:20:50|INFO|__add_error_in_wm__|A regra Não selecionar o número 5 primeiro disparou a funçao error_indirectly_identifiable
+2024-02-14 17:20:50|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:20:50|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:20:50|INFO|message_teacher_indirectly_identifiable|Executando função: message_teacher_indirectly_identifiable
+2024-02-14 17:20:50|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 3.642775, 'reaction_time_without_pauses': 3.642775, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 20, 45, 633391), 'end_time': datetime.datetime(2024, 2, 14, 17, 20, 49, 276166), 'affective_state': '', 'affective_quad': '', 'type_error': 'Indiretamente identificáveis', 'subtype_error': '', 'icc': 2, 'other_numbers': '', 'is_correct': False, 'number': 8}
+2024-02-14 17:20:50|INFO|evaluate|Fase [3]| Regra disparada [Baixa eficiência]
+2024-02-14 17:20:50|INFO|decrease_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:20:50|INFO|decrease_inhibitory_control|Novo Student ICC: 1
+2024-02-14 17:20:50|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:20:51|INFO|run||Facial|EXPRESSION[fear]:QUAD[Q2]:VALENCE[-0.07716751098632812]:AROUSAL[0.4365236163139343]
+2024-02-14 17:20:51|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:20:51|INFO|update_challenge|Atualizado
+2024-02-14 17:20:59|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:21:24|INFO|log|User[30]|Responder desafio
+2024-02-14 17:21:25|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 8| 6| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:21:25|INFO|log|User[30]|Result [{8: (3, 4), 6: (3, 5)}]
+2024-02-14 17:21:25|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:21:25|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:21:25|INFO|is_sum_fifteen|Executando função: is_correct
+2024-02-14 17:21:25|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:21:25|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:21:25|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 24.339566, 'reaction_time_without_pauses': 24.339566, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 20, 59, 869723), 'end_time': datetime.datetime(2024, 2, 14, 17, 21, 24, 209289), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 1, 'other_numbers': '8', 'is_correct': True, 'number': 6}
+2024-02-14 17:21:25|INFO|evaluate|Fase [3]| Regra disparada [Eficiência média]
+2024-02-14 17:21:25|INFO|medium_inhibitory_control|Atual Student ICC: 1
+2024-02-14 17:21:25|INFO|medium_inhibitory_control|Novo Student ICC: 1
+2024-02-14 17:21:26|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.0790383368730545]:AROUSAL[0.3866848647594452]
+2024-02-14 17:21:26|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:21:26|INFO|update_challenge|Atualizado
+2024-02-14 17:21:27|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:21:35|INFO|log|User[30]|Responder desafio
+2024-02-14 17:21:36|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 8| 6| 0| 0|
+------------------------
+| 0| 0| 1| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:21:36|INFO|log|User[30]|Result [{8: (3, 4), 6: (3, 5), 1: (4, 3)}]
+2024-02-14 17:21:36|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:21:36|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:21:36|INFO|is_sum_fifteen|Executando função: is_correct
+2024-02-14 17:21:36|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:21:37|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:21:37|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 7.987679, 'reaction_time_without_pauses': 7.987679, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 21, 27, 813281), 'end_time': datetime.datetime(2024, 2, 14, 17, 21, 35, 800960), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 1, 'other_numbers': '8,6', 'is_correct': True, 'number': 1}
+2024-02-14 17:21:37|INFO|evaluate|Fase [3]| Regra disparada [Alta eficiência]
+2024-02-14 17:21:37|INFO|increase_inhibitory_control|Atual Student ICC: 1
+2024-02-14 17:21:37|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:21:38|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.02140885964035988]:AROUSAL[0.25770455598831177]
+2024-02-14 17:21:38|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:21:38|INFO|update_challenge|Atualizado
+2024-02-14 17:21:43|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:22:12|INFO|log|User[30]|Responder desafio
+2024-02-14 17:22:13|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 2| 8| 6| 0| 0|
+------------------------
+| 0| 0| 1| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:22:13|INFO|log|User[30]|Result [{2: (3, 3), 8: (3, 4), 6: (3, 5), 1: (4, 3)}]
+2024-02-14 17:22:13|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:22:13|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:22:13|INFO|is_sum_fifteen|Executando função: is_correct
+2024-02-14 17:22:13|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:22:13|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:22:13|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 28.888471, 'reaction_time_without_pauses': 28.888471, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 21, 43, 670765), 'end_time': datetime.datetime(2024, 2, 14, 17, 22, 12, 559236), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'other_numbers': '8,6,1', 'is_correct': True, 'number': 2}
+2024-02-14 17:22:13|INFO|evaluate|Fase [3]| Regra disparada [Alta eficiência]
+2024-02-14 17:22:13|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:22:13|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:22:15|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.12040235102176666]:AROUSAL[0.3611297011375427]
+2024-02-14 17:22:15|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:22:15|INFO|update_challenge|Atualizado
+2024-02-14 17:22:50|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:22:55|INFO|log|User[30]|Responder desafio
+2024-02-14 17:22:56|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 7| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:22:56|INFO|log|User[30]|Result [{7: (4, 4)}]
+2024-02-14 17:22:56|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:22:56|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:22:56|INFO|evaluate|Fase [3]| Regra disparada [Não selecionar o número 5 primeiro]
+2024-02-14 17:22:56|INFO|__add_error_in_wm__|A regra Não selecionar o número 5 primeiro disparou a funçao error_indirectly_identifiable
+2024-02-14 17:22:56|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:22:57|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:22:57|INFO|message_teacher_indirectly_identifiable|Executando função: message_teacher_indirectly_identifiable
+2024-02-14 17:22:57|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 5.678763, 'reaction_time_without_pauses': 5.678763, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 22, 50, 234567), 'end_time': datetime.datetime(2024, 2, 14, 17, 22, 55, 913330), 'affective_state': '', 'affective_quad': '', 'type_error': 'Indiretamente identificáveis', 'subtype_error': '', 'icc': 2, 'other_numbers': '', 'is_correct': False, 'number': 7}
+2024-02-14 17:22:57|INFO|evaluate|Fase [3]| Regra disparada [Eficiência média]
+2024-02-14 17:22:57|INFO|medium_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:22:57|INFO|medium_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:22:58|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.03362290933728218]:AROUSAL[0.4033070504665375]
+2024-02-14 17:22:58|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:22:58|INFO|update_challenge|Atualizado
+2024-02-14 17:23:05|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:23:25|INFO|log|User[30]|Responder desafio
+2024-02-14 17:23:26|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 7| 5| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:23:26|INFO|log|User[30]|Result [{7: (4, 4), 5: (4, 5)}]
+2024-02-14 17:23:26|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:23:26|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:23:26|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:23:26|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:23:26|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 19.660838, 'reaction_time_without_pauses': 19.660838, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 23, 5, 992195), 'end_time': datetime.datetime(2024, 2, 14, 17, 23, 25, 653033), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'other_numbers': '7', 'is_correct': True, 'number': 5}
+2024-02-14 17:23:26|INFO|evaluate|Fase [3]| Regra disparada [Alta eficiência]
+2024-02-14 17:23:26|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:23:26|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:23:28|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.1028878390789032]:AROUSAL[0.277129590511322]
+2024-02-14 17:23:28|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:23:28|INFO|update_challenge|Atualizado
+2024-02-14 17:23:28|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:23:40|INFO|log|User[30]|Responder desafio
+2024-02-14 17:23:41|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 1| 0| 7| 5| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:23:41|INFO|log|User[30]|Result [{1: (4, 2), 7: (4, 4), 5: (4, 5)}]
+2024-02-14 17:23:41|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:23:41|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:23:41|INFO|is_sum_fifteen|Executando função: is_correct
+2024-02-14 17:23:41|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:23:41|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:23:41|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 11.216531, 'reaction_time_without_pauses': 11.216531, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 23, 28, 963079), 'end_time': datetime.datetime(2024, 2, 14, 17, 23, 40, 179610), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'other_numbers': '7,5', 'is_correct': True, 'number': 1}
+2024-02-14 17:23:41|INFO|evaluate|Fase [3]| Regra disparada [Alta eficiência]
+2024-02-14 17:23:41|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:23:41|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:23:42|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.02654675766825676]:AROUSAL[0.24311378598213196]
+2024-02-14 17:23:42|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:23:42|INFO|update_challenge|Atualizado
+2024-02-14 17:23:43|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:23:53|INFO|log|User[30]|Acesso a dicas
+2024-02-14 17:24:02|INFO|log|User[30]|Responder desafio
+2024-02-14 17:24:03|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 1| 0| 7| 5| 0| 0|
+------------------------
+| 0| 0| 8| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:24:03|INFO|log|User[30]|Result [{1: (4, 2), 7: (4, 4), 5: (4, 5), 8: (5, 3)}]
+2024-02-14 17:24:03|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:24:03|INFO|evaluate|Fase [3]| Regra disparada [Não completar soma 15 quando possível]
+2024-02-14 17:24:03|INFO|__add_error_in_wm__|A regra Não completar soma 15 quando possível disparou a funçao error_domain_deficiency
+2024-02-14 17:24:03|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:24:03|INFO|is_sum_fifteen|Executando função: is_correct
+2024-02-14 17:24:03|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:24:03|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:24:03|INFO|message_teacher_domain_deficiency|Executando função: message_teacher_domain_deficiency
+2024-02-14 17:24:03|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:24:03|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 18.907913, 'reaction_time_without_pauses': 10.760763, 'paused_counter': 0, 'tips_counter': 1, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 23, 43, 667738), 'end_time': datetime.datetime(2024, 2, 14, 17, 24, 2, 575651), 'affective_state': '', 'affective_quad': '', 'type_error': 'Diretamente identificáveis', 'subtype_error': 'Erro de deficiência no domínio ou uso inadequado de dados', 'icc': 2, 'other_numbers': '7,5,1', 'is_correct': False, 'number': 8}
+2024-02-14 17:24:03|INFO|evaluate|Fase [3]| Regra disparada [Eficiência média]
+2024-02-14 17:24:03|INFO|medium_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:24:03|INFO|medium_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:24:04|INFO|run||Facial|EXPRESSION[]:QUAD[QN]:VALENCE[None]:AROUSAL[None]
+2024-02-14 17:24:04|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:24:04|INFO|update_challenge|Atualizado
+2024-02-14 17:24:12|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:24:22|INFO|log|User[30]|Responder desafio
+2024-02-14 17:24:24|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 1| 0| 7| 5| 0| 0|
+------------------------
+| 0| 0| 8| 2| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:24:24|INFO|log|User[30]|Result [{1: (4, 2), 7: (4, 4), 5: (4, 5), 8: (5, 3), 2: (5, 4)}]
+2024-02-14 17:24:24|INFO|do_not_make_sum_fifteen|Executando função: do_not_make_sum_fifteen
+2024-02-14 17:24:24|INFO|do_not_prevent_sum_fifteen|Executando função: prevent_sum_fifteen
+2024-02-14 17:24:24|INFO|is_sum_fifteen|Executando função: is_correct
+2024-02-14 17:24:24|INFO|provide_two_or_more_numbers|Executando função: provide_two_or_more_numbers
+2024-02-14 17:24:24|INFO|log|User[30]|Executando Phase03-Feedback
+2024-02-14 17:24:24|INFO|log|User[30]|[RESPONSE]
+ {'reaction_time': 10.834957, 'reaction_time_without_pauses': 10.834957, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 24, 12, 103073), 'end_time': datetime.datetime(2024, 2, 14, 17, 24, 22, 938030), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'other_numbers': '7,5,1,8', 'is_correct': True, 'number': 2}
+2024-02-14 17:24:24|INFO|evaluate|Fase [3]| Regra disparada [Alta eficiência]
+2024-02-14 17:24:24|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:24:24|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:24:24|INFO|log|User[30]|Acabaram os desafios
+2024-02-14 17:24:25|INFO|run||Facial|EXPRESSION[]:QUAD[QN]:VALENCE[None]:AROUSAL[None]
+2024-02-14 17:24:25|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:24:25|INFO|update_challenge|Atualizado
+2024-02-14 17:24:40|INFO|log|User[30]|Executando Phase03
+2024-02-14 17:24:40|INFO|log|User[30]|Executando Phase01-Tutorial
+2024-02-14 17:25:53|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:26:04|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 2| 0| 6| 0| 0|
+------------------------
+| 0| 0| 0| 5| 0| 0| 0|
+------------------------
+| 0| 0| 4| 0| 8| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:26:07|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:26:30|INFO|log|User[30]|Responder desafio
+2024-02-14 17:26:31|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 2| 7| 6| 0| 0|
+------------------------
+| 0| 0| 9| 5| 1| 0| 0|
+------------------------
+| 0| 0| 4| 3| 8| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:26:31|INFO|log|User[30]|numbers_student [{2: (3, 3), 7: (3, 4), 6: (3, 5), 9: (4, 3), 5: (4, 4), 1: (4, 5), 4: (5, 3), 3: (5, 4), 8: (5, 5)}]
+2024-02-14 17:26:31|INFO|log|User[30]|numbers_initial_response [[[2, 6], [5], [4, 8], [2, 4], [6, 8], [2, 5, 8], [4, 5, 6]]]
+2024-02-14 17:26:31|INFO|log|User[30]|numbers_student_response [[[2, 6, 7], [1, 5, 9], [3, 4, 8], [2, 4, 9], [3, 5, 7], [1, 6, 8], [2, 5, 8], [4, 5, 6]]]
+2024-02-14 17:26:31|INFO|log|User[30]|Executando Phase04-Feedback
+2024-02-14 17:26:31|INFO|log|User[30]|[RESPONSE]
+ {'numbers': '[[2, 6, 7], [1, 5, 9], [3, 4, 8], [2, 4, 9], [3, 5, 7], [1, 6, 8], [2, 5, 8], [4, 5, 6]]', 'numbers_base': '[[2, 6], [5], [4, 8], [2, 4], [6, 8], [2, 5, 8], [4, 5, 6]]', 'reaction_time': 22.960197, 'reaction_time_without_pauses': 22.960197, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 26, 7, 561090), 'end_time': datetime.datetime(2024, 2, 14, 17, 26, 30, 521287), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'is_correct': True}
+2024-02-14 17:26:31|INFO|evaluate|Fase [4]| Regra disparada [Alta eficiência]
+2024-02-14 17:26:31|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:26:31|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:26:33|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[-0.017927203327417374]:AROUSAL[0.3106970489025116]
+2024-02-14 17:26:33|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:26:33|INFO|update_challenge|Atualizado
+2024-02-14 17:26:48|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:26:52|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:27:09|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 4| 0| 8| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 2| 0| 6| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:27:11|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:27:38|INFO|log|User[30]|Responder desafio
+2024-02-14 17:27:39|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 4| 3| 8| 0| 0|
+------------------------
+| 0| 0| 9| 5| 1| 0| 0|
+------------------------
+| 0| 0| 2| 7| 6| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:27:39|INFO|log|User[30]|numbers_student [{4: (3, 3), 3: (3, 4), 8: (3, 5), 9: (4, 3), 5: (4, 4), 1: (4, 5), 2: (5, 3), 7: (5, 4), 6: (5, 5)}]
+2024-02-14 17:27:39|INFO|log|User[30]|numbers_initial_response [[[4, 8], [2, 6], [2, 4], [6, 8], [4, 6], [2, 8]]]
+2024-02-14 17:27:39|INFO|log|User[30]|numbers_student_response [[[3, 4, 8], [1, 5, 9], [2, 6, 7], [2, 4, 9], [3, 5, 7], [1, 6, 8], [4, 5, 6], [2, 5, 8]]]
+2024-02-14 17:27:40|INFO|log|User[30]|Executando Phase04-Feedback
+2024-02-14 17:27:40|INFO|log|User[30]|[RESPONSE]
+ {'numbers': '[[3, 4, 8], [1, 5, 9], [2, 6, 7], [2, 4, 9], [3, 5, 7], [1, 6, 8], [4, 5, 6], [2, 5, 8]]', 'numbers_base': '[[4, 8], [2, 6], [2, 4], [6, 8], [4, 6], [2, 8]]', 'reaction_time': 27.176125, 'reaction_time_without_pauses': 27.176125, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 27, 11, 697317), 'end_time': datetime.datetime(2024, 2, 14, 17, 27, 38, 873442), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'is_correct': True}
+2024-02-14 17:27:40|INFO|evaluate|Fase [4]| Regra disparada [Alta eficiência]
+2024-02-14 17:27:40|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:27:40|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:27:41|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.29899922013282776]:AROUSAL[0.10899949073791504]
+2024-02-14 17:27:41|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:27:41|INFO|update_challenge|Atualizado
+2024-02-14 17:27:46|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:28:17|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 8| 0| 0| 0|
+------------------------
+| 0| 0| 1| 0| 3| 0| 0|
+------------------------
+| 0| 0| 0| 5| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:28:30|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 1| 0| 0| 0|
+------------------------
+| 0| 0| 7| 0| 3| 0| 0|
+------------------------
+| 0| 0| 0| 9| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:28:33|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:29:12|INFO|log|User[30]|Responder desafio
+2024-02-14 17:29:13|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 6| 1| 8| 0| 0|
+------------------------
+| 0| 0| 7| 5| 3| 0| 0|
+------------------------
+| 0| 0| 2| 9| 4| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:29:13|INFO|log|User[30]|numbers_student [{6: (3, 3), 1: (3, 4), 8: (3, 5), 7: (4, 3), 5: (4, 4), 3: (4, 5), 2: (5, 3), 9: (5, 4), 4: (5, 5)}]
+2024-02-14 17:29:13|INFO|log|User[30]|numbers_initial_response [[[1], [3, 7], [9], [7], [1, 9], [3]]]
+2024-02-14 17:29:13|INFO|log|User[30]|numbers_student_response [[[1, 6, 8], [3, 5, 7], [2, 4, 9], [2, 6, 7], [1, 5, 9], [3, 4, 8], [4, 5, 6], [2, 5, 8]]]
+2024-02-14 17:29:13|INFO|log|User[30]|Executando Phase04-Feedback
+2024-02-14 17:29:13|INFO|log|User[30]|[RESPONSE]
+ {'numbers': '[[1, 6, 8], [3, 5, 7], [2, 4, 9], [2, 6, 7], [1, 5, 9], [3, 4, 8], [4, 5, 6], [2, 5, 8]]', 'numbers_base': '[[1], [3, 7], [9], [7], [1, 9], [3]]', 'reaction_time': 39.516905, 'reaction_time_without_pauses': 39.516905, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 28, 33, 15585), 'end_time': datetime.datetime(2024, 2, 14, 17, 29, 12, 532490), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'is_correct': True}
+2024-02-14 17:29:13|INFO|evaluate|Fase [4]| Regra disparada [Alta eficiência]
+2024-02-14 17:29:13|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:29:13|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:29:15|INFO|run||Facial|EXPRESSION[fear]:QUAD[Q2]:VALENCE[0.0476650707423687]:AROUSAL[0.5094902515411377]
+2024-02-14 17:29:15|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:29:15|INFO|update_challenge|Atualizado
+2024-02-14 17:29:19|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:29:33|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 5| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:29:34|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:30:33|INFO|log|User[30]|[TIMER] - Acabou o tempo
+2024-02-14 17:30:33|INFO|log|User[30]|[RESPONSE]
+{'is_correct': False, 'numbers': '[-1]', 'numbers_base': '[[5]]', 'reaction_time': 59.004262, 'reaction_time_without_pauses': 59.004262, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 29, 34, 989069), 'end_time': datetime.datetime(2024, 2, 14, 17, 30, 33, 993331), 'affective_state': '', 'affective_quad': '', 'icc': 2, 'type_error': 'Tempo excedido', 'subtype_error': ''}
+2024-02-14 17:30:34|INFO|evaluate|Fase [4]| Regra disparada [Alta eficiência]
+2024-02-14 17:30:34|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:30:34|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:30:35|INFO|run||Facial|EXPRESSION[fear]:QUAD[Q2]:VALENCE[0.009112995117902756]:AROUSAL[0.5007911920547485]
+2024-02-14 17:31:31|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:31:31|INFO|log|User[30]|[TIMER] - Acabou o tempo
+2024-02-14 17:31:31|INFO|log|User[30]|[RESPONSE]
+{'is_correct': False, 'numbers': '[-1]', 'numbers_base': '[[5]]', 'reaction_time': 6.5e-05, 'reaction_time_without_pauses': 6.5e-05, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 31, 31, 941168), 'end_time': datetime.datetime(2024, 2, 14, 17, 31, 31, 941233), 'affective_state': '', 'affective_quad': '', 'icc': 2, 'type_error': 'Tempo excedido', 'subtype_error': ''}
+2024-02-14 17:31:31|INFO|evaluate|Fase [4]| Regra disparada [Insistir no mesmo erro]
+2024-02-14 17:31:31|INFO|decrease_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:31:31|INFO|decrease_inhibitory_control|Novo Student ICC: 1
+2024-02-14 17:31:31|INFO|evaluate|Fase [4]| Regra disparada [Eficiência média]
+2024-02-14 17:31:31|INFO|medium_inhibitory_control|Atual Student ICC: 1
+2024-02-14 17:31:31|INFO|medium_inhibitory_control|Novo Student ICC: 1
+2024-02-14 17:31:32|INFO|run||Facial|EXPRESSION[]:QUAD[QN]:VALENCE[None]:AROUSAL[None]
+2024-02-14 17:31:33|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:31:34|INFO|log|User[30]|Responder desafio
+2024-02-14 17:31:35|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 8| 3| 4| 0| 0|
+------------------------
+| 0| 0| 1| 5| 9| 0| 0|
+------------------------
+| 0| 0| 6| 7| 2| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:31:35|INFO|log|User[30]|numbers_student [{8: (3, 3), 3: (3, 4), 4: (3, 5), 1: (4, 3), 5: (4, 4), 9: (4, 5), 6: (5, 3), 7: (5, 4), 2: (5, 5)}]
+2024-02-14 17:31:35|INFO|log|User[30]|numbers_initial_response [[[5]]]
+2024-02-14 17:31:35|INFO|log|User[30]|numbers_student_response [[[3, 4, 8], [1, 5, 9], [2, 6, 7], [1, 6, 8], [3, 5, 7], [2, 4, 9], [2, 5, 8], [4, 5, 6]]]
+2024-02-14 17:31:36|INFO|log|User[30]|Executando Phase04-Feedback
+2024-02-14 17:31:36|INFO|log|User[30]|[RESPONSE]
+ {'numbers': '[[3, 4, 8], [1, 5, 9], [2, 6, 7], [1, 6, 8], [3, 5, 7], [2, 4, 9], [2, 5, 8], [4, 5, 6]]', 'numbers_base': '[[5]]', 'reaction_time': 1.139374, 'reaction_time_without_pauses': 1.139374, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 31, 33, 786760), 'end_time': datetime.datetime(2024, 2, 14, 17, 31, 34, 926134), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 1, 'is_correct': True}
+2024-02-14 17:31:36|INFO|evaluate|Fase [4]| Regra disparada [Alta eficiência]
+2024-02-14 17:31:36|INFO|increase_inhibitory_control|Atual Student ICC: 1
+2024-02-14 17:31:36|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:31:36|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:31:37|INFO|run||Facial|EXPRESSION[fear]:QUAD[Q2]:VALENCE[0.037811871618032455]:AROUSAL[0.5005370378494263]
+2024-02-14 17:31:37|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:31:37|INFO|update_challenge|Atualizado
+2024-02-14 17:31:41|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:31:57|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:31:59|INFO|log|User[30]|[TIMER] - Reset
+2024-02-14 17:32:11|INFO|log|User[30]|Responder desafio
+2024-02-14 17:32:12|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 8| 3| 4| 0| 0|
+------------------------
+| 0| 0| 1| 5| 9| 0| 0|
+------------------------
+| 0| 0| 6| 7| 2| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-14 17:32:12|INFO|log|User[30]|numbers_student [{8: (3, 3), 3: (3, 4), 4: (3, 5), 1: (4, 3), 5: (4, 4), 9: (4, 5), 6: (5, 3), 7: (5, 4), 2: (5, 5)}]
+2024-02-14 17:32:12|INFO|log|User[30]|numbers_initial_response [[]]
+2024-02-14 17:32:12|INFO|log|User[30]|numbers_student_response [[[3, 4, 8], [1, 5, 9], [2, 6, 7], [1, 6, 8], [3, 5, 7], [2, 4, 9], [2, 5, 8], [4, 5, 6]]]
+2024-02-14 17:32:12|INFO|log|User[30]|Executando Phase04-Feedback
+2024-02-14 17:32:12|INFO|log|User[30]|[RESPONSE]
+ {'numbers': '[[3, 4, 8], [1, 5, 9], [2, 6, 7], [1, 6, 8], [3, 5, 7], [2, 4, 9], [2, 5, 8], [4, 5, 6]]', 'numbers_base': '[]', 'reaction_time': 12.061428, 'reaction_time_without_pauses': 12.061428, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 120, 'start_time': datetime.datetime(2024, 2, 14, 17, 31, 59, 93598), 'end_time': datetime.datetime(2024, 2, 14, 17, 32, 11, 155026), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'is_correct': True}
+2024-02-14 17:32:12|INFO|evaluate|Fase [4]| Regra disparada [Alta eficiência]
+2024-02-14 17:32:12|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-14 17:32:12|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-14 17:32:12|INFO|log|User[30]|Acabaram os desafios
+2024-02-14 17:32:13|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[-0.04590464010834694]:AROUSAL[0.2171286642551422]
+2024-02-14 17:32:13|INFO|update_challenge|Atualizando challenge
+2024-02-14 17:32:13|INFO|update_challenge|Atualizado

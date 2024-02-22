@@ -146,7 +146,7 @@ class Teacher:
             max_words=self.max_words
             )
         
-        if (self.image_explication != False):
+        if (self.image_explication != False and self.image_explication != None):
             image_explication = pygame.image.load(os.path.join("images", self.image_explication))
             image_explication_rect = image_explication.get_rect(center=(screen_width/2, screen_height/2 - 170))
             self.display.blit(image_explication, image_explication_rect)

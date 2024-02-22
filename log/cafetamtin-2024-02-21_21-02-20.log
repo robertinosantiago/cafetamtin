@@ -1,0 +1,39 @@
+2024-02-21 21:02:31|INFO|log|User[14]|Estudante selecionado
+2024-02-21 21:02:32|INFO|log|User[14]|Executando Phase01
+2024-02-21 21:02:33|INFO|log|User[14]|Executando Phase01-Tutorial
+2024-02-21 21:02:37|INFO|log|User[14]|Responder desafio
+2024-02-21 21:02:38|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 3| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-21 21:02:38|INFO|log|User[14]|Expressão [9-5=4]
+2024-02-21 21:02:38|INFO|log|User[14]|Result [4]
+2024-02-21 21:02:38|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-21 21:02:38|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-21 21:02:38|INFO|evaluate|Fase [1]| Regra disparada [Resposta errada]
+2024-02-21 21:02:38|INFO|__add_error_in_wm__|A regra Resposta errada disparou a funçao error_domain_deficiency
+2024-02-21 21:02:38|INFO|log|User[14]|Executando Phase01-Feedback
+2024-02-21 21:02:38|INFO|log|User[14]|[RESPONSE]
+ {'step': 1, 'reaction_time': 0, 'reaction_time_without_pauses': 0, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': None, 'end_time': None, 'affective_state': '', 'affective_quad': '', 'type_error': 'Diretamente identificáveis', 'subtype_error': 'Erro de deficiência no domínio ou uso inadequado de dados', 'icc': 0, 'number01': 9, 'operator01': '-', 'number02': 5, 'operator02': '', 'number03': 0, 'expected_result': 4, 'informed_result': 3, 'is_correct': False}
+2024-02-21 21:02:38|INFO|evaluate|Fase [1]| Regra disparada [Baixa eficiência]
+2024-02-21 21:02:38|INFO|decrease_inhibitory_control|Atual Student ICC: 0
+2024-02-21 21:02:38|INFO|decrease_inhibitory_control|Novo Student ICC: 0
+2024-02-21 21:02:39|INFO|run||Facial|EXPRESSION[]:QUAD[QN]:VALENCE[None]:AROUSAL[None]
+2024-02-21 21:02:42|INFO|log|User[14]|Acesso a dicas
+2024-02-21 21:02:48|INFO|log|User[14]|Acesso a dicas
+2024-02-21 21:02:57|INFO|log|User[14]|Acesso a dicas
+2024-02-21 21:03:00|INFO|log|User[14]|Acesso a dicas
+2024-02-21 21:03:06|INFO|log|User[14]|Acesso a dicas

@@ -1,0 +1,30 @@
+2024-02-09 22:20:32|INFO|log|User[1]|Estudante selecionado
+2024-02-09 22:20:32|INFO|log|User[1]|Executando Phase01
+2024-02-09 22:20:33|INFO|log|User[1]|Executando Phase01-Tutorial
+2024-02-09 22:20:38|INFO|log|User[1]|[TIMER] - Reset
+2024-02-09 22:20:42|INFO|log|User[1]|Responder desafio
+2024-02-09 22:20:43|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-09 22:20:43|INFO|log|User[1]|Expressão [2+1=3]
+2024-02-09 22:20:43|INFO|log|User[1]|Result [3]
+2024-02-09 22:20:43|INFO|evaluate|Fase [1]| Regra disparada [Nenhum numero]
+2024-02-09 22:20:43|INFO|not_valid|A regra Nenhum numero disparou a funçao not_valid
+2024-02-09 22:20:43|INFO|log|User[1]|Executando Phase01-Feedback
+2024-02-09 22:20:43|INFO|log|User[1]|[RESPONSE]
+ {'step': 1, 'reaction_time': 4.642061, 'reaction_time_without_pauses': 4.642061, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 9, 22, 20, 38, 203318), 'end_time': datetime.datetime(2024, 2, 9, 22, 20, 42, 845379), 'affective_state': '', 'affective_quad': '', 'type_error': 'Expressão não válida', 'subtype_error': '', 'icc': 1, 'number01': 2, 'operator01': '+', 'number02': 1, 'operator02': '', 'number03': 0, 'expected_result': 3, 'informed_result': 0, 'is_correct': False}
+2024-02-09 22:20:44|INFO|run||Facial|EXPRESSION[]:QUAD[QN]:VALENCE[None]:AROUSAL[None]

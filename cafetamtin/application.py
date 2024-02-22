@@ -68,7 +68,7 @@ def main(argv):
 
     db.generate_mapping(create_tables=True)
 
-    create_user()
+    #create_user()
 
     app = Application()
     app.game.loop()
@@ -77,7 +77,7 @@ def main(argv):
 def create_user():
     user = DBUser(name='Robertino', nickname='Tino', age=41, gender='M')
     steps = DBSteps(phase = 1, user=user, score=0, lifes=5)
-    #board = DBBoard(lines= 7, columns = 7)
+    board = DBBoard(lines= 7, columns = 7)
     
 
 if __name__ == '__main__':

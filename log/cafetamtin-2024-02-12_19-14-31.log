@@ -1,0 +1,202 @@
+2024-02-12 19:18:43|INFO|log|User[24]|Estudante selecionado
+2024-02-12 19:18:54|INFO|log|User[24]|Executando Phase01
+2024-02-12 19:18:54|INFO|log|User[24]|Executando Phase01-Tutorial
+2024-02-12 19:19:02|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:19:09|INFO|log|User[24]|Responder desafio
+2024-02-12 19:19:11|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 3| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-12 19:19:11|INFO|log|User[24]|Expressão [7-4=3]
+2024-02-12 19:19:11|INFO|log|User[24]|Result [3]
+2024-02-12 19:19:11|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-12 19:19:11|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-12 19:19:11|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-12 19:19:11|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-12 19:19:11|INFO|log|User[24]|Executando Phase01-Feedback
+2024-02-12 19:19:11|INFO|log|User[24]|[RESPONSE]
+ {'step': 1, 'reaction_time': 7.066991, 'reaction_time_without_pauses': 7.066991, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 12, 19, 19, 2, 821827), 'end_time': datetime.datetime(2024, 2, 12, 19, 19, 9, 888818), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 1, 'number01': 7, 'operator01': '-', 'number02': 4, 'operator02': '', 'number03': 0, 'expected_result': 3, 'informed_result': 3, 'is_correct': True}
+2024-02-12 19:19:11|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-12 19:19:11|INFO|increase_inhibitory_control|Atual Student ICC: 1
+2024-02-12 19:19:11|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-12 19:19:11|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:19:13|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.11458072066307068]:AROUSAL[0.3299834132194519]
+2024-02-12 19:19:24|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:19:28|INFO|log|User[24]|Responder desafio
+2024-02-12 19:19:29|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 7| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-12 19:19:29|INFO|log|User[24]|Expressão [4+3=7]
+2024-02-12 19:19:29|INFO|log|User[24]|Result [7]
+2024-02-12 19:19:29|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-12 19:19:29|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-12 19:19:29|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-12 19:19:29|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-12 19:19:29|INFO|log|User[24]|Executando Phase01-Feedback
+2024-02-12 19:19:29|INFO|log|User[24]|[RESPONSE]
+ {'step': 2, 'reaction_time': 4.176709, 'reaction_time_without_pauses': 4.176709, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 12, 19, 19, 24, 183836), 'end_time': datetime.datetime(2024, 2, 12, 19, 19, 28, 360545), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 4, 'operator01': '+', 'number02': 3, 'operator02': '', 'number03': 0, 'expected_result': 7, 'informed_result': 7, 'is_correct': True}
+2024-02-12 19:19:29|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-12 19:19:29|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-12 19:19:29|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-12 19:19:29|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:19:31|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.2725427746772766]:AROUSAL[0.1771569550037384]
+2024-02-12 19:19:37|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:19:42|INFO|log|User[24]|Responder desafio
+2024-02-12 19:19:43|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 6| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-12 19:19:43|INFO|log|User[24]|Expressão [4-2=2]
+2024-02-12 19:19:43|INFO|log|User[24]|Result [2]
+2024-02-12 19:19:43|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-12 19:19:43|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-12 19:19:43|INFO|evaluate|Fase [1]| Regra disparada [Resposta errada]
+2024-02-12 19:19:43|INFO|__add_error_in_wm__|A regra Resposta errada disparou a funçao error_domain_deficiency
+2024-02-12 19:19:43|INFO|evaluate|Fase [1]| Regra disparada [Troca de operadores]
+2024-02-12 19:19:43|INFO|__add_error_in_wm__|A regra Troca de operadores disparou a funçao error_operator_usage
+2024-02-12 19:19:43|INFO|log|User[24]|Executando Phase01-Feedback
+2024-02-12 19:19:44|INFO|log|User[24]|[RESPONSE]
+ {'step': 3, 'reaction_time': 4.861922, 'reaction_time_without_pauses': 4.861922, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 12, 19, 19, 37, 829554), 'end_time': datetime.datetime(2024, 2, 12, 19, 19, 42, 691476), 'affective_state': '', 'affective_quad': '', 'type_error': 'Diretamente identificáveis', 'subtype_error': 'Erro referente a uso de operador', 'icc': 2, 'number01': 4, 'operator01': '-', 'number02': 2, 'operator02': '', 'number03': 0, 'expected_result': 2, 'informed_result': 6, 'is_correct': False}
+2024-02-12 19:19:44|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-12 19:19:44|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-12 19:19:44|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-12 19:19:45|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.083391934633255]:AROUSAL[0.3684164881706238]
+2024-02-12 19:20:11|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:20:16|INFO|log|User[24]|Responder desafio
+2024-02-12 19:20:18|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 3| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-12 19:20:18|INFO|log|User[24]|Expressão [5-2=3]
+2024-02-12 19:20:18|INFO|log|User[24]|Result [3]
+2024-02-12 19:20:18|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-12 19:20:18|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-12 19:20:18|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-12 19:20:18|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-12 19:20:18|INFO|log|User[24]|Executando Phase01-Feedback
+2024-02-12 19:20:18|INFO|log|User[24]|[RESPONSE]
+ {'step': 4, 'reaction_time': 5.209937, 'reaction_time_without_pauses': 5.209937, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 12, 19, 20, 11, 758629), 'end_time': datetime.datetime(2024, 2, 12, 19, 20, 16, 968566), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 5, 'operator01': '-', 'number02': 2, 'operator02': '', 'number03': 0, 'expected_result': 3, 'informed_result': 3, 'is_correct': True}
+2024-02-12 19:20:18|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-12 19:20:18|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-12 19:20:18|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-12 19:20:18|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:20:20|INFO|run||Facial|EXPRESSION[neutral]:QUAD[QN]:VALENCE[0.3003329038619995]:AROUSAL[0.2176356166601181]
+2024-02-12 19:20:25|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:20:28|INFO|log|User[24]|Responder desafio
+2024-02-12 19:20:29|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 6| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-12 19:20:29|INFO|log|User[24]|Expressão [2+4=6]
+2024-02-12 19:20:29|INFO|log|User[24]|Result [6]
+2024-02-12 19:20:29|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-12 19:20:29|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-12 19:20:29|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-12 19:20:29|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-12 19:20:29|INFO|log|User[24]|Executando Phase01-Feedback
+2024-02-12 19:20:29|INFO|log|User[24]|[RESPONSE]
+ {'step': 5, 'reaction_time': 3.397176, 'reaction_time_without_pauses': 3.397176, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 12, 19, 20, 25, 22043), 'end_time': datetime.datetime(2024, 2, 12, 19, 20, 28, 419219), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 2, 'operator01': '+', 'number02': 4, 'operator02': '', 'number03': 0, 'expected_result': 6, 'informed_result': 6, 'is_correct': True}
+2024-02-12 19:20:29|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-12 19:20:29|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-12 19:20:29|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-12 19:20:29|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:20:31|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.25192540884017944]:AROUSAL[0.3511735200881958]
+2024-02-12 19:20:37|INFO|log|User[24]|[TIMER] - Reset
+2024-02-12 19:20:42|INFO|log|User[24]|Responder desafio
+2024-02-12 19:20:43|INFO|draw_matrix_board|
+========================
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 4| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+------------------------
+| 0| 0| 0| 0| 0| 0| 0|
+========================
+
+2024-02-12 19:20:43|INFO|log|User[24]|Expressão [8-4=4]
+2024-02-12 19:20:43|INFO|log|User[24]|Result [4]
+2024-02-12 19:20:43|INFO|evaluate|Fase [1]| Regra disparada [Apenas um numero]
+2024-02-12 19:20:43|INFO|valid|A regra Apenas um numero disparou a funçao valid
+2024-02-12 19:20:43|INFO|evaluate|Fase [1]| Regra disparada [Resposta correta]
+2024-02-12 19:20:43|INFO|correct|A regra Resposta correta disparou a funçao correct
+2024-02-12 19:20:44|INFO|log|User[24]|Executando Phase01-Feedback
+2024-02-12 19:20:44|INFO|log|User[24]|[RESPONSE]
+ {'step': 6, 'reaction_time': 5.422194, 'reaction_time_without_pauses': 5.422194, 'paused_counter': 0, 'tips_counter': 0, 'max_time': 60, 'start_time': datetime.datetime(2024, 2, 12, 19, 20, 37, 472817), 'end_time': datetime.datetime(2024, 2, 12, 19, 20, 42, 895011), 'affective_state': '', 'affective_quad': '', 'type_error': '', 'subtype_error': '', 'icc': 2, 'number01': 8, 'operator01': '-', 'number02': 4, 'operator02': '', 'number03': 0, 'expected_result': 4, 'informed_result': 4, 'is_correct': True}
+2024-02-12 19:20:44|INFO|evaluate|Fase [1]| Regra disparada [Alta eficiência]
+2024-02-12 19:20:44|INFO|increase_inhibitory_control|Atual Student ICC: 2
+2024-02-12 19:20:44|INFO|increase_inhibitory_control|Novo Student ICC: 2
+2024-02-12 19:20:45|INFO|run||Facial|EXPRESSION[happy]:QUAD[Q1]:VALENCE[0.30946317315101624]:AROUSAL[0.24056918919086456]
+2024-02-12 19:20:51|INFO|log|User[24]|[TIMER] - Reset
