@@ -50,6 +50,8 @@ class Phase02(State):
     def __init__(self, game):
         super().__init__(game)
         self.log('Executando Phase02')
+        
+        self.load_tips()
 
         self.memory = Memory()
         self.rules = Phase02Rules(self.memory)
@@ -132,6 +134,42 @@ class Phase02(State):
         
         self.memory.add_fact('timer_response', Timer())
 
+
+    def load_tips(self):
+        error1 = Error(type=TypeError.TYPE_MISINTERPRETATION_LANGUAGE, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error1, message='O número 5 está presente em 4 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 2 está presente em 3 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 4 está presente em 3 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 6 está presente em 3 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 8 está presente em 3 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 1 está presente em 2 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 3 está presente em 2 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 7 está presente em 2 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error1, message='O número 9 está presente em 2 possíveis somas 15 com três termos com números de 1 a 9.')
+        
+        error2 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_DOMAIN_DEFICIENCY)
+        self.tips.add_tip(error=error2, message='O resultado da soma de três números ímpares sempre será um número ímpar.')
+        self.tips.add_tip(error=error2, message='O resultado da soma de dois números par e um número ímpar será sempre um número ímpar.')
+        
+        error3 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_RULE_DEFICIECY)
+        self.tips.add_tip(error=error3, message='O resultado da soma de três números pares sempre será um número par.')
+        self.tips.add_tip(error=error3, message='O resultado da soma de dois números ímpares e um número par será sempre um número par.')
+        
+        error4 = Error(type=TypeError.TYPE_INDIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error4, message='Considerando os números de 1 a 9, existem 8 possíveis somas 15 com 3 termos.')
+        self.tips.add_tip(error=error4, message='Verifique com atenção as somas 15 já encontradas para avaliar as somas que ainda faltam.')
+        self.tips.add_tip(error=error4, message='Anote em um papel cada soma 15 encontrada.')
+        
+        error5 = Error(type=TypeError.TYPE_UNCATEGORIZED_SOLUTION, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error5, message='Cada um dos números pares está presente em três somas 15 possíveis com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error5, message='Cada um dos números ímpares está presente em duas somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error5, message='Considerando a propriedade associativa na soma, (a + b) + c = a + (b + c).')
+        
+        self.tips_errors.append({'error': error1, 'count': 0})
+        self.tips_errors.append({'error': error2, 'count': 0})
+        self.tips_errors.append({'error': error3, 'count': 0})
+        self.tips_errors.append({'error': error4, 'count': 0})
+        self.tips_errors.append({'error': error5, 'count': 0})
 
     def load_images(self):
         return {
@@ -223,9 +261,12 @@ class Phase02(State):
             tips_times = self.memory.get_fact('tips_times')
             self.memory.add_fact('tips_times', tips_times + 1)
             
+            emotions = ['neutral0', 'neutral1', 'neutral2']
+            message, image = self.get_message_tips()
             self.teacher.set_message(
-                'Dicas',
-                'neutral1'
+                message= f'Dica\n\n {message}\n\nPressione o botão VERMELHO para continuar',
+                image_key= emotions[random.randrange(0,len(emotions))],
+                image_explication= image
             )
             
         if self.teacher.has_next_message():

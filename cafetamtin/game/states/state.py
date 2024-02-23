@@ -17,6 +17,7 @@
 
 import pygame
 import logging
+from utils.tips import Tips
 from utils.confetti import Confetti
 
 from game import FONT_NAME
@@ -29,6 +30,8 @@ class State():
         self.previous_state = None
         self.confetti = Confetti()
         self.frame_confetti = 1
+        self.tips = Tips()
+        self.tips_errors = []
 
     def update(self, delta_time):
         pass
@@ -47,6 +50,31 @@ class State():
     def exit_state(self, stages = 1):
         for i in range(0, stages):
             self.game.state_stack.pop()
+    
+    def get_message_tips(self):
+        error = None
+        
+        if len(self.memory.get_fact('history_errors')) == 0:
+            self.tips_errors = sorted(self.tips_errors, key=lambda x: x['count'])
+            error = self.tips_errors[0]['error']
+            self.tips_errors[0]['count'] += 1
+        else:
+            
+            counters = {}
+            for k in self.tips_errors:
+                count = 0
+                for e in self.memory.get_fact('history_errors'):
+                    if k['error'] == e:
+                        count += 1
+                counters[k['error']] = count
+            counters = sorted(counters.items(), key=lambda x: x[1], reverse=True)
+            error = counters[0][0]
+            for i in range(0, len(self.tips_errors)):
+                if self.tips_errors[i]['error'] == error:
+                    self.tips_errors[i]['count'] += 1
+        
+        tip = self.tips.get_tip(error)
+        return tip['message'], tip['image']
             
     def blit_text(self, text, pos, color, size):
         display = self.game.game_canvas

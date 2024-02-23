@@ -30,8 +30,8 @@ from game import FONT_NAME
 from game import BACKGROUND_COLOR
 from game import WHITE, BLACK, RED, GREEN
 
-from base.board import Board
 from utils.tips import Tips
+from base.board import Board
 from utils.timer import Timer
 from utils.confetti import Confetti
 from game.states.state import State
@@ -54,8 +54,6 @@ class Phase01(State):
         super().__init__(game)
         self.log('Executando Phase01')
 
-        self.tips = Tips()
-        self.tips_errors = []
         self.load_tips()
         
         self.memory = Memory()
@@ -331,33 +329,6 @@ class Phase01(State):
             )
             self.teacher.next_message()
             self.show_teacher = True
-
-    def get_message_tips(self):
-        error = None
-        
-        if len(self.memory.get_fact('history_errors')) == 0:
-            self.tips_errors = sorted(self.tips_errors, key=lambda x: x['count'])
-            error = self.tips_errors[0]['error']
-            self.tips_errors[0]['count'] += 1
-        else:
-            
-            counters = {}
-            for k in self.tips_errors:
-                count = 0
-                for e in self.memory.get_fact('history_errors'):
-                    if k['error'] == e:
-                        count += 1
-                counters[k['error']] = count
-            counters = sorted(counters.items(), key=lambda x: x[1], reverse=True)
-            error = counters[0][0]
-            for i in range(0, len(self.tips_errors)):
-                if self.tips_errors[i]['error'] == error:
-                    self.tips_errors[i]['count'] += 1
-        
-        tip = self.tips.get_tip(error)
-        return tip['message'], tip['image']
-            
-                        
 
     def check_challenge(self):
         blocks = self.board.result_matrix_board()
