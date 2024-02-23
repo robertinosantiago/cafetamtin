@@ -51,6 +51,8 @@ class Phase03(State):
     def __init__(self, game):
         super().__init__(game)
         self.log('Executando Phase03')
+
+        self.load_tips()
         
         self.memory = Memory()
         self.rules = Phase03Rules(self.memory)
@@ -135,6 +137,33 @@ class Phase03(State):
         self.memory.add_fact('phase', 3)
         
         self.memory.add_fact('timer_response', Timer())
+    
+    def load_tips(self):
+        error1 = Error(type=TypeError.TYPE_MISINTERPRETATION_LANGUAGE, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error1, message='Selecione apenas os números que aparecem no quadro “Blocos disponíveis”.')
+        self.tips.add_tip(error=error1, message='Observe que os números exibidos no quadro “Blocos do tutor” não podem ser escolhidos por você.')
+        self.tips.add_tip(error=error1, message='É possível conseguir uma soma quinze com três números ímpares.')
+        self.tips.add_tip(error=error1, message='É possível conseguir uma soma quinze com dois números pares e um número ímpar.')
+        
+        error2 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_DOMAIN_DEFICIENCY)
+        self.tips.add_tip(error=error2, message='Antes de selecionar um bloco numerado, avalie os números que você já selecionou e verifique se há a possibilidade de completar uma soma quinze.')
+        self.tips.add_tip(error=error2, message='Antes de selecionar um bloco numerado, avalie os números que o tutor selecionou e verifique se há a possibilidade impedi-lo de completar uma soma quinze.')
+        self.tips.add_tip(error=error2, message='Utilize a expressão 15 - (a + b) para encontrar o número restante para completar a soma 15.')
+                
+        error3 = Error(type=TypeError.TYPE_INDIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error3, message='O 5 é o número que está presente no maior número de somas 15.')
+        self.tips.add_tip(error=error3, message='O número 5 está presente em 4 possíveis somas 15 com três termos com números de 1 a 9.')
+        self.tips.add_tip(error=error3, message='Caso você tenha anotado todas a somas 15 encontradas, verifique em quantas somas o número 5 está presente.')
+        
+        error4 = Error(type=TypeError.TYPE_UNCATEGORIZED_SOLUTION, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error4, message='Não remova do tabuleiro nenhum bloco antes de acabar a partida.')
+        self.tips.add_tip(error=error4, message='Por vez, utilize apenas um bloco numerado.')
+        self.tips.add_tip(error=error4, message='Não se esqueça de pressionar o botão VERDE sempre que informar um novo número.')
+        
+        self.tips_errors.append({'error': error1, 'count': 0})
+        self.tips_errors.append({'error': error2, 'count': 0})
+        self.tips_errors.append({'error': error3, 'count': 0})
+        self.tips_errors.append({'error': error4, 'count': 0})
 
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
@@ -207,9 +236,12 @@ class Phase03(State):
             self.memory.add_fact('tips_times', tips_times + 1)
             
             self.log('Acesso a dicas')
+            emotions = ['neutral0', 'neutral1', 'neutral2']
+            message, image = self.get_message_tips()
             self.teacher.set_message(
-                "Dicas", 
-                "neutral0"
+                message= f'Dica\n\n {message}\n\nPressione o botão VERMELHO para continuar',
+                image_key= emotions[random.randrange(0,len(emotions))],
+                image_explication= image
             )
         
         if self.teacher.has_next_message():

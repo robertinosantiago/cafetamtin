@@ -54,6 +54,8 @@ class Phase04(State):
         super().__init__(game)
         self.log('Executando Phase03')
         
+        self.load_tips()
+
         self.memory = Memory()
         self.rules = Phase04Rules(self.memory)
         self.rules_level = LevelRules(self.memory)
@@ -163,6 +165,40 @@ class Phase04(State):
         
         self.memory.add_fact('timer_response', Timer())
     
+    def load_tips(self):
+        error1 = Error(type=TypeError.TYPE_MISINTERPRETATION_LANGUAGE, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error1, message='Tente relembrar as possíveis somas quinze já encontradas por você. Você pode consultar suas anotações.')
+        
+        error2 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_DOMAIN_DEFICIENCY)
+        self.tips.add_tip(error=error2, message='Analise a diferença entre cada eixo (horizontal, vertical e diagonal) e o valor 15 para planejar suas jogadas.')
+        self.tips.add_tip(error=error2, message='Observe o quadro "Possíveis somas do estudante" para calcular o valor da diferença entre os números informados e o número 15.')
+        
+        error3 = Error(type=TypeError.TYPE_DIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_RULE_DEFICIECY)
+        self.tips.add_tip(error=error3, message='O resultado da soma de três números pares sempre será um número par.')
+        self.tips.add_tip(error=error3, message='O resultado da soma de dois números ímpares e um número par será sempre um número par.')
+        self.tips.add_tip(error=error3, message='O resultado da soma de três números ímpares sempre será um número ímpar.')
+        self.tips.add_tip(error=error3, message='O resultado da soma de dois números par e um número ímpar será sempre um número ímpar.')
+        
+        error4 = Error(type=TypeError.TYPE_INDIRECTLY_IDENTIFIABLE, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error4, message='Avalie em quantas somas 15 a posição central do quadrado mágico está envolvida. Para isso, olhe para a horizontal, vertical e diagonais.')
+        self.tips.add_tip(error=error4, message='Você percebeu que existe apenas uma possibilidade de número para a posição central do quadrado mágico?')
+        self.tips.add_tip(error=error4, message='Observe as extremidades (pontas) do quadrado mágico e verifique em quantas possíveis somas cada uma está envolvida.')
+        self.tips.add_tip(error=error4, message='Você percebeu que as extremidades (pontas) do quadrado mágico aparecem em três somas possíveis, cada extremidade, assim como os números pares?')
+        self.tips.add_tip(error=error4, message='Observe os números centrais de cada coluna e cada linha e verifique em quantas somas possíveis eles estão envolvidos.')
+        self.tips.add_tip(error=error4, message='Você percebeu que os números centrais de cada coluna e cada linha aparecem em duas somas possíveis, cada um, assim como os números ímpares?')
+        
+        error5 = Error(type=TypeError.TYPE_UNCATEGORIZED_SOLUTION, subtype=TypeError.SUBTYPE_NONE)
+        self.tips.add_tip(error=error5, message='Você pode tentar resolver as linhas, colunas ou diagonais parcialmente, informando os números e pressionando o botão VERDE.')
+        self.tips.add_tip(error=error5, message='Ao somar os números presentes em uma linha horizontal, o resultado deve ser 15.')
+        self.tips.add_tip(error=error5, message='Ao somar os números de uma coluna vertical, o resultado deve ser 15.')
+        self.tips.add_tip(error=error5, message='Ao somar os números que estão na diagonal, o resultado deve ser 15.')
+        
+        self.tips_errors.append({'error': error1, 'count': 0})
+        self.tips_errors.append({'error': error2, 'count': 0})
+        self.tips_errors.append({'error': error3, 'count': 0})
+        self.tips_errors.append({'error': error4, 'count': 0})
+        self.tips_errors.append({'error': error5, 'count': 0})
+        
     def handle_events(self, events):
         self.game.app.physical_buttons.white_button.set_callback(self.button_white_changed)
         self.game.app.physical_buttons.black_button.set_callback(self.button_black_changed)
@@ -276,9 +312,12 @@ class Phase04(State):
             self.memory.add_fact('tips_times', tips_times + 1)
             
             self.log('Acesso a dicas')
+            emotions = ['neutral0', 'neutral1', 'neutral2']
+            message, image = self.get_message_tips()
             self.teacher.set_message(
-                "Dicas", 
-                "neutral0"
+                message= f'Dica\n\n {message}\n\nPressione o botão VERMELHO para continuar',
+                image_key= emotions[random.randrange(0,len(emotions))],
+                image_explication= image
             )
         
         if self.teacher.has_next_message():
