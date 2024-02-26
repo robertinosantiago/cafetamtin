@@ -121,6 +121,8 @@ class Phase03Feedback(State):
     def exit_state(self):
         #self.memory.get_fact('timer_response').start()
         self.memory.add_fact('tips_times', 0)
+        if self.memory.get_fact('lives') > 0 and self.memory.get_fact('step') <= self.memory.get_fact('max_steps') and len(self.memory.get_fact('blocks_available')) == 0:
+            self.memory.add_fact('reload', True)
         #step = self.memory.get_fact('step')
         #step += 1
         #step = self.memory.add_fact('step', step)
@@ -461,7 +463,7 @@ class Phase03Feedback(State):
                 step = self.memory.get_fact('step')
                 step += 1
                 self.memory.add_fact('step', step)
-                self.memory.add_fact('reload', True)
+                #self.memory.add_fact('reload', True)
                 
         
         self.rules.execute_rules()

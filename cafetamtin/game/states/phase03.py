@@ -119,7 +119,7 @@ class Phase03(State):
         self.memory.add_fact('history_errors', [])
         self.memory.add_fact('tips_times', 0)
         self.memory.add_fact('step', 1)
-        self.memory.add_fact('max_steps', 2)
+        self.memory.add_fact('max_steps', 10)
         self.memory.add_fact('average_time', 120)
         self.memory.add_fact('minimum_time', 5)
         self.memory.add_fact('time_per_step', [])

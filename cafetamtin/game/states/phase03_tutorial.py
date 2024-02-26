@@ -48,26 +48,23 @@ class Phase03Tutorial(State):
         
         self.teacher.set_message(
             f"Oi {self.game.student.nickname}. Você está na terceira fase. "+
-            "Vou explicar como jogá-la. Preste muita atenção.\n"+
-            "\n"+
-            "Pressione o botão VERMELHO para continuar", 
+            "Vou explicar como jogá-la. Preste muita atenção."+
+            "\n\nPressione o botão VERMELHO para continuar",
             "happy0"
         )
         
         self.teacher.set_message(
             "Nesta fase, você irá jogar contra mim. Iremos alternar quem começará "+
             "a jogar, e cada um escolhe um número por vez. O objetivo é obter "+
-            "o maior número de somas 15.\n"+
-            "\n"+
-            "Pressione o botão VERMELHO para continuar",  
+            "o maior número de somas 15."+
+            "\n\nPressione o botão VERMELHO para continuar",
             "neutral1"
         )
         
         self.teacher.set_message(
             "No quadro 'Blocos disponíveis' estão os blocos que você pode selecionar, "+
-            "e no quadro 'Blocos do tutor' estão os blocos que eu já selecionei.\n"+
-            "\n"+
-            "Pressione o botão VERMELHO para continuar",  
+            "e no quadro 'Blocos do tutor' estão os blocos que eu já selecionei."+
+            "\n\nPressione o botão VERMELHO para continuar",
             "neutral1",
             position=(screen_width/2, 160)
         )
@@ -76,16 +73,14 @@ class Phase03Tutorial(State):
             "Em cada jogada, você deve colocar um bloco numerado sobre a "+
             "plataforma e pressionar o botão VERDE para validar a jogada.\n"+
             "Após a validação, o bloco numerado deve permanecer sobre a plataforma."
-            "\n"+
-            "Pressione o botão VERMELHO para continuar",  
+            "\n\nPressione o botão VERMELHO para continuar",
             "neutral2"
         )
         
         self.teacher.set_message(
             "As possíveis somas produzidas pela combinação dos números "+
-            "selecionados por cada um serão exibidas na tela.\n"+
-            "\n"+
-            "Pressione o botão VERMELHO para continuar",  
+            "selecionados por cada um serão exibidas na tela."+
+            "\n\nPressione o botão VERMELHO para continuar",
             "neutral2"
         )
         
