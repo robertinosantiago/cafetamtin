@@ -668,7 +668,10 @@ class Phase01Feedback(State):
         if is_correct:
             self.add_points_score()
         else:
-            self.remove_lives()
+            if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW:
+                self.remove_points_score()
+            else:
+                self.remove_lives()
         
         bonus = False
         if is_correct and response['reaction_time'] < (amount_time / 2):
