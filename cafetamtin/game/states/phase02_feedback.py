@@ -808,9 +808,10 @@ class Phase02Feedback(State):
         if is_correct:
             self.add_points_score()
         else:
-            if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW:
+            if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW and student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_HIGH:
                 self.remove_points_score()
-            else:
+            
+            if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
                 self.remove_lives()
         
         bonus = False
@@ -835,9 +836,7 @@ class Phase02Feedback(State):
             self.memory.add_fact('enable_timer', True)
             if bonus:
                 self.add_bonus_points()
-            
-            if not is_correct:
-                self.remove_points_score()
+
             
         self.memory.add_fact('reset_timer', True)
     
