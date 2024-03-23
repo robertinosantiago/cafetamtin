@@ -37,8 +37,6 @@ class LevelChecks():
         minimum_time = wm.get_fact('minimum_time')
         phase = wm.get_fact('phase')
         
-        self.__get_first_quartil_phase01__(wm)
-        
         if is_correct:
             return False
         
@@ -232,7 +230,7 @@ class LevelChecks():
         return self.__calculate_quartil__(data, minimum_time)
         
     def __calculate_quartil__(self, data, minimum_time):
-        if len(data) == 0:
+        if len(data) <= 1:
             return minimum_time
         
         first_quartil = (len(data) + 1) * 0.25

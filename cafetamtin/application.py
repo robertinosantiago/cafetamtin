@@ -76,7 +76,7 @@ def main(argv):
 @db_session
 def create_user():
     user = DBUser(name='Robertino', nickname='Tino', age=41, gender='M')
-    steps = DBSteps(phase = 1, user=user, score=0, lifes=5)
+    #steps = DBSteps(phase = 1, user=user, score=0, lifes=5)
     board = DBBoard(lines= 7, columns = 7)
     
 
