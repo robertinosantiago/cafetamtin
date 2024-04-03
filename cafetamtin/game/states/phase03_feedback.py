@@ -445,17 +445,19 @@ class Phase03Feedback(State):
             if count_sums_tutor != 0:
                 message += f'Enquanto isso, eu consegui realizar {count_sums_tutor} soma(s) 15.'
             else:
-                message += 'Eu não consegui realizar nenhuma soma 15 .'
+                message += 'Eu não consegui realizar nenhuma soma 15.'
                 
             if self.memory.get_fact('step') < self.memory.get_fact('max_steps'):
                 message += '\nVamos jogar mais uma rodada.'
+            
+            message += '\n\nPressione o botão VERMELHO para continuar'
             
             emotions = ['happy0', 'neutral1', 'neutral2']
             self.teacher.set_message(
                 message, 
                 emotions[random.randrange(0,len(emotions))],
                 modal=False,
-                position=(500, 400)
+                position=(500, 360)
             )
             self.show_possible_sums = True
             
