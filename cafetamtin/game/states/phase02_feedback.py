@@ -808,7 +808,7 @@ class Phase02Feedback(State):
         if is_correct:
             self.add_points_score()
         else:
-            if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW and student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_HIGH:
+            if student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_LOW or student.inhibitory_capacity_online == Student.INHIBITORY_CAPACITY_HIGH:
                 self.remove_points_score()
             
             if student.inhibitory_capacity_online != Student.INHIBITORY_CAPACITY_LOW:
